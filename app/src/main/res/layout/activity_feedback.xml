@@ -17,6 +17,7 @@
         android:orientation="horizontal">
 
         <ImageView
+            android:id="@+id/backBtn"
             android:layout_width="40dp"
             android:layout_height="40dp"
             app:srcCompat="@drawable/back_new" />
@@ -35,7 +36,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:background="#2d2d2d"
         app:cardCornerRadius="25dp">
 
         <LinearLayout
@@ -46,12 +46,14 @@
             android:orientation="vertical">
 
             <EditText
+                android:id="@+id/edittextFeedback"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:hint="Enter your feedback"
                 android:inputType="textLongMessage"/>
 
             <LinearLayout
+                android:id="@+id/sendBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="25dp"
