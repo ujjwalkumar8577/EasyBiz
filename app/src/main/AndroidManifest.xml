@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ujjwalkumar.easybiz">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Design.NoActionBar">
+        <activity android:name=".AddEstimateActivity"></activity>
+        <activity android:name=".EstimateActivity" />
+        <activity android:name=".AddOrderActivity" />
+        <activity android:name=".OrderActivity" />
+        <activity android:name=".AddCustomerActivity" />
+        <activity android:name=".CustomerActivity" />
+        <activity android:name=".ProductActivity" />
+        <activity android:name=".CashCalculatorActivity" />
+        <activity android:name=".StaffActivity" />
+        <activity android:name=".FeedbackActivity" />
+        <activity android:name=".MyAccountActivity" />
+        <activity android:name=".AboutActivity" />
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".MenuActivity" />
+        <activity android:name=".Dashboard" />
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
