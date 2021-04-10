@@ -50,11 +50,18 @@
             </LinearLayout>
 
             <ImageView
-                android:id="@+id/moreBtn"
+                android:id="@+id/feedbackBtn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginRight="5dp"
+                app:srcCompat="@android:drawable/ic_menu_help" />
+
+            <ImageView
+                android:id="@+id/aboutBtn"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginRight="20dp"
-                app:srcCompat="@drawable/more" />
+                app:srcCompat="@android:drawable/ic_menu_info_details" />
 
         </LinearLayout>
 

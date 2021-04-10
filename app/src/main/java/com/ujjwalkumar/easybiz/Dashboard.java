@@ -12,7 +12,7 @@ import android.widget.TextView;
 public class Dashboard extends AppCompatActivity {
 
     private TextView textviewUserName,textviewUserType;
-    private ImageView myAccountBtn,moreBtn;
+    private ImageView myAccountBtn,feedbackBtn,aboutBtn;
     private CardView cardview1,cardview2,cardview3,cardview4,cardview5,cardview6,cardview7,cardview8;
 
     private Intent in = new Intent();
@@ -25,7 +25,8 @@ public class Dashboard extends AppCompatActivity {
         textviewUserName = findViewById(R.id.textviewUserName);
         textviewUserType = findViewById(R.id.textviewUserType);
         myAccountBtn = findViewById(R.id.myAccountBtn);
-        moreBtn = findViewById(R.id.moreBtn);
+        feedbackBtn = findViewById(R.id.feedbackBtn);
+        aboutBtn = findViewById(R.id.aboutBtn);
         cardview1 = findViewById(R.id.cardview1);
         cardview2 = findViewById(R.id.cardview2);
         cardview3 = findViewById(R.id.cardview3);
@@ -45,10 +46,23 @@ public class Dashboard extends AppCompatActivity {
             }
         });
 
-        moreBtn.setOnClickListener(new View.OnClickListener() {
+        feedbackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                in.setAction(Intent.ACTION_VIEW);
+                in.setClass(getApplicationContext(), FeedbackActivity.class);
+                in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(in);
+            }
+        });
 
+        aboutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                in.setAction(Intent.ACTION_VIEW);
+                in.setClass(getApplicationContext(), AboutActivity.class);
+                in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(in);
             }
         });
 
