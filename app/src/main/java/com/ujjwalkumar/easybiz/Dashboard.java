@@ -3,7 +3,9 @@ package com.ujjwalkumar.easybiz;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -15,6 +17,7 @@ public class Dashboard extends AppCompatActivity {
     private ImageView myAccountBtn,feedbackBtn,aboutBtn;
     private CardView cardview1,cardview2,cardview3,cardview4,cardview5,cardview6,cardview7,cardview8;
 
+    private SharedPreferences details;
     private Intent in = new Intent();
 
     @Override
@@ -35,6 +38,10 @@ public class Dashboard extends AppCompatActivity {
         cardview6 = findViewById(R.id.cardview6);
         cardview7 = findViewById(R.id.cardview7);
         cardview8 = findViewById(R.id.cardview8);
+
+        details = getSharedPreferences("user", Activity.MODE_PRIVATE);
+        textviewUserName.setText(details.getString("name", ""));
+        textviewUserType.setText(details.getString("type", ""));
 
         myAccountBtn.setOnClickListener(new View.OnClickListener() {
             @Override
