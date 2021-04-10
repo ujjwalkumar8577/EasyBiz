@@ -110,6 +110,7 @@ public class MyAccountActivity extends AppCompatActivity {
                 in.setClass(getApplicationContext(),Dashboard.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
+                finish();
             }
         });
 

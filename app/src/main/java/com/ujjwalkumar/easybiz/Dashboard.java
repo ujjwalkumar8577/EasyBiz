@@ -50,6 +50,7 @@ public class Dashboard extends AppCompatActivity {
                 in.setClass(getApplicationContext(), MyAccountActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
+                finish();
             }
         });
 
@@ -60,6 +61,7 @@ public class Dashboard extends AppCompatActivity {
                 in.setClass(getApplicationContext(), FeedbackActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
+                finish();
             }
         });
 
@@ -70,6 +72,7 @@ public class Dashboard extends AppCompatActivity {
                 in.setClass(getApplicationContext(), AboutActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
+                finish();
             }
         });
 
@@ -80,6 +83,7 @@ public class Dashboard extends AppCompatActivity {
                 in.setClass(getApplicationContext(), AddEstimateActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
+                finish();
             }
         });
 
@@ -90,6 +94,7 @@ public class Dashboard extends AppCompatActivity {
                 in.setClass(getApplicationContext(), EstimateActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
+                finish();
             }
         });
 
@@ -100,6 +105,7 @@ public class Dashboard extends AppCompatActivity {
                 in.setClass(getApplicationContext(), AddOrderActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
+                finish();
             }
         });
 
@@ -110,6 +116,7 @@ public class Dashboard extends AppCompatActivity {
                 in.setClass(getApplicationContext(), OrderActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
+                finish();
             }
         });
 
@@ -120,6 +127,7 @@ public class Dashboard extends AppCompatActivity {
                 in.setClass(getApplicationContext(), AddCustomerActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
+                finish();
             }
         });
 
@@ -130,6 +138,7 @@ public class Dashboard extends AppCompatActivity {
                 in.setClass(getApplicationContext(), CustomerActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
+                finish();
             }
         });
 
@@ -140,6 +149,7 @@ public class Dashboard extends AppCompatActivity {
                 in.setClass(getApplicationContext(), CashCalculatorActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
+                finish();
             }
         });
 
@@ -150,6 +160,7 @@ public class Dashboard extends AppCompatActivity {
                 in.setClass(getApplicationContext(), ProductActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
+                finish();
             }
         });
 
