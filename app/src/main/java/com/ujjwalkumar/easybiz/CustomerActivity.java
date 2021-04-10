@@ -1,9 +1,13 @@
 package com.ujjwalkumar.easybiz;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -41,8 +45,14 @@ public class CustomerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_customer);
 
+        com.google.firebase.FirebaseApp.initializeApp(this);
+
         backBtn = findViewById(R.id.backBtn);
         listviewCustomer = findViewById(R.id.listviewCustomer);
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 1000);
+        }
 
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
