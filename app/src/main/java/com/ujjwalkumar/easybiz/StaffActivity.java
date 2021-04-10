@@ -11,8 +11,6 @@ public class StaffActivity extends AppCompatActivity {
 
     private ImageView backBtn;
 
-    private Intent in = new Intent();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,6 +19,7 @@ public class StaffActivity extends AppCompatActivity {
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent in = new Intent();
                 in.setAction(Intent.ACTION_VIEW);
                 in.setClass(getApplicationContext(),MenuActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);

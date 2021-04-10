@@ -17,8 +17,6 @@ public class ProductActivity extends AppCompatActivity {
     ImageView addItemBtn;
     private ImageView backBtn;
 
-    private Intent in = new Intent();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,6 +26,7 @@ public class ProductActivity extends AppCompatActivity {
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent in = new Intent();
                 in.setAction(Intent.ACTION_VIEW);
                 in.setClass(getApplicationContext(),Dashboard.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);

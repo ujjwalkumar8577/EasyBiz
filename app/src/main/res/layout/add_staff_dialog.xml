@@ -53,6 +53,19 @@
         android:text=""
         android:textColor="#ffffff" />
 
+    <EditText
+        android:id="@+id/editTextDialogUserInput4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="#2d2d2d"
+        android:imeOptions="actionDone"
+        android:hint="Enter phone number"
+        android:inputType="phone"
+        android:padding="8dp"
+        android:text=""
+        android:textColor="#ffffff" />
+
     <Spinner
         android:id="@+id/dialogSpinnerRole"
         android:layout_width="match_parent"

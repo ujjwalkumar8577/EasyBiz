@@ -11,8 +11,6 @@ public class FeedbackActivity extends AppCompatActivity {
 
     private ImageView backBtn;
 
-    private Intent in = new Intent();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,8 +19,9 @@ public class FeedbackActivity extends AppCompatActivity {
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent in = new Intent();
                 in.setAction(Intent.ACTION_VIEW);
-                in.setClass(getApplicationContext(),MenuActivity.class);
+                in.setClass(getApplicationContext(),Dashboard.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
             }

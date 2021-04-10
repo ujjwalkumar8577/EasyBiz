@@ -22,7 +22,6 @@ public class CashCalculatorActivity extends AppCompatActivity {
     private TextView textviewDate,textview1,textview2,textview3,textview4,textview5,textview6,textview7,textview8,textview9,textviewTotalNotes,textviewTotalAmount;
     private EditText edittext1,edittext2,edittext3,edittext4,edittext5,edittext6,edittext7,edittext8,edittext9;
 
-    private Intent in = new Intent();
     private Calendar cal = Calendar.getInstance();
 
     private double d2000 = 0;
@@ -83,6 +82,7 @@ public class CashCalculatorActivity extends AppCompatActivity {
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent in = new Intent();
                 in.setAction(Intent.ACTION_VIEW);
                 in.setClass(getApplicationContext(),Dashboard.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);

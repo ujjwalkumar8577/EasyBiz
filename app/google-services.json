@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "470780676017",
+    "project_id": "easybiz-8577",
+    "storage_bucket": "easybiz-8577.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:470780676017:android:8e9ce60b672d3f98119f90",
+        "android_client_info": {
+          "package_name": "com.ujjwalkumar.easybiz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "470780676017-7rtnhjll411it1lsjk6ji9j6najd5oas.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3SSDGSRY3LPgXBxVk596NJi5w_HqOASQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "470780676017-7rtnhjll411it1lsjk6ji9j6najd5oas.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
