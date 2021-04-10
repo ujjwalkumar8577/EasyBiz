@@ -10,10 +10,21 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
 
+    <string name="google_maps_key" translatable="false">AIzaSyAXUPopog4HsWtomJ6Bm51TPMyyP1mpoRY</string>
+
     <string-array name="roles_array">
         <item>- Select Role -</item>
         <item>Staff</item>
         <item>Admin</item>
+    </string-array>
+
+    <string-array name="areas_array">
+        <item>- Select Area -</item>
+        <item>Area 1</item>
+        <item>Area 2</item>
+        <item>Area 3</item>
+        <item>Area 4</item>
+        <item>Area 5</item>
     </string-array>
 
 </resources>

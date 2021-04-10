@@ -1,0 +1,87 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textviewItemName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:text="Item name"
+            android:textStyle="bold"
+            android:textColor="#ffffff"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:text="₹"
+            android:textColor="#ffffff" />
+
+        <TextView
+            android:id="@+id/textviewItemPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:text="1000"
+            android:textColor="#ffffff"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginRight="4dp"
+            android:gravity="center_horizontal|center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/imageviewminus"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginLeft="5dp"
+                android:src="@drawable/minus"
+                android:scaleType="centerCrop" />
+
+            <TextView
+                android:id="@+id/textviewqty"
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:paddingLeft="2dp"
+                android:paddingTop="5dp"
+                android:paddingRight="2dp"
+                android:paddingBottom="5dp"
+                android:gravity="center_horizontal"
+                android:text="0"
+                android:textStyle="bold"
+                android:textColor="#ffffff" />
+
+            <ImageView
+                android:id="@+id/imageviewplus"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginRight="5dp"
+                android:src="@drawable/plus"
+                android:scaleType="centerCrop" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
