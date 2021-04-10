@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -14,9 +15,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Timer timer = new Timer();
     private TimerTask Splash;
-    private Intent in = new Intent();
 
-    LottieAnimationView animationView;
+    private LottieAnimationView animationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,8 +29,14 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        Intent in = new Intent();
                         in.setAction(Intent.ACTION_VIEW);
-                        in.setClass(getApplicationContext(), MenuActivity.class);
+
+                        if(FirebaseAuth.getInstance().getCurrentUser()!=null)
+                            in.setClass(getApplicationContext(), Dashboard.class);
+                        else
+                            in.setClass(getApplicationContext(), LoginActivity.class);
+
                         in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                         startActivity(in);
                         finish();
@@ -38,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         };
-        timer.schedule(Splash, (int)1500);
+        timer.schedule(Splash, 1500);
 
     }
 }

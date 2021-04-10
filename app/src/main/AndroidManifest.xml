@@ -22,7 +22,6 @@
         <activity android:name=".MyAccountActivity" />
         <activity android:name=".AboutActivity" />
         <activity android:name=".LoginActivity" />
-        <activity android:name=".MenuActivity" />
         <activity android:name=".Dashboard" />
         <activity android:name=".MainActivity">
             <intent-filter>
