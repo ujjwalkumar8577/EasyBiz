@@ -51,15 +51,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/textviewday"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="4dp"
-                    android:text="Day"
-                    android:textSize="12sp"
-                    android:textColor="#FFFFFF"/>
-                <TextView
-                    android:id="@+id/textviewdate"
+                    android:id="@+id/textviewDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="20dp"
