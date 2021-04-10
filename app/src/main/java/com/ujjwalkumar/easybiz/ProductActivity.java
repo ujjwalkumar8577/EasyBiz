@@ -1,21 +1,45 @@
 package com.ujjwalkumar.easybiz;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
+import com.ujjwalkumar.easybiz.helper.Item;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ProductActivity extends AppCompatActivity {
 
-    ImageView addItemBtn;
-    private ImageView backBtn;
+    String id,name,price,weight;
+    private HashMap<String, String> mp = new HashMap<>();
+    private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
+
+    private ImageView backBtn,addItemBtn,syncItemBtn;
+    private ListView listviewItem;
+
+    private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+    private DatabaseReference dbref = fbdb.getReference("items");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +47,10 @@ public class ProductActivity extends AppCompatActivity {
         setContentView(R.layout.activity_product);
 
         backBtn = findViewById(R.id.backBtn);
+        addItemBtn = findViewById(R.id.addItemBtn);
+        syncItemBtn = findViewById(R.id.syncItemBtn);
+        listviewItem = findViewById(R.id.listviewItem);
+
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -34,8 +62,6 @@ public class ProductActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-        addItemBtn = findViewById(R.id.addItemBtn);
 
         addItemBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,9 +84,16 @@ public class ProductActivity extends AppCompatActivity {
                         .setPositiveButton("Add",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog,int id) {
-                                        // get user input and set it to result
-                                        String ans = userInput1.getText() + " " + userInput2.getText() + " " + userInput3.getText();
-                                        Toast.makeText(ProductActivity.this, ans, Toast.LENGTH_SHORT).show();
+                                        // get user input
+                                        String itemID = dbref.push().getKey();
+                                        String name = userInput1.getText().toString();
+                                        String price = userInput2.getText().toString();
+                                        String weight = userInput3.getText().toString();
+
+                                        Item item = new Item(itemID,name,price,weight);
+                                        dbref.child(itemID).setValue(item);
+                                        Toast.makeText(ProductActivity.this, "Adding "+name, Toast.LENGTH_SHORT).show();
+                                        loadList();
                                     }
                                 })
                         .setNegativeButton("Cancel",
@@ -77,5 +110,88 @@ public class ProductActivity extends AppCompatActivity {
             }
         });
 
+        syncItemBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(ProductActivity.this, "Syncining items ...", Toast.LENGTH_SHORT).show();
+                syncItems();
+            }
+        });
+
+        loadList();
+
+    }
+
+    private void loadList() {
+        dbref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                filtered = new ArrayList<>();
+                try {
+                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {
+                    };
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        HashMap<String, String> map = data.getValue(ind);
+                        filtered.add(map);
+                    }
+                    listviewItem.setAdapter(new ListviewItemAdapter1(filtered));
+                    ((BaseAdapter)listviewItem.getAdapter()).notifyDataSetChanged();
+                }
+                catch (Exception e) {
+                    Toast.makeText(ProductActivity.this, "An exception occured", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError _databaseError) {
+            }
+        });
+    }
+
+    private void syncItems() {
+        loadList();
+    }
+
+    public class ListviewItemAdapter1 extends BaseAdapter {
+        ArrayList<HashMap<String, String>> data;
+
+        public ListviewItemAdapter1(ArrayList<HashMap<String, String>> arr) {
+            data = arr;
+        }
+
+        @Override
+        public int getCount() {
+            return data.size();
+        }
+
+        @Override
+        public HashMap<String, String> getItem(int index) {
+            return data.get(index);
+        }
+
+        @Override
+        public long getItemId(int index) {
+            return index;
+        }
+
+        @Override
+        public View getView(final int position, View view, ViewGroup viewGroup) {
+            LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View v = view;
+            if (v == null) {
+                v = inflater.inflate(R.layout.items1, null);
+            }
+
+            final TextView textViewItemName = (TextView) v.findViewById(R.id.textViewItemName);
+            final TextView textViewItemPrice = (TextView) v.findViewById(R.id.textViewItemPrice);
+            final TextView textViewItemWeight = (TextView) v.findViewById(R.id.textViewItemWeight);
+
+            textViewItemName.setText(filtered.get(position).get("name").toString());
+            textViewItemPrice.setText(filtered.get(position).get("price").toString());
+            textViewItemWeight.setText(filtered.get(position).get("weight").toString());
+
+            return v;
+        }
     }
 }

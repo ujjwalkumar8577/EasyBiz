@@ -183,9 +183,19 @@
                     android:layout_weight="1" />
 
                 <ImageView
+                    android:id="@+id/syncItemBtn"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="20dp"
+                    android:background="@android:drawable/stat_notify_sync_noanim"
+                    android:scaleType="centerCrop"
+                    android:src="@android:drawable/stat_notify_sync_noanim" />
+
+                <ImageView
                     android:id="@+id/addItemBtn"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:layout_marginLeft="20dp"
                     android:scaleType="centerCrop"
                     android:src="@drawable/add" />
 
