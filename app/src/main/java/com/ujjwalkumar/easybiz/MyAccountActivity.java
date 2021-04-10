@@ -1,7 +1,10 @@
 package com.ujjwalkumar.easybiz;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -29,19 +33,21 @@ import java.util.ArrayList;
 
 public class MyAccountActivity extends AppCompatActivity {
 
+    private String name,email,password,uid,type,number;
+
     private ImageView backBtn,addStaffBtn;
-    private TextView textviewUid,textviewName,textviewEmail,textviewType;
+    private TextView textviewUid,textviewName,textviewEmail,textviewNumber,textviewType;
     private Spinner dialogSpinnerRole;
     private LinearLayout logoutBtn;
+    private CardView createStaffView;
     private ListView listviewStaff;
 
     private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private DatabaseReference dbref = fbdb.getReference("users");
-    private SharedPreferences details;
+    private SharedPreferences details,rates;
     private FirebaseAuth auth;
-    private OnCompleteListener<AuthResult> _auth_create_user_listener;
-    private OnCompleteListener<AuthResult> _auth_sign_in_listener;
-    private OnCompleteListener<Void> _auth_reset_password_listener;
+    private OnCompleteListener<AuthResult> auth_create_user_listener;
+    private OnCompleteListener<AuthResult> auth_sign_in_listener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +61,46 @@ public class MyAccountActivity extends AppCompatActivity {
         textviewUid = findViewById(R.id.textviewUid);
         textviewName = findViewById(R.id.textviewName);
         textviewEmail = findViewById(R.id.textviewEmail);
+        textviewNumber = findViewById(R.id.textviewNumber);
         textviewType = findViewById(R.id.textviewType);
         logoutBtn = findViewById(R.id.logoutBtn);
         dialogSpinnerRole = findViewById(R.id.dialogSpinnerRole);
+        createStaffView = findViewById(R.id.createStaffView);
         listviewStaff = findViewById(R.id.listviewStaff);
 
+        details = getSharedPreferences("user", Activity.MODE_PRIVATE);
+        rates = getSharedPreferences("items", Activity.MODE_PRIVATE);
+        textviewUid.setText(details.getString("uid", ""));
+        textviewName.setText(details.getString("name", ""));
+        textviewEmail.setText(details.getString("email", ""));
+        textviewNumber.setText(details.getString("number", ""));
+        textviewType.setText(details.getString("type", ""));
+        if (details.getString("type", "").equals("Admin")) {
+            createStaffView.setVisibility(View.VISIBLE);
+        } else {
+            createStaffView.setVisibility(View.GONE);
+        }
+
+        loadList();
+
+        auth_create_user_listener = new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(Task<AuthResult> _param1) {
+                final boolean _success = _param1.isSuccessful();
+                final String _errorMessage = _param1.getException() != null ? _param1.getException().getMessage() : "";
+                if (_success) {
+                    Toast.makeText(MyAccountActivity.this, "New user created successfully", Toast.LENGTH_SHORT).show();
+                    uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    User user = new User(name,email,password,uid,type,number);
+                    dbref.child(uid).setValue(user);
+                    FirebaseAuth.getInstance().signOut();
+                    auth.signInWithEmailAndPassword(details.getString("email", ""), details.getString("password", "")).addOnCompleteListener(MyAccountActivity.this, auth_sign_in_listener);
+                    loadList();
+                } else {
+                    Toast.makeText(MyAccountActivity.this, _errorMessage, Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
 
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,21 +136,15 @@ public class MyAccountActivity extends AppCompatActivity {
                         .setPositiveButton("Add",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog,int id) {
+                                        // get user input
+                                        uid = "uidNotSet";
+                                        name = userInput1.getText().toString();
+                                        email = userInput2.getText().toString();
+                                        password = userInput3.getText().toString();
+                                        number = userInput4.getText().toString();
+                                        type = dialogSpinnerRole.getSelectedItem().toString();
 
-                                        // get user input and set it to result
-                                        String ans = userInput1.getText() + " " + userInput2.getText() + " " + userInput3.getText();
-                                        Toast.makeText(MyAccountActivity.this, ans, Toast.LENGTH_SHORT).show();
-
-                                        String uid = "12345678";
-                                        String name = userInput1.getText().toString();
-                                        String email = userInput2.getText().toString();
-                                        String password = userInput3.getText().toString();
-                                        String number = userInput4.getText().toString();
-                                        String type = dialogSpinnerRole.getSelectedItem().toString();
-
-                                        User user = new User(name,email,password,uid,type,number);
-                                        dbref.child(uid).setValue(user);
-
+                                        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(MyAccountActivity.this, auth_create_user_listener);
                                     }
                                 })
                         .setNegativeButton("Cancel",
@@ -142,4 +177,10 @@ public class MyAccountActivity extends AppCompatActivity {
         });
 
     }
+
+    private void loadList() {
+
+
+    }
+
 }
