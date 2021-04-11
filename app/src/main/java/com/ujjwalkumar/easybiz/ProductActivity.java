@@ -114,7 +114,7 @@ public class ProductActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Toast.makeText(ProductActivity.this, "Syncining items ...", Toast.LENGTH_SHORT).show();
-                syncItems();
+                loadList();
             }
         });
 
@@ -138,7 +138,7 @@ public class ProductActivity extends AppCompatActivity {
                     ((BaseAdapter)listviewItem.getAdapter()).notifyDataSetChanged();
                 }
                 catch (Exception e) {
-                    Toast.makeText(ProductActivity.this, "An exception occured", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProductActivity.this, "An exception occurred", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
             }
@@ -147,10 +147,6 @@ public class ProductActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError _databaseError) {
             }
         });
-    }
-
-    private void syncItems() {
-        loadList();
     }
 
     public class ListviewItemAdapter1 extends BaseAdapter {
