@@ -12,7 +12,7 @@
 
 [PPT](https://drive.google.com/drive/folders/1o3edONGYjBb_8QBdeNu1M8S_WaDgfWES?usp=sharing)
 
-[apk](https://drive.google.com/drive/folders/1o3edONGYjBb_8QBdeNu1M8S_WaDgfWES?usp=sharing)
+[APK](https://drive.google.com/drive/folders/1o3edONGYjBb_8QBdeNu1M8S_WaDgfWES?usp=sharing)
 
 
 ## Technology Stack
