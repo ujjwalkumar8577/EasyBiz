@@ -67,6 +67,8 @@ public class FeedbackActivity extends AppCompatActivity {
 
                     Feedback feedback = new Feedback(message,user,name,email);
                     dbref.child(dbref.push().getKey()).setValue(feedback);
+                    Toast.makeText(FeedbackActivity.this, "Message sent", Toast.LENGTH_SHORT).show();
+                    edittextFeedback.setText("");
                 }
             }
         });

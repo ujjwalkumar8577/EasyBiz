@@ -138,16 +138,16 @@
                     android:text="Add"
                     android:background="#000000"
                     android:layout_weight="1"/>
-<!--                <Button-->
-<!--                    android:id="@+id/clearBtn"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_marginLeft="10dp"-->
-<!--                    android:layout_marginRight="10dp"-->
-<!--                    android:padding="8dp"-->
-<!--                    android:text="Clear"-->
-<!--                    android:background="#000000"-->
-<!--                    android:layout_weight="1"/>-->
+                <Button
+                    android:id="@+id/clearBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:padding="8dp"
+                    android:text="Clear"
+                    android:background="#000000"
+                    android:layout_weight="1"/>
             </LinearLayout>
 
 

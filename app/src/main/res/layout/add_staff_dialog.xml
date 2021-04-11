@@ -46,7 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:background="#2d2d2d"
-        android:imeOptions="actionDone"
+        android:imeOptions="actionNext"
         android:hint="Enter password"
         android:inputType="textPassword"
         android:padding="8dp"

@@ -2,10 +2,12 @@ package com.ujjwalkumar.easybiz;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,20 +27,22 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+import com.ujjwalkumar.easybiz.helper.Order;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 
 public class AddOrderActivity extends AppCompatActivity {
 
-    private String name,custID;
-    String[] customers;
+    String custID,orderID,name,user,lat,lng,area,address,contact,cartLmp,delTime,status;
+    private String[] customers;
     private HashMap<String, String> mp = new HashMap<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
+    private ArrayList<HashMap<String, String>> clmp = new ArrayList<>();
     private ArrayList<String> al = new ArrayList<>();
-
-    private HashMap<String, String> tmp = new HashMap<>();
-    private HashMap<String, String> seller = new HashMap<>();
     private HashMap<String, String> itm = new HashMap<>();
     private ArrayList<HashMap<String, String>> cart = new ArrayList<>();
     private double amt = 0;
@@ -50,9 +54,11 @@ public class AddOrderActivity extends AppCompatActivity {
     private Button addBtn,clearBtn;
 
     private AlertDialog.Builder exit;
+    private SharedPreferences details;
     private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private DatabaseReference dbref = fbdb.getReference("customers");
     private DatabaseReference dbref2 = fbdb.getReference("items");
+    private DatabaseReference dbref3 = fbdb.getReference("orders");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,16 +67,16 @@ public class AddOrderActivity extends AppCompatActivity {
 
         backBtn = findViewById(R.id.backBtn);
         addBtn = findViewById(R.id.addBtn);
-//        clearBtn = findViewById(R.id.clearBtn);
+        clearBtn = findViewById(R.id.clearBtn);
         listview = findViewById(R.id.listview);
         autoCompleteName = findViewById(R.id.autoCompleteName);
         textviewamt = findViewById(R.id.textviewamt);
         exit = new AlertDialog.Builder(this);
+        details = getSharedPreferences("user", Activity.MODE_PRIVATE);
 
+        clear();
         loadCustomers();
         loadList();
-        name = "";
-        custID = "-1";
 
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,19 +93,58 @@ public class AddOrderActivity extends AppCompatActivity {
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                HashMap<String, String> tmp = new HashMap<>();
+
+                name = autoCompleteName.getText().toString();
+                if(!name.equals("")) {
+                    if(amt!=0) {
+                        for(HashMap<String, String> map : clmp) {
+                            if(map.containsKey("name")&&map.get("name").equals(name)) {
+                                tmp = map;
+                                custID = map.get("custID");
+                            }
+                        }
+
+                        if(custID.equals("-1")) {
+                            Toast.makeText(AddOrderActivity.this, "Select customer from list or add new customer", Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            orderID = dbref3.push().getKey();
+                            user = details.getString("name", "");
+                            lat = tmp.get("lat");
+                            lng = tmp.get("lng");
+                            area = tmp.get("area");
+                            address = tmp.get("address");
+                            contact = tmp.get("contact");
+                            cartLmp = new Gson().toJson(cart);
+
+                            Order order = new Order(orderID,name,user,lat,lng,area,address,contact,cartLmp);
+                            Calendar cal = Calendar.getInstance();
+                            cal.setTimeInMillis(Long.parseLong(order.getDelTime()));
+                            String key = new SimpleDateFormat("yyyyMMdd").format(cal.getTime());
+
+                            dbref3.child(key).child(orderID).setValue(order);
+                            Toast.makeText(AddOrderActivity.this, "Added successfully", Toast.LENGTH_SHORT).show();
+                            clear();
+                        }
+                    }
+                    else {
+                        Toast.makeText(AddOrderActivity.this, "Cart empty", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else {
+                    Toast.makeText(AddOrderActivity.this, "Customer name required", Toast.LENGTH_SHORT).show();
+                }
 
             }
         });
 
-//        clearBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                name = "";
-//                custID = "-1";
-//                autoCompleteName.setText("");
-//                textviewamt.setText("0");
-//            }
-//        });
+        clearBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clear();
+            }
+        });
     }
 
     @Override
@@ -126,25 +171,35 @@ public class AddOrderActivity extends AppCompatActivity {
         exit.create().show();
     }
 
-    private void loadCustomers() {
+    private void clear() {
+        cart = new ArrayList<>();
+        amt = 0;
+        name = "";
+        custID = "-1";
+        autoCompleteName.setText("");
+        setAmount(amt);
+    }
 
+    private void loadCustomers() {
         dbref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 al = new ArrayList<>();
+                clmp = new ArrayList<>();
                 try {
                     GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {
                     };
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         HashMap<String, String> map = data.getValue(ind);
+                        clmp.add(map);
                         al.add(map.get("name"));
                     }
 
                     customers = new String[al.size()];
                     customers = al.toArray(customers);
 
-                    //Creating the instance of ArrayAdapter containing list of language names
-                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_dropdown_item_1line,customers);
+                    //Creating the instance of ArrayAdapter containing list of customers
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_dropdown_item_1line);
 
                     //Getting the instance of AutoCompleteTextView
                     autoCompleteName.setThreshold(2);                       //will start working from first character
@@ -158,11 +213,11 @@ public class AddOrderActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(DatabaseError _databaseError) {
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(AddOrderActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
-
 
     private void loadList() {
         dbref2.addValueEventListener(new ValueEventListener() {
@@ -226,8 +281,6 @@ public class AddOrderActivity extends AppCompatActivity {
             final TextView textviewItemQty = (TextView) v.findViewById(R.id.textviewItemQty);
             final ImageView imageviewminus = (ImageView) v.findViewById(R.id.imageviewminus);
             final ImageView imageviewplus = (ImageView) v.findViewById(R.id.imageviewplus);
-
-            int qty = Integer.parseInt(textviewItemQty.getText().toString());
 
             textviewItemName.setText(filtered.get(position).get("name").toString());
             textviewItemPrice.setText(filtered.get(position).get("price").toString());
