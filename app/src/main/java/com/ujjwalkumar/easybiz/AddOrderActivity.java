@@ -61,7 +61,7 @@ public class AddOrderActivity extends AppCompatActivity {
 
         backBtn = findViewById(R.id.backBtn);
         addBtn = findViewById(R.id.addBtn);
-        clearBtn = findViewById(R.id.clearBtn);
+//        clearBtn = findViewById(R.id.clearBtn);
         listview = findViewById(R.id.listview);
         autoCompleteName = findViewById(R.id.autoCompleteName);
         textviewamt = findViewById(R.id.textviewamt);
@@ -91,15 +91,15 @@ public class AddOrderActivity extends AppCompatActivity {
             }
         });
 
-        clearBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                name = "";
-                custID = "-1";
-                autoCompleteName.setText("");
-                textviewamt.setText("0");
-            }
-        });
+//        clearBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                name = "";
+//                custID = "-1";
+//                autoCompleteName.setText("");
+//                textviewamt.setText("0");
+//            }
+//        });
     }
 
     @Override
@@ -239,8 +239,8 @@ public class AddOrderActivity extends AppCompatActivity {
                     itm = filtered.get(position);
                     textviewItemQty.setText(String.valueOf((long) (Double.parseDouble(textviewItemQty.getText().toString()) + 1)));
                     itm.put("qty", textviewItemQty.getText().toString());
-                    amt = amt + Double.parseDouble(filtered.get((int) position).get("price").toString());
-                    textviewamt.setText(textviewamt.getText().toString());
+                    amt = amt + Double.parseDouble(filtered.get(position).get("price"));
+                    setAmount(amt);
                     int t = 0;
                     for (int _repeat105 = 0; _repeat105 < (int) (cart.size()); _repeat105++) {
                         if (cart.get((int) t).get("id").toString().equals(filtered.get((int) position).get("id").toString())) {
@@ -259,8 +259,8 @@ public class AddOrderActivity extends AppCompatActivity {
                         itm = filtered.get(position);
                         textviewItemQty.setText(String.valueOf((long) (Double.parseDouble(textviewItemQty.getText().toString()) - 1)));
                         itm.put("qty", textviewItemQty.getText().toString());
-                        amt = amt - Double.parseDouble(filtered.get(position).get("price").toString());
-                        textviewamt.setText(textviewamt.getText().toString());
+                        amt = amt - Double.parseDouble(filtered.get(position).get("price"));
+                        setAmount(amt);
                         int t = 0;
                         for (int _repeat150 = 0; _repeat150 < (int) (cart.size()); _repeat150++) {
                             if (cart.get((int) t).get("id").toString().equals(filtered.get((int) position).get("id").toString())) {
@@ -278,6 +278,10 @@ public class AddOrderActivity extends AppCompatActivity {
 
             return v;
         }
+    }
+
+    void setAmount(double amount) {
+        textviewamt.setText(String.valueOf(amount));
     }
 
 }
