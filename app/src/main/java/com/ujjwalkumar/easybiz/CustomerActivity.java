@@ -5,7 +5,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -67,6 +69,31 @@ public class CustomerActivity extends AppCompatActivity {
         });
 
         loadList();
+    }
+
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder exit = new AlertDialog.Builder(this);
+        exit.setTitle("Exit");
+        exit.setMessage("Do you want to exit?");
+        exit.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface _dialog, int _which) {
+                Intent inf = new Intent();
+                inf.setAction(Intent.ACTION_VIEW);
+                inf.setClass(getApplicationContext(), Dashboard.class);
+                inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(inf);
+                finish();
+            }
+        });
+        exit.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface _dialog, int _which) {
+
+            }
+        });
+        exit.create().show();
     }
 
     private void loadList() {

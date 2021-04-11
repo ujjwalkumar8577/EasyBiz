@@ -2,7 +2,9 @@ package com.ujjwalkumar.easybiz;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -35,12 +37,19 @@ public class AddOrderActivity extends AppCompatActivity {
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
     private ArrayList<String> al = new ArrayList<>();
 
+    private HashMap<String, String> tmp = new HashMap<>();
+    private HashMap<String, String> seller = new HashMap<>();
+    private HashMap<String, String> itm = new HashMap<>();
+    private ArrayList<HashMap<String, String>> cart = new ArrayList<>();
+    private double amt = 0;
+
     private ImageView backBtn;
     private AutoCompleteTextView autoCompleteName;
     private ListView listview;
     private TextView textviewamt;
     private Button addBtn,clearBtn;
 
+    private AlertDialog.Builder exit;
     private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private DatabaseReference dbref = fbdb.getReference("customers");
     private DatabaseReference dbref2 = fbdb.getReference("items");
@@ -56,6 +65,7 @@ public class AddOrderActivity extends AppCompatActivity {
         listview = findViewById(R.id.listview);
         autoCompleteName = findViewById(R.id.autoCompleteName);
         textviewamt = findViewById(R.id.textviewamt);
+        exit = new AlertDialog.Builder(this);
 
         loadCustomers();
         loadList();
@@ -90,6 +100,30 @@ public class AddOrderActivity extends AppCompatActivity {
                 textviewamt.setText("0");
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        exit.setTitle("Exit");
+        exit.setMessage("Do you want to exit?");
+        exit.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface _dialog, int _which) {
+                Intent inf = new Intent();
+                inf.setAction(Intent.ACTION_VIEW);
+                inf.setClass(getApplicationContext(), Dashboard.class);
+                inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(inf);
+                finish();
+            }
+        });
+        exit.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface _dialog, int _which) {
+
+            }
+        });
+        exit.create().show();
     }
 
     private void loadCustomers() {
@@ -190,14 +224,57 @@ public class AddOrderActivity extends AppCompatActivity {
             final TextView textviewItemName = (TextView) v.findViewById(R.id.textviewItemName);
             final TextView textviewItemPrice = (TextView) v.findViewById(R.id.textviewItemPrice);
             final TextView textviewItemQty = (TextView) v.findViewById(R.id.textviewItemQty);
+            final ImageView imageviewminus = (ImageView) v.findViewById(R.id.imageviewminus);
+            final ImageView imageviewplus = (ImageView) v.findViewById(R.id.imageviewplus);
 
             int qty = Integer.parseInt(textviewItemQty.getText().toString());
 
             textviewItemName.setText(filtered.get(position).get("name").toString());
             textviewItemPrice.setText(filtered.get(position).get("price").toString());
-            textviewItemQty.setText(qty);
+            textviewItemQty.setText("0");
 
-
+            imageviewplus.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View _view) {
+                    itm = filtered.get(position);
+                    textviewItemQty.setText(String.valueOf((long) (Double.parseDouble(textviewItemQty.getText().toString()) + 1)));
+                    itm.put("qty", textviewItemQty.getText().toString());
+                    amt = amt + Double.parseDouble(filtered.get((int) position).get("price").toString());
+                    textviewamt.setText(textviewamt.getText().toString());
+                    int t = 0;
+                    for (int _repeat105 = 0; _repeat105 < (int) (cart.size()); _repeat105++) {
+                        if (cart.get((int) t).get("id").toString().equals(filtered.get((int) position).get("id").toString())) {
+                            cart.remove((int) (t));
+                            break;
+                        }
+                        t++;
+                    }
+                    cart.add(itm);
+                }
+            });
+            imageviewminus.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View _view) {
+                    if (Double.parseDouble(textviewItemQty.getText().toString()) > 0) {
+                        itm = filtered.get(position);
+                        textviewItemQty.setText(String.valueOf((long) (Double.parseDouble(textviewItemQty.getText().toString()) - 1)));
+                        itm.put("qty", textviewItemQty.getText().toString());
+                        amt = amt - Double.parseDouble(filtered.get(position).get("price").toString());
+                        textviewamt.setText(textviewamt.getText().toString());
+                        int t = 0;
+                        for (int _repeat150 = 0; _repeat150 < (int) (cart.size()); _repeat150++) {
+                            if (cart.get((int) t).get("id").toString().equals(filtered.get((int) position).get("id").toString())) {
+                                cart.remove((int) (t));
+                                break;
+                            }
+                            t++;
+                        }
+                        if (Double.parseDouble(textviewItemQty.getText().toString()) > 0) {
+                            cart.add(itm);
+                        }
+                    }
+                }
+            });
 
             return v;
         }

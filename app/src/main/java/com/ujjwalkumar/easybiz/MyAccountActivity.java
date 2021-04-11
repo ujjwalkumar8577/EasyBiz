@@ -179,6 +179,31 @@ public class MyAccountActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        AlertDialog.Builder exit = new AlertDialog.Builder(this);
+        exit.setTitle("Exit");
+        exit.setMessage("Do you want to exit?");
+        exit.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface _dialog, int _which) {
+                Intent inf = new Intent();
+                inf.setAction(Intent.ACTION_VIEW);
+                inf.setClass(getApplicationContext(), Dashboard.class);
+                inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(inf);
+                finish();
+            }
+        });
+        exit.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface _dialog, int _which) {
+
+            }
+        });
+        exit.create().show();
+    }
+
     private void loadList() {
 
 
