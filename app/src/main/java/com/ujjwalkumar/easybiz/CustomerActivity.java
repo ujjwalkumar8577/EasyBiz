@@ -112,7 +112,7 @@ public class CustomerActivity extends AppCompatActivity {
                     ((BaseAdapter)listviewCustomer.getAdapter()).notifyDataSetChanged();
                 }
                 catch (Exception e) {
-                    Toast.makeText(CustomerActivity.this, "An exception occured", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CustomerActivity.this, "An exception occurred", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
             }
@@ -194,6 +194,5 @@ public class CustomerActivity extends AppCompatActivity {
             return v;
         }
     }
-
 
 }

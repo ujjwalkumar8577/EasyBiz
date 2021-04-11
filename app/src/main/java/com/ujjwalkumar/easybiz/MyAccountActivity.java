@@ -6,13 +6,17 @@ import androidx.cardview.widget.CardView;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -25,15 +29,22 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
 import com.ujjwalkumar.easybiz.helper.User;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MyAccountActivity extends AppCompatActivity {
 
     private String name,email,password,uid,type,number;
+    private HashMap<String, String> mp = new HashMap<>();
+    private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
 
     private ImageView backBtn,addStaffBtn;
     private TextView textviewUid,textviewName,textviewEmail,textviewNumber,textviewType;
@@ -44,7 +55,7 @@ public class MyAccountActivity extends AppCompatActivity {
 
     private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private DatabaseReference dbref = fbdb.getReference("users");
-    private SharedPreferences details,rates;
+    private SharedPreferences details;
     private FirebaseAuth auth;
     private OnCompleteListener<AuthResult> auth_create_user_listener;
     private OnCompleteListener<AuthResult> auth_sign_in_listener;
@@ -67,9 +78,9 @@ public class MyAccountActivity extends AppCompatActivity {
         dialogSpinnerRole = findViewById(R.id.dialogSpinnerRole);
         createStaffView = findViewById(R.id.createStaffView);
         listviewStaff = findViewById(R.id.listviewStaff);
-
+        auth = FirebaseAuth.getInstance();
         details = getSharedPreferences("user", Activity.MODE_PRIVATE);
-        rates = getSharedPreferences("items", Activity.MODE_PRIVATE);
+
         textviewUid.setText(details.getString("uid", ""));
         textviewName.setText(details.getString("name", ""));
         textviewEmail.setText(details.getString("email", ""));
@@ -99,6 +110,14 @@ public class MyAccountActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(MyAccountActivity.this, _errorMessage, Toast.LENGTH_SHORT).show();
                 }
+            }
+        };
+
+        auth_sign_in_listener = new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(Task<AuthResult> param1) {
+                final boolean success = param1.isSuccessful();
+                final String errorMessage = param1.getException() != null ? param1.getException().getMessage() : "";
             }
         };
 
@@ -205,8 +224,93 @@ public class MyAccountActivity extends AppCompatActivity {
     }
 
     private void loadList() {
+        dbref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                filtered = new ArrayList<>();
+                try {
+                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {
+                    };
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        HashMap<String, String> map = data.getValue(ind);
+                        filtered.add(map);
+                    }
+                    listviewStaff.setAdapter(new MyAccountActivity.ListviewStaffAdapter(filtered));
+                    ((BaseAdapter)listviewStaff.getAdapter()).notifyDataSetChanged();
+                }
+                catch (Exception e) {
+                    Toast.makeText(MyAccountActivity.this, "An exception occurred", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
+            }
 
+            @Override
+            public void onCancelled(DatabaseError _databaseError) {
+            }
+        });
+    }
 
+    public class ListviewStaffAdapter extends BaseAdapter {
+        ArrayList<HashMap<String, String>> data;
+
+        public ListviewStaffAdapter(ArrayList<HashMap<String, String>> arr) {
+            data = arr;
+        }
+
+        @Override
+        public int getCount() {
+            return data.size();
+        }
+
+        @Override
+        public HashMap<String, String> getItem(int index) {
+            return data.get(index);
+        }
+
+        @Override
+        public long getItemId(int index) {
+            return index;
+        }
+
+        @Override
+        public View getView(final int position, View view, ViewGroup viewGroup) {
+            LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View v = view;
+            if (v == null) {
+                v = inflater.inflate(R.layout.staffs, null);
+            }
+
+            final TextView textview1 = (TextView) v.findViewById(R.id.textview1);
+            final TextView textview2 = (TextView) v.findViewById(R.id.textview2);
+            final ImageView imageviewCall = (ImageView) v.findViewById(R.id.imageviewCall);
+            final ImageView imageview1Dir = (ImageView) v.findViewById(R.id.imageviewDir);
+
+            textview1.setText(filtered.get(position).get("name").toString());
+            textview2.setText(filtered.get(position).get("number").toString());
+
+            imageviewCall.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View _view) {
+                    Intent inv = new Intent();
+                    inv.setAction(Intent.ACTION_CALL);
+                    inv.setData(Uri.parse("tel:".concat(filtered.get(position).get("number").toString())));
+                    startActivity(inv);
+                }
+            });
+            imageview1Dir.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View _view) {
+                    Intent in = new Intent();
+                    in.setAction(Intent.ACTION_VIEW);
+                    in.setClass(getApplicationContext(), StaffActivity.class);
+                    in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(in);
+                    finish();
+                }
+            });
+
+            return v;
+        }
     }
 
 }

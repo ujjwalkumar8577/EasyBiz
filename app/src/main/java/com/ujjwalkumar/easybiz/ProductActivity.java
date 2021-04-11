@@ -3,14 +3,17 @@ package com.ujjwalkumar.easybiz;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -31,13 +34,13 @@ import java.util.HashMap;
 
 public class ProductActivity extends AppCompatActivity {
 
-    String id,name,price,weight;
     private HashMap<String, String> mp = new HashMap<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
 
     private ImageView backBtn,addItemBtn,syncItemBtn;
     private ListView listviewItem;
 
+    
     private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private DatabaseReference dbref = fbdb.getReference("items");
 
@@ -113,13 +116,40 @@ public class ProductActivity extends AppCompatActivity {
         syncItemBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(ProductActivity.this, "Syncining items ...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProductActivity.this, "Syncing items ...", Toast.LENGTH_SHORT).show();
                 loadList();
             }
         });
 
-        loadList();
+        listviewItem.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                SharedPreferences details = getSharedPreferences("user", Activity.MODE_PRIVATE);
+                if(details.getString("type", "").equals("Admin"))
+                {
+                    AlertDialog.Builder delete = new AlertDialog.Builder(ProductActivity.this);
+                    delete.setTitle("Delete");
+                    delete.setMessage("Do you want to delete " + filtered.get(i).get("name").toString() + " ?");
+                    delete.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface _dialog, int _which) {
+                            dbref.child(filtered.get(i).get("id").toString()).removeValue();
+                            Toast.makeText(ProductActivity.this, filtered.get(i).get("name").toString() + " removed", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    delete.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface _dialog, int _which) {
 
+                        }
+                    });
+                    delete.create().show();
+                }
+                return false;
+            }
+        });
+
+        loadList();
     }
 
     @Override
@@ -169,7 +199,8 @@ public class ProductActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(DatabaseError _databaseError) {
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(ProductActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
