@@ -68,8 +68,7 @@ public class CustomerActivity extends AppCompatActivity {
             }
         });
 
-        loadList();
-    }
+        loadList();    }
 
     @Override
     public void onBackPressed() {
@@ -118,7 +117,8 @@ public class CustomerActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(DatabaseError _databaseError) {
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(CustomerActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -233,7 +233,8 @@ public class MyAccountActivity extends AppCompatActivity {
                     };
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         HashMap<String, String> map = data.getValue(ind);
-                        filtered.add(map);
+                        if(map.containsKey("type")&&(!map.get("type").equals("Admin")))
+                            filtered.add(map);
                     }
                     listviewStaff.setAdapter(new MyAccountActivity.ListviewStaffAdapter(filtered));
                     ((BaseAdapter)listviewStaff.getAdapter()).notifyDataSetChanged();

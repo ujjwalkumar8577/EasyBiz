@@ -46,40 +46,6 @@
             android:background="#2d2d2d"
             android:orientation="vertical">
 
-<!--            <LinearLayout-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:gravity="center"-->
-<!--                android:orientation="horizontal">-->
-
-<!--                <TextView-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Items"-->
-<!--                    android:textColor="@color/white"-->
-<!--                    android:textSize="18sp"-->
-<!--                    android:textStyle="bold"-->
-<!--                    android:layout_weight="1" />-->
-
-<!--                <ImageView-->
-<!--                    android:id="@+id/syncItemBtn"-->
-<!--                    android:layout_width="40dp"-->
-<!--                    android:layout_height="40dp"-->
-<!--                    android:layout_marginLeft="20dp"-->
-<!--                    android:background="@android:drawable/stat_notify_sync_noanim"-->
-<!--                    android:scaleType="centerCrop"-->
-<!--                    android:src="@android:drawable/stat_notify_sync_noanim" />-->
-
-<!--                <ImageView-->
-<!--                    android:id="@+id/addItemBtn"-->
-<!--                    android:layout_width="40dp"-->
-<!--                    android:layout_height="40dp"-->
-<!--                    android:layout_marginLeft="20dp"-->
-<!--                    android:scaleType="centerCrop"-->
-<!--                    android:src="@drawable/add" />-->
-
-<!--            </LinearLayout>-->
-
             <ListView
                 android:id="@+id/listviewCustomer"
                 android:layout_width="match_parent"
