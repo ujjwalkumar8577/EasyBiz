@@ -5,23 +5,28 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.DatePicker;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -30,8 +35,12 @@ import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.ujjwalkumar.easybiz.helper.Order;
+import com.ujjwalkumar.easybiz.util.PDFprinter;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 
 public class OrderActivity extends AppCompatActivity {
@@ -41,10 +50,12 @@ public class OrderActivity extends AppCompatActivity {
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
     private ArrayList<HashMap<String, String>> cart = new ArrayList<>();
 
-    private ImageView backBtn;
+    private ImageView backBtn,printBtn;
     private ListView listviewOrder;
     private DatePicker datepicker;
 
+
+    private SharedPreferences details;
     private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private DatabaseReference dbref = fbdb.getReference("orders");
 
@@ -55,9 +66,16 @@ public class OrderActivity extends AppCompatActivity {
 
         com.google.firebase.FirebaseApp.initializeApp(this);
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
+        }
+
         backBtn = findViewById(R.id.backBtn);
+        printBtn = findViewById(R.id.printBtn);
         listviewOrder = findViewById(R.id.listviewOrder);
         datepicker = findViewById(R.id.datepicker);
+        details = getSharedPreferences("user", Activity.MODE_PRIVATE);
         curDate = getCurDate(datepicker.getYear(),datepicker.getMonth(),datepicker.getDayOfMonth());
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_DENIED) {
@@ -73,6 +91,13 @@ public class OrderActivity extends AppCompatActivity {
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
                 finish();
+            }
+        });
+
+        printBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveOrderPDF();
             }
         });
 
@@ -124,6 +149,18 @@ public class OrderActivity extends AppCompatActivity {
         return tmp;
     }
 
+    private void saveOrderPDF() {
+        String result = "Area : " + "\t\t\t" + "Date : " + curDate + "\n\r";
+        result += String.format("%-5s", "S.N.") + String.format("%-20s", "Customer") + "Order" + "\n\r";
+
+        int sno = 1;
+        for(HashMap<String,String> hmp : filtered) {
+            result += String.format("%-5s", sno) + String.format("%-20s", hmp.get("name")) + "Order" + "\n\r";
+            sno++;
+        }
+        PDFprinter.savePDF(result,"Order_" + curDate + ".pdf");
+    }
+
     private void loadList() {
         dbref.child(curDate).addValueEventListener(new ValueEventListener() {
             @Override
@@ -134,7 +171,8 @@ public class OrderActivity extends AppCompatActivity {
                     };
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         HashMap<String, String> map = data.getValue(ind);
-                        filtered.add(map);
+                        if(map.containsKey("status")&&map.get("status").equals(Order.STATUS_PENDING))
+                            filtered.add(map);
                     }
                     listviewOrder.setAdapter(new OrderActivity.ListviewOrderAdapter(filtered));
                     ((BaseAdapter)listviewOrder.getAdapter()).notifyDataSetChanged();
@@ -187,14 +225,24 @@ public class OrderActivity extends AppCompatActivity {
             final TextView textview3 = (TextView) v.findViewById(R.id.textview3);
             final ImageView imageviewCall = (ImageView) v.findViewById(R.id.imageviewCall);
             final ImageView imageview1Dir = (ImageView) v.findViewById(R.id.imageviewDir);
+            final LinearLayout manageOrderView = (LinearLayout) v.findViewById(R.id.manageOrderView);
+            final TextView textviewCancel = (TextView) v.findViewById(R.id.textviewCancel);
+            final TextView textviewPostpone = (TextView) v.findViewById(R.id.textviewPostpone);
+            final TextView textviewDeliver = (TextView) v.findViewById(R.id.textviewDeliver);
+
+            if (details.getString("type", "").equals("Admin")) {
+                manageOrderView.setVisibility(View.VISIBLE);
+            } else {
+                manageOrderView.setVisibility(View.GONE);
+            }
 
             double lat = Double.parseDouble(filtered.get(position).get("lat").toString());
             double lng = Double.parseDouble(filtered.get(position).get("lng").toString());
+            String orderID = filtered.get(position).get("orderID").toString();
+            long delTime = Long.parseLong(filtered.get(position).get("delTime"));
 
-            cart = new Gson().fromJson(filtered.get(position).get("cart"),new TypeToken<ArrayList<HashMap<String, String>>>() {
-            }.getType());
+            cart = new Gson().fromJson(filtered.get(position).get("cart"),new TypeToken<ArrayList<HashMap<String, String>>>() { }.getType());
             String tmpOrder = "";
-
             for(HashMap<String, String> map : cart) {
                 tmpOrder = tmpOrder + map.get("qty") + " * " + map.get("name") + "\n";
             }
@@ -227,10 +275,45 @@ public class OrderActivity extends AppCompatActivity {
                     }
                 }
             });
+            textviewCancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    HashMap<String, Object> mpUpdate = new HashMap<>();
+                    mpUpdate.put("status", Order.STATUS_CANCELLED);
+                    dbref.child(curDate).child(orderID).updateChildren(mpUpdate);
+                }
+            });
+            textviewPostpone.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+//                    long updatedDelTime = delTime + 86400000L;
+//                    Calendar cal = Calendar.getInstance();
+//                    cal.setTimeInMillis(updatedDelTime);
+//                    String key = new SimpleDateFormat("yyyyMMdd").format(cal.getTime());
+//                    filtered.set
+//
+//                    HashMap<String, Object> mpUpdate = new HashMap<>();
+//                    mpUpdate.put("delTime", Long.toString(updatedDelTime));
+//                    dbref.child(curDate).child(orderID).updateChildren(mpUpdate);
+//                    mpUpdate.clear();
+//
+//                    HashMap<String, Object> mpUpdate = new HashMap<>();
+//                    mpUpdate.put("delTime", Long.toString(updatedDelTime));
+//                    dbref.child(curDate).child(orderID).updateChildren(mpUpdate);
+
+                }
+            });
+            textviewDeliver.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    HashMap<String, Object> mpUpdate = new HashMap<>();
+                    mpUpdate.put("status", Order.STATUS_DELIVERED);
+                    dbref.child(curDate).child(orderID).updateChildren(mpUpdate);
+                }
+            });
 
             return v;
         }
     }
-
 
 }

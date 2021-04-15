@@ -18,8 +18,6 @@ public class MainActivity extends AppCompatActivity {
     private Timer timer = new Timer();
     private TimerTask Splash;
 
-    private LottieAnimationView animationView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         };
-        timer.schedule(Splash, 1500);
+        timer.schedule(Splash, 2000);
 
     }
 

@@ -102,7 +102,6 @@ public class GoogleMapController {
         marker.setVisible(visible);
     }
 
-
     public void moveCamera(double lat, double lng) {
         if (googleMap == null) return;
 

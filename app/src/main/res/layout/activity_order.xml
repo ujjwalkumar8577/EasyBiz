@@ -28,7 +28,15 @@
             android:layout_marginLeft="10dp"
             android:text="Orders"
             android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/printBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="30dp"
+            android:src="@android:drawable/ic_menu_save"/>
 
     </LinearLayout>
 

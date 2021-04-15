@@ -74,7 +74,8 @@ public class LoginActivity extends AppCompatActivity {
                                     HashMap<String, Object> map = data.getValue(ind);
                                     lmp.add(map);
                                 }
-                            } catch (Exception e) {
+                            }
+                            catch (Exception e) {
                                 e.printStackTrace();
                             }
 
@@ -102,20 +103,12 @@ public class LoginActivity extends AppCompatActivity {
                             details.edit().putString("type", type).commit();
                             details.edit().putString("number", number).commit();
 
-//                            user = new HashMap<>();
-//                            user.put("uid", FirebaseAuth.getInstance().getCurrentUser().getUid());
-//                            user.put("name", details.getString("name", ""));
-//                            user.put("email", FirebaseAuth.getInstance().getCurrentUser().getEmail());
-//                            user.put("password", edittextPassword.getText().toString());
-//                            user.put("type", details.getString("usertype", ""));
-//                            fbsuser.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).updateChildren(user);
-
                             User user = new User(name,email,password,uid,type,number);
                             dbref.child(uid).setValue(user);
 
                             Intent in = new Intent();
                             in.setAction(Intent.ACTION_VIEW);
-                            in.setClass(getApplicationContext(),ProductActivity.class);
+                            in.setClass(getApplicationContext(), Dashboard.class);
                             in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                             startActivity(in);
                             finish();
@@ -123,6 +116,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
+                            Toast.makeText(LoginActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
                 } else {
@@ -133,8 +127,8 @@ public class LoginActivity extends AppCompatActivity {
 
         auth_reset_password_listener = new OnCompleteListener<Void>() {
             @Override
-            public void onComplete(Task<Void> _param1) {
-                final boolean _success = _param1.isSuccessful();
+            public void onComplete(Task<Void> param1) {
+                final boolean _success = param1.isSuccessful();
                 Toast.makeText(LoginActivity.this, "Reset password email sent", Toast.LENGTH_SHORT).show();
             }
         };

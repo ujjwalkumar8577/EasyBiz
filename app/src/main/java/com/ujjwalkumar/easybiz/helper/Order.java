@@ -5,9 +5,9 @@ import java.util.Calendar;
 public class Order {
     String orderID,name,user,lat,lng,area,address,contact,cart,delTime,status;
 
-    final static String STATUS_PENDING = "pending";
-    final static String STATUS_DELIVERED = "delivered";
-    final static String STATUS_CANCELLED = "cancelled";
+    public static final String STATUS_PENDING = "pending";
+    public static final String STATUS_DELIVERED = "delivered";
+    public static final String STATUS_CANCELLED = "cancelled";
 
     public Order() {
         this.orderID = "orderID";
