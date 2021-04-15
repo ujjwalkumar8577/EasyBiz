@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -36,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText edittextEmail,edittextPassword;
     private LinearLayout loginBtn;
     private TextView forgotPasswordBtn;
+    private LottieAnimationView loadingAnimation;
 
     private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private DatabaseReference dbref = fbdb.getReference("users");
@@ -53,7 +55,9 @@ public class LoginActivity extends AppCompatActivity {
         edittextPassword = findViewById(R.id.edittextPassword);
         forgotPasswordBtn = findViewById(R.id.forgotPasswordBtn);
         loginBtn = findViewById(R.id.loginBtn);
+        loadingAnimation = findViewById(R.id.loadingAnimation);
 
+        loadingAnimation.setVisibility(View.GONE);
         auth = FirebaseAuth.getInstance();
         details = getSharedPreferences("user", Activity.MODE_PRIVATE);
 
@@ -119,9 +123,12 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
-                } else {
+                }
+                else {
                     Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                 }
+                loadingAnimation.setVisibility(View.GONE);
+                loginBtn.setVisibility(View.VISIBLE);
             }
         };
 
@@ -147,6 +154,8 @@ public class LoginActivity extends AppCompatActivity {
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                loadingAnimation.setVisibility(View.VISIBLE);
+                loginBtn.setVisibility(View.GONE);
                 details.edit().putString("email", edittextEmail.getText().toString()).commit();
                 details.edit().putString("password", edittextPassword.getText().toString()).commit();
                 auth.signInWithEmailAndPassword(edittextEmail.getText().toString(), edittextPassword.getText().toString()).addOnCompleteListener(LoginActivity.this, auth_sign_in_listener);

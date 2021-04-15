@@ -21,6 +21,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,7 +40,7 @@ public class ProductActivity extends AppCompatActivity {
 
     private ImageView backBtn,addItemBtn,syncItemBtn;
     private ListView listviewItem;
-
+    private LottieAnimationView loadingAnimation;
     
     private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private DatabaseReference dbref = fbdb.getReference("items");
@@ -53,6 +54,7 @@ public class ProductActivity extends AppCompatActivity {
         addItemBtn = findViewById(R.id.addItemBtn);
         syncItemBtn = findViewById(R.id.syncItemBtn);
         listviewItem = findViewById(R.id.listviewItem);
+        loadingAnimation = findViewById(R.id.loadingAnimation);
 
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -178,6 +180,7 @@ public class ProductActivity extends AppCompatActivity {
     }
 
     private void loadList() {
+        loadingAnimation.setVisibility(View.VISIBLE);
         dbref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -189,6 +192,7 @@ public class ProductActivity extends AppCompatActivity {
                         HashMap<String, String> map = data.getValue(ind);
                         filtered.add(map);
                     }
+                    loadingAnimation.setVisibility(View.GONE);
                     listviewItem.setAdapter(new ListviewItemAdapter1(filtered));
                     ((BaseAdapter)listviewItem.getAdapter()).notifyDataSetChanged();
                 }

@@ -21,6 +21,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -52,6 +53,7 @@ public class AddOrderActivity extends AppCompatActivity {
     private ListView listview;
     private TextView textviewamt;
     private Button addBtn,clearBtn;
+    private LottieAnimationView loadingAnimation;
 
     private AlertDialog.Builder exit;
     private SharedPreferences details;
@@ -71,6 +73,7 @@ public class AddOrderActivity extends AppCompatActivity {
         listview = findViewById(R.id.listview);
         autoCompleteName = findViewById(R.id.autoCompleteName);
         textviewamt = findViewById(R.id.textviewamt);
+        loadingAnimation = findViewById(R.id.loadingAnimation);
         exit = new AlertDialog.Builder(this);
         details = getSharedPreferences("user", Activity.MODE_PRIVATE);
 
@@ -205,6 +208,8 @@ public class AddOrderActivity extends AppCompatActivity {
                     autoCompleteName.setThreshold(2);                       //will start working from first character
                     autoCompleteName.setAdapter(adapter);                   //setting the adapter data into the AutoCompleteTextView
 
+                    Toast.makeText(AddOrderActivity.this, "Got customer list", Toast.LENGTH_SHORT).show();
+
                 }
                 catch (Exception e) {
                     Toast.makeText(AddOrderActivity.this, "An exception occurred", Toast.LENGTH_SHORT).show();
@@ -220,6 +225,7 @@ public class AddOrderActivity extends AppCompatActivity {
     }
 
     private void loadList() {
+        loadingAnimation.setVisibility(View.VISIBLE);
         dbref2.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -231,6 +237,7 @@ public class AddOrderActivity extends AppCompatActivity {
                         HashMap<String, String> map = data.getValue(ind);
                         filtered.add(map);
                     }
+                    loadingAnimation.setVisibility(View.GONE);
                     listview.setAdapter(new AddOrderActivity.ListviewItemAdapter3(filtered));
                     ((BaseAdapter)listview.getAdapter()).notifyDataSetChanged();
                 }

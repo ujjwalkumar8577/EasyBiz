@@ -62,7 +62,15 @@
             android:background="#2d2d2d"
             android:orientation="vertical">
 
-
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/loadingAnimation"
+                android:layout_width="wrap_content"
+                android:layout_height="100dp"
+                android:layout_gravity="center_horizontal"
+                android:padding="10dp"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/loadinggrey" />
 
             <ListView
                 android:id="@+id/listviewOrder"

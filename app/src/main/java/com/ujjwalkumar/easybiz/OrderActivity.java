@@ -26,6 +26,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -53,7 +54,7 @@ public class OrderActivity extends AppCompatActivity {
     private ImageView backBtn,printBtn;
     private ListView listviewOrder;
     private DatePicker datepicker;
-
+    private LottieAnimationView loadingAnimation;
 
     private SharedPreferences details;
     private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
@@ -75,6 +76,7 @@ public class OrderActivity extends AppCompatActivity {
         printBtn = findViewById(R.id.printBtn);
         listviewOrder = findViewById(R.id.listviewOrder);
         datepicker = findViewById(R.id.datepicker);
+        loadingAnimation = findViewById(R.id.loadingAnimation);
         details = getSharedPreferences("user", Activity.MODE_PRIVATE);
         curDate = getCurDate(datepicker.getYear(),datepicker.getMonth(),datepicker.getDayOfMonth());
 
@@ -162,6 +164,7 @@ public class OrderActivity extends AppCompatActivity {
     }
 
     private void loadList() {
+        loadingAnimation.setVisibility(View.VISIBLE);
         dbref.child(curDate).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -174,6 +177,7 @@ public class OrderActivity extends AppCompatActivity {
                         if(map.containsKey("status")&&map.get("status").equals(Order.STATUS_PENDING))
                             filtered.add(map);
                     }
+                    loadingAnimation.setVisibility(View.GONE);
                     listviewOrder.setAdapter(new OrderActivity.ListviewOrderAdapter(filtered));
                     ((BaseAdapter)listviewOrder.getAdapter()).notifyDataSetChanged();
                 }

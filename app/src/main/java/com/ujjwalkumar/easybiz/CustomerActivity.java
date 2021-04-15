@@ -21,6 +21,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -38,6 +39,7 @@ public class CustomerActivity extends AppCompatActivity {
 
     private ImageView backBtn;
     private ListView listviewCustomer;
+    private LottieAnimationView loadingAnimation;
 
     private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private DatabaseReference dbref = fbdb.getReference("customers");
@@ -51,6 +53,7 @@ public class CustomerActivity extends AppCompatActivity {
 
         backBtn = findViewById(R.id.backBtn);
         listviewCustomer = findViewById(R.id.listviewCustomer);
+        loadingAnimation = findViewById(R.id.loadingAnimation);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 1000);
@@ -96,6 +99,7 @@ public class CustomerActivity extends AppCompatActivity {
     }
 
     private void loadList() {
+        loadingAnimation.setVisibility(View.VISIBLE);
         dbref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -107,6 +111,7 @@ public class CustomerActivity extends AppCompatActivity {
                         HashMap<String, String> map = data.getValue(ind);
                         filtered.add(map);
                     }
+                    loadingAnimation.setVisibility(View.GONE);
                     listviewCustomer.setAdapter(new CustomerActivity.ListviewCustomerAdapter(filtered));
                     ((BaseAdapter)listviewCustomer.getAdapter()).notifyDataSetChanged();
                 }

@@ -25,6 +25,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -52,6 +53,7 @@ public class MyAccountActivity extends AppCompatActivity {
     private LinearLayout logoutBtn;
     private CardView createStaffView;
     private ListView listviewStaff;
+    private LottieAnimationView loadingAnimation;
 
     private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private DatabaseReference dbref = fbdb.getReference("users");
@@ -78,6 +80,7 @@ public class MyAccountActivity extends AppCompatActivity {
         dialogSpinnerRole = findViewById(R.id.dialogSpinnerRole);
         createStaffView = findViewById(R.id.createStaffView);
         listviewStaff = findViewById(R.id.listviewStaff);
+        loadingAnimation = findViewById(R.id.loadingAnimation);
         auth = FirebaseAuth.getInstance();
         details = getSharedPreferences("user", Activity.MODE_PRIVATE);
 
@@ -224,6 +227,7 @@ public class MyAccountActivity extends AppCompatActivity {
     }
 
     private void loadList() {
+        loadingAnimation.setVisibility(View.VISIBLE);
         dbref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -236,6 +240,7 @@ public class MyAccountActivity extends AppCompatActivity {
                         if(map.containsKey("type")&&(!map.get("type").equals("Admin")))
                             filtered.add(map);
                     }
+                    loadingAnimation.setVisibility(View.GONE);
                     listviewStaff.setAdapter(new MyAccountActivity.ListviewStaffAdapter(filtered));
                     ((BaseAdapter)listviewStaff.getAdapter()).notifyDataSetChanged();
                 }
