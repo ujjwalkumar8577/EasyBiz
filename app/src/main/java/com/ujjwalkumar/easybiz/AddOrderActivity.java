@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -209,7 +211,6 @@ public class AddOrderActivity extends AppCompatActivity {
                     autoCompleteName.setAdapter(adapter);                   //setting the adapter data into the AutoCompleteTextView
 
                     Toast.makeText(AddOrderActivity.this, "Got customer list", Toast.LENGTH_SHORT).show();
-
                 }
                 catch (Exception e) {
                     Toast.makeText(AddOrderActivity.this, "An exception occurred", Toast.LENGTH_SHORT).show();
@@ -302,7 +303,7 @@ public class AddOrderActivity extends AppCompatActivity {
                     amt = amt + Double.parseDouble(filtered.get(position).get("price"));
                     setAmount(amt);
                     int t = 0;
-                    for (int _repeat105 = 0; _repeat105 < (int) (cart.size()); _repeat105++) {
+                    for (int i = 0; i < (int) (cart.size()); i++) {
                         if (cart.get((int) t).get("id").toString().equals(filtered.get((int) position).get("id").toString())) {
                             cart.remove((int) (t));
                             break;
@@ -322,7 +323,7 @@ public class AddOrderActivity extends AppCompatActivity {
                         amt = amt - Double.parseDouble(filtered.get(position).get("price"));
                         setAmount(amt);
                         int t = 0;
-                        for (int _repeat150 = 0; _repeat150 < (int) (cart.size()); _repeat150++) {
+                        for (int i = 0; i < (int) (cart.size()); i++) {
                             if (cart.get((int) t).get("id").toString().equals(filtered.get((int) position).get("id").toString())) {
                                 cart.remove((int) (t));
                                 break;

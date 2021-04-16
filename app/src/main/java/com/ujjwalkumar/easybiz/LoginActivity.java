@@ -126,9 +126,9 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 else {
                     Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                    loadingAnimation.setVisibility(View.GONE);
+                    loginBtn.setVisibility(View.VISIBLE);
                 }
-                loadingAnimation.setVisibility(View.GONE);
-                loginBtn.setVisibility(View.VISIBLE);
             }
         };
 

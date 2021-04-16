@@ -21,7 +21,6 @@ public class GoogleMapController {
     public GoogleMapController(MapView mapView, OnMapReadyCallback onMapReadyCallback) {
         this.mapView = mapView;
         mapMarker = new HashMap<>();
-
         this.mapView.getMapAsync(onMapReadyCallback);
     }
 
