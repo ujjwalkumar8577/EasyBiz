@@ -49,7 +49,6 @@ public class MyAccountActivity extends AppCompatActivity {
 
     private ImageView backBtn,addStaffBtn;
     private TextView textviewUid,textviewName,textviewEmail,textviewNumber,textviewType;
-    private Spinner dialogSpinnerRole;
     private LinearLayout logoutBtn;
     private CardView createStaffView;
     private ListView listviewStaff;
@@ -75,13 +74,12 @@ public class MyAccountActivity extends AppCompatActivity {
         textviewNumber = findViewById(R.id.textviewNumber);
         textviewType = findViewById(R.id.textviewType);
         logoutBtn = findViewById(R.id.logoutBtn);
-        dialogSpinnerRole = findViewById(R.id.dialogSpinnerRole);
         createStaffView = findViewById(R.id.createStaffView);
         listviewStaff = findViewById(R.id.listviewStaff);
         loadingAnimation = findViewById(R.id.loadingAnimation);
+
         auth = FirebaseAuth.getInstance();
         details = getSharedPreferences("user", Activity.MODE_PRIVATE);
-
         textviewUid.setText(details.getString("uid", ""));
         textviewName.setText(details.getString("name", ""));
         textviewEmail.setText(details.getString("email", ""));
@@ -92,8 +90,6 @@ public class MyAccountActivity extends AppCompatActivity {
         } else {
             createStaffView.setVisibility(View.GONE);
         }
-
-        loadList();
 
         auth_create_user_listener = new OnCompleteListener<AuthResult>() {
             @Override
@@ -197,6 +193,7 @@ public class MyAccountActivity extends AppCompatActivity {
             }
         });
 
+        loadList();
     }
 
     @Override
@@ -235,7 +232,8 @@ public class MyAccountActivity extends AppCompatActivity {
                     };
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         HashMap<String, String> map = data.getValue(ind);
-                        if(map.containsKey("type")&&(!map.get("type").equals("Admin")))
+                        // TODO
+                        //if(map.containsKey("type")&&(!map.get("type").equals("Admin")))
                             filtered.add(map);
                     }
                     loadingAnimation.setVisibility(View.GONE);
@@ -307,6 +305,8 @@ public class MyAccountActivity extends AppCompatActivity {
                     Intent in = new Intent();
                     in.setAction(Intent.ACTION_VIEW);
                     in.setClass(getApplicationContext(), StaffActivity.class);
+                    in.putExtra("uid", filtered.get(position).get("uid").toString());
+                    in.putExtra("name", filtered.get(position).get("name").toString());
                     in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(in);
                     finish();

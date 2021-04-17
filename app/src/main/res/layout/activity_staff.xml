@@ -9,7 +9,6 @@
     tools:context=".StaffActivity">
 
     <LinearLayout
-        android:id="@+id/linear1"
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:layout_marginLeft="10dp"
@@ -23,6 +22,7 @@
             app:srcCompat="@drawable/back_new" />
 
         <TextView
+            android:id="@+id/textviewName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -61,7 +61,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Last seen at : "
+                    android:text="Last seen : "
                     android:textColor="@color/white"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -70,7 +70,7 @@
                     android:id="@+id/textviewLastseen"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Time"
+                    android:text="Loading ..."
                     android:textColor="@color/white"
                     android:textSize="16sp"
                     android:textStyle="bold" />

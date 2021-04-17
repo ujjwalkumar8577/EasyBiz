@@ -32,7 +32,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ujjwalkumar.easybiz.helper.Customer;
-import com.ujjwalkumar.easybiz.util.GoogleMapController;
 
 public class AddCustomerActivity extends AppCompatActivity {
 
@@ -48,7 +47,6 @@ public class AddCustomerActivity extends AppCompatActivity {
     private Button addBtn, clearBtn;
 
     private LocationManager loc;
-    private GoogleMapController mapviewController;
     private SharedPreferences details;
     private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private DatabaseReference dbref = fbdb.getReference("customers");
