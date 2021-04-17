@@ -49,8 +49,6 @@ public class CustomerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_customer);
 
-        com.google.firebase.FirebaseApp.initializeApp(this);
-
         backBtn = findViewById(R.id.backBtn);
         listviewCustomer = findViewById(R.id.listviewCustomer);
         loadingAnimation = findViewById(R.id.loadingAnimation);
@@ -71,7 +69,8 @@ public class CustomerActivity extends AppCompatActivity {
             }
         });
 
-        loadList();    }
+        loadList();
+    }
 
     @Override
     public void onBackPressed() {

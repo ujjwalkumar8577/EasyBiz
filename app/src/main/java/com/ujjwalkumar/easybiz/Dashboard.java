@@ -2,16 +2,31 @@ package com.ujjwalkumar.easybiz;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.ujjwalkumar.easybiz.helper.MyLocation;
 
 public class Dashboard extends AppCompatActivity {
 
@@ -20,12 +35,17 @@ public class Dashboard extends AppCompatActivity {
     private CardView cardview1,cardview2,cardview3,cardview4,cardview5,cardview6,cardview7,cardview8;
 
     private SharedPreferences details;
+    private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+    private DatabaseReference dbref = fbdb.getReference("locations");
     private Intent in = new Intent();
+    private LocationManager locationManager;
+    private FusedLocationProviderClient fusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
+        com.google.firebase.FirebaseApp.initializeApp(this);
 
         textviewUserName = findViewById(R.id.textviewUserName);
         textviewUserType = findViewById(R.id.textviewUserType);
@@ -41,6 +61,8 @@ public class Dashboard extends AppCompatActivity {
         cardview7 = findViewById(R.id.cardview7);
         cardview8 = findViewById(R.id.cardview8);
 
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         details = getSharedPreferences("user", Activity.MODE_PRIVATE);
         textviewUserName.setText(details.getString("name", ""));
         textviewUserType.setText(details.getString("type", ""));
@@ -166,6 +188,8 @@ public class Dashboard extends AppCompatActivity {
             }
         });
 
+        //if(!details.getString("type", "").equals("Admin"))
+            updateMyLocation();
     }
 
     @Override
@@ -186,5 +210,42 @@ public class Dashboard extends AppCompatActivity {
             }
         });
         exit.create().show();
+    }
+
+    private void updateMyLocation() {
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            Log.d("Location error","GPS not enabled");
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
+            return;
+        }
+
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            String uid = details.getString("uid", "");
+                            String lat = Double.toString(location.getLatitude());
+                            String lng = Double.toString(location.getLongitude());
+                            String acc = Double.toString(location.getAccuracy());
+                            long time = location.getTime();
+
+                            if (!(lat.equals(details.getString("lat", ""))) || !(lng.equals(details.getString("lng", ""))) || !(acc.equals(details.getString("acc", "")))) {
+                                details.edit().putString("lat", lat).apply();
+                                details.edit().putString("lng", lng).apply();
+                                details.edit().putString("acc", acc).apply();
+                                MyLocation myLocation = new MyLocation(uid, lat, lng, acc, time);
+                                dbref.child(uid).child(dbref.push().getKey()).setValue(myLocation);
+                            }
+                        }
+                        else {
+                            Log.d("Location error","Null location");
+                        }
+                    }
+                });
     }
 }

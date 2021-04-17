@@ -57,7 +57,6 @@ public class AddCustomerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_customer);
-        com.google.firebase.FirebaseApp.initializeApp(this);
 
         backBtn = findViewById(R.id.backBtn);
         addBtn = findViewById(R.id.addBtn);
@@ -159,6 +158,11 @@ public class AddCustomerActivity extends AppCompatActivity {
                 googleMap.setMyLocationEnabled(true);
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(25.0,81.0)));
                 googleMap.moveCamera(CameraUpdateFactory.zoomTo(18));
+
+                Location currentLocation = googleMap.getMyLocation();
+                if(currentLocation!=null)
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude())));
+
                 googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                     @Override
                     public boolean onMyLocationButtonClick() {

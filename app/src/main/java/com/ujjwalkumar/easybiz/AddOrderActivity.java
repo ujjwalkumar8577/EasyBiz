@@ -344,5 +344,4 @@ public class AddOrderActivity extends AppCompatActivity {
     void setAmount(double amount) {
         textviewamt.setText(String.valueOf(amount));
     }
-
 }

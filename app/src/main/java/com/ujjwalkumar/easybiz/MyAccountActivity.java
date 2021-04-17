@@ -67,8 +67,6 @@ public class MyAccountActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_account);
 
-        com.google.firebase.FirebaseApp.initializeApp(this);
-
         backBtn = findViewById(R.id.backBtn);
         addStaffBtn = findViewById(R.id.addStaffBtn);
         textviewUid = findViewById(R.id.textviewUid);
