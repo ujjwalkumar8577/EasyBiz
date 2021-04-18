@@ -1,6 +1,5 @@
 package com.ujjwalkumar.easybiz;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;

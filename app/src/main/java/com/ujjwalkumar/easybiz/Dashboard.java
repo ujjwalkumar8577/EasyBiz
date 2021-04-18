@@ -45,7 +45,6 @@ public class Dashboard extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
-        com.google.firebase.FirebaseApp.initializeApp(this);
 
         textviewUserName = findViewById(R.id.textviewUserName);
         textviewUserType = findViewById(R.id.textviewUserType);

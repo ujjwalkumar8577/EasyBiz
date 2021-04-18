@@ -59,16 +59,14 @@
                 android:src="@drawable/minus"
                 android:scaleType="centerCrop" />
 
-            <TextView
+            <EditText
                 android:id="@+id/textviewItemQty"
-                android:layout_width="30dp"
+                android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:paddingLeft="2dp"
-                android:paddingTop="5dp"
-                android:paddingRight="2dp"
-                android:paddingBottom="5dp"
+                android:padding="4dp"
                 android:gravity="center_horizontal"
                 android:text="0"
+                android:textSize="10sp"
                 android:textStyle="bold"
                 android:textColor="#ffffff" />
 

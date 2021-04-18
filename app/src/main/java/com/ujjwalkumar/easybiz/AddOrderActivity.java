@@ -18,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -286,7 +287,7 @@ public class AddOrderActivity extends AppCompatActivity {
 
             final TextView textviewItemName = (TextView) v.findViewById(R.id.textviewItemName);
             final TextView textviewItemPrice = (TextView) v.findViewById(R.id.textviewItemPrice);
-            final TextView textviewItemQty = (TextView) v.findViewById(R.id.textviewItemQty);
+            final EditText textviewItemQty = (EditText) v.findViewById(R.id.textviewItemQty);
             final ImageView imageviewminus = (ImageView) v.findViewById(R.id.imageviewminus);
             final ImageView imageviewplus = (ImageView) v.findViewById(R.id.imageviewplus);
 

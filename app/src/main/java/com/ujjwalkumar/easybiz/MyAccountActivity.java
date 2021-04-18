@@ -1,6 +1,5 @@
 package com.ujjwalkumar.easybiz;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
@@ -182,7 +181,6 @@ public class MyAccountActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 FirebaseAuth.getInstance().signOut();
-                // Rate.edit().putString("preset", "").commit();
                 details.edit().putString("uid", "").commit();
                 details.edit().putString("name", "").commit();
                 details.edit().putString("email", "").commit();
@@ -232,8 +230,7 @@ public class MyAccountActivity extends AppCompatActivity {
                     };
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         HashMap<String, String> map = data.getValue(ind);
-                        // TODO
-                        //if(map.containsKey("type")&&(!map.get("type").equals("Admin")))
+                        if(map.containsKey("type")&&(!map.get("type").equals("Admin")))
                             filtered.add(map);
                     }
                     loadingAnimation.setVisibility(View.GONE);
@@ -241,7 +238,7 @@ public class MyAccountActivity extends AppCompatActivity {
                     ((BaseAdapter)listviewStaff.getAdapter()).notifyDataSetChanged();
                 }
                 catch (Exception e) {
-                    Toast.makeText(MyAccountActivity.this, "An exception occurred", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MyAccountActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
             }

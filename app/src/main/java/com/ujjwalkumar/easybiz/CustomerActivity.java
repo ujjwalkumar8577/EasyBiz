@@ -5,16 +5,19 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -28,6 +31,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+import com.ujjwalkumar.easybiz.helper.Customer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,6 +70,34 @@ public class CustomerActivity extends AppCompatActivity {
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
                 finish();
+            }
+        });
+
+        listviewCustomer.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                SharedPreferences details = getSharedPreferences("user", Activity.MODE_PRIVATE);
+                if(details.getString("type", "").equals("Admin"))
+                {
+                    AlertDialog.Builder delete = new AlertDialog.Builder(CustomerActivity.this);
+                    delete.setTitle("Delete");
+                    delete.setMessage("Do you want to delete " + filtered.get(i).get("name").toString() + " ?");
+                    delete.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface _dialog, int _which) {
+                            dbref.child(filtered.get(i).get("custID").toString()).removeValue();
+                            Toast.makeText(CustomerActivity.this, filtered.get(i).get("name").toString() + " removed", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    delete.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface _dialog, int _which) {
+
+                        }
+                    });
+                    delete.create().show();
+                }
+                return false;
             }
         });
 

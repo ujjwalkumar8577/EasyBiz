@@ -283,6 +283,7 @@ public class OrderActivity extends AppCompatActivity {
                     HashMap<String, Object> mpUpdate = new HashMap<>();
                     mpUpdate.put("status", Order.STATUS_CANCELLED);
                     dbref.child(curDate).child(orderID).updateChildren(mpUpdate);
+                    Toast.makeText(OrderActivity.this, "Cancelled successfully", Toast.LENGTH_SHORT).show();
                 }
             });
             textviewPostpone.setOnClickListener(new View.OnClickListener() {
@@ -303,6 +304,7 @@ public class OrderActivity extends AppCompatActivity {
 //                    mpUpdate.put("delTime", Long.toString(updatedDelTime));
 //                    dbref.child(curDate).child(orderID).updateChildren(mpUpdate);
 
+                    Toast.makeText(OrderActivity.this, "Postponed successfully", Toast.LENGTH_SHORT).show();
                 }
             });
             textviewDeliver.setOnClickListener(new View.OnClickListener() {
@@ -311,6 +313,7 @@ public class OrderActivity extends AppCompatActivity {
                     HashMap<String, Object> mpUpdate = new HashMap<>();
                     mpUpdate.put("status", Order.STATUS_DELIVERED);
                     dbref.child(curDate).child(orderID).updateChildren(mpUpdate);
+                    Toast.makeText(OrderActivity.this, "Delivered successfully", Toast.LENGTH_SHORT).show();
                 }
             });
 
