@@ -61,6 +61,7 @@ public class OrderActivity extends AppCompatActivity {
     private String key = "";
     private String oid = "";
     private HashMap<String, String> mp = new HashMap<>();
+    private ArrayList<HashMap<String, String>> items = new ArrayList<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
     private ArrayList<HashMap<String, String>> cart = new ArrayList<>();
 
@@ -72,6 +73,7 @@ public class OrderActivity extends AppCompatActivity {
     private SharedPreferences details;
     private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private DatabaseReference dbref = fbdb.getReference("orders");
+    private DatabaseReference dbref2 = fbdb.getReference("items");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,6 +125,7 @@ public class OrderActivity extends AppCompatActivity {
             }
         });
 
+        loadItems();
         loadList();
     }
 
@@ -163,10 +166,37 @@ public class OrderActivity extends AppCompatActivity {
         return tmp;
     }
 
+    private void loadItems() {
+        dbref2.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                items = new ArrayList<>();
+                try {
+                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {
+                    };
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        HashMap<String, String> map = data.getValue(ind);
+                        items.add(map);
+                    }
+                    Toast.makeText(OrderActivity.this, Integer.toString(items.size()), Toast.LENGTH_SHORT).show();
+                }
+                catch (Exception e) {
+                    Toast.makeText(OrderActivity.this, "Failed to load items", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(OrderActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void savePDf2() {
 
-        int pageHeight = 1120;
-        int pagewidth = 792;
+        int pageHeight = 842;
+        int pagewidth = 595;
         PdfDocument pdfDocument = new PdfDocument();
         Paint title = new Paint();
         PdfDocument.PageInfo mypageInfo = new PdfDocument.PageInfo.Builder(pagewidth, pageHeight, 1).create();
@@ -177,40 +207,54 @@ public class OrderActivity extends AppCompatActivity {
         title.setTextSize(15);
         title.setColor(ContextCompat.getColor(this, R.color.black));
 
-        // below line is used to draw text in our PDF file.
-        // the first parameter is our text, second parameter
-        // is position from start, third parameter is position from top
-        // and then we are passing our variable of paint which is title.
-
         String result = "Area : " + String.format("%-20s", " ") + "Date : " + curDate;
         canvas.drawText(result, 50, 50, title);
-        result = String.format("%-5s", "S.N.") + String.format("%-20s", "Customer") + "Order" + "\n\r";
+        result = String.format("%-5s", "S.N.") + String.format("%-20s", "Customer");
+        for(HashMap<String,String> item : items) {
+            String name = item.get("name");
+            if(name.length()>5)
+                name = name.substring(name.length()-5,name.length());
+            result += name + " ";
+        }
         canvas.drawText(result, 50, 70, title);
 
         int sno = 1;
         for(HashMap<String,String> hmp : filtered) {
-            result = String.format("%-5s", sno) + String.format("%-20s", hmp.get("name")) + "Order" + "\n\r";
+            ArrayList<HashMap<String, String>> cartTmp = new ArrayList<>();
+            cartTmp = new Gson().fromJson(hmp.get("cart"), new TypeToken<ArrayList<HashMap<String, String>>>() {
+            }.getType());
+            HashMap<String, String> tmpOrder = new HashMap<>();
+            for(HashMap<String, String> map : cartTmp) {
+                tmpOrder.put(map.get("name"),map.get("qty"));
+            }
+
+            result = String.format("%-5s", sno) + String.format("%-20s", hmp.get("name"));
+            for(HashMap<String,String> item : items) {
+                if(tmpOrder.containsKey(item.get("name")))
+                    result += String.format("%-6s", tmpOrder.get(item.get("name")));
+                else
+                    result += String.format("%-6s", "0");
+            }
             canvas.drawText(result, 50, 70+sno*20, title);
             sno++;
         }
 
         pdfDocument.finishPage(myPage);
         File file = new File(Environment.getExternalStorageDirectory(), "Order_" + curDate + ".pdf");
-
         try {
             pdfDocument.writeTo(new FileOutputStream(file));
             Toast.makeText(OrderActivity.this, "PDF generated successfully.", Toast.LENGTH_SHORT).show();
-            Intent target = new Intent(Intent.ACTION_VIEW);
-            target.setDataAndType(Uri.fromFile(file),"application/pdf");
-            target.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-
-            Intent intent = Intent.createChooser(target, "Open File");
-            try {
-                startActivity(intent);
-            } catch (ActivityNotFoundException e) {
-                Toast.makeText(this, "No PDF reader found", Toast.LENGTH_SHORT).show();
-                // Instruct the user to install a PDF reader here, or something
-            }
+//            Intent target = new Intent(Intent.ACTION_VIEW);
+//            target.setDataAndType(Uri.fromFile(file),"application/pdf");
+//            target.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+//
+//            Intent intent = Intent.createChooser(target, "Open File");
+//            try {
+//                startActivity(intent);
+//            } catch (ActivityNotFoundException e) {
+//                Toast.makeText(this, "No PDF reader found", Toast.LENGTH_SHORT).show();
+//                // Instruct the user to install a PDF reader here, or something
+//            }
         } catch (IOException e) {
             e.printStackTrace();
         }
