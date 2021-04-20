@@ -7,13 +7,21 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +47,9 @@ import com.google.gson.reflect.TypeToken;
 import com.ujjwalkumar.easybiz.helper.Order;
 import com.ujjwalkumar.easybiz.util.PDFprinter;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -47,6 +58,8 @@ import java.util.HashMap;
 public class OrderActivity extends AppCompatActivity {
 
     private String curDate = "";
+    private String key = "";
+    private String oid = "";
     private HashMap<String, String> mp = new HashMap<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
     private ArrayList<HashMap<String, String>> cart = new ArrayList<>();
@@ -97,7 +110,8 @@ public class OrderActivity extends AppCompatActivity {
         printBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveOrderPDF();
+                //saveOrderPDF();
+                savePDf2();
             }
         });
 
@@ -149,16 +163,58 @@ public class OrderActivity extends AppCompatActivity {
         return tmp;
     }
 
-    private void saveOrderPDF() {
-        String result = "Area : " + "\t\t\t" + "Date : " + curDate + "\n\r";
-        result += String.format("%-5s", "S.N.") + String.format("%-20s", "Customer") + "Order" + "\n\r";
+    private void savePDf2() {
+
+        int pageHeight = 1120;
+        int pagewidth = 792;
+        PdfDocument pdfDocument = new PdfDocument();
+        Paint title = new Paint();
+        PdfDocument.PageInfo mypageInfo = new PdfDocument.PageInfo.Builder(pagewidth, pageHeight, 1).create();
+        PdfDocument.Page myPage = pdfDocument.startPage(mypageInfo);
+
+        Canvas canvas = myPage.getCanvas();
+        title.setTypeface(Typeface.create(Typeface.MONOSPACE, Typeface.NORMAL));
+        title.setTextSize(15);
+        title.setColor(ContextCompat.getColor(this, R.color.black));
+
+        // below line is used to draw text in our PDF file.
+        // the first parameter is our text, second parameter
+        // is position from start, third parameter is position from top
+        // and then we are passing our variable of paint which is title.
+
+        String result = "Area : " + String.format("%-20s", " ") + "Date : " + curDate;
+        canvas.drawText(result, 50, 50, title);
+        result = String.format("%-5s", "S.N.") + String.format("%-20s", "Customer") + "Order" + "\n\r";
+        canvas.drawText(result, 50, 70, title);
 
         int sno = 1;
         for(HashMap<String,String> hmp : filtered) {
-            result += String.format("%-5s", sno) + String.format("%-20s", hmp.get("name")) + "Order" + "\n\r";
+            result = String.format("%-5s", sno) + String.format("%-20s", hmp.get("name")) + "Order" + "\n\r";
+            canvas.drawText(result, 50, 70+sno*20, title);
             sno++;
         }
-        PDFprinter.savePDF(result,"Order_" + curDate + ".pdf");
+
+        pdfDocument.finishPage(myPage);
+        File file = new File(Environment.getExternalStorageDirectory(), "Order_" + curDate + ".pdf");
+
+        try {
+            pdfDocument.writeTo(new FileOutputStream(file));
+            Toast.makeText(OrderActivity.this, "PDF generated successfully.", Toast.LENGTH_SHORT).show();
+            Intent target = new Intent(Intent.ACTION_VIEW);
+            target.setDataAndType(Uri.fromFile(file),"application/pdf");
+            target.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+
+            Intent intent = Intent.createChooser(target, "Open File");
+            try {
+                startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(this, "No PDF reader found", Toast.LENGTH_SHORT).show();
+                // Instruct the user to install a PDF reader here, or something
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        pdfDocument.close();
     }
 
     private void loadList() {
@@ -289,22 +345,19 @@ public class OrderActivity extends AppCompatActivity {
             textviewPostpone.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-//                    long updatedDelTime = delTime + 86400000L;
-//                    Calendar cal = Calendar.getInstance();
-//                    cal.setTimeInMillis(updatedDelTime);
-//                    String key = new SimpleDateFormat("yyyyMMdd").format(cal.getTime());
-//                    filtered.set
-//
-//                    HashMap<String, Object> mpUpdate = new HashMap<>();
-//                    mpUpdate.put("delTime", Long.toString(updatedDelTime));
-//                    dbref.child(curDate).child(orderID).updateChildren(mpUpdate);
-//                    mpUpdate.clear();
-//
-//                    HashMap<String, Object> mpUpdate = new HashMap<>();
-//                    mpUpdate.put("delTime", Long.toString(updatedDelTime));
-//                    dbref.child(curDate).child(orderID).updateChildren(mpUpdate);
+                    long updatedDelTime = delTime + 86400000L;
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTimeInMillis(updatedDelTime);
+                    key = new SimpleDateFormat("yyyyMMdd").format(cal.getTime());
 
+                    HashMap<String, String> mpUpdate = new HashMap<>();
+                    mpUpdate = filtered.get(position);
+                    mpUpdate.put("delTime",Long.toString(updatedDelTime));
+
+                    dbref.child(curDate).child(orderID).removeValue();
+                    dbref.child(key).child(orderID).setValue(mpUpdate);
                     Toast.makeText(OrderActivity.this, "Postponed successfully", Toast.LENGTH_SHORT).show();
+                    loadList();
                 }
             });
             textviewDeliver.setOnClickListener(new View.OnClickListener() {
