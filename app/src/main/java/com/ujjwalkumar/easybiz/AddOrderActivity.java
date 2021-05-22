@@ -182,6 +182,7 @@ public class AddOrderActivity extends AppCompatActivity {
         custID = "-1";
         autoCompleteName.setText("");
         setAmount(amt);
+        loadList();
     }
 
     private void loadCustomers() {
@@ -235,6 +236,7 @@ public class AddOrderActivity extends AppCompatActivity {
                     };
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         HashMap<String, String> map = data.getValue(ind);
+                        map.put("qty","0");
                         filtered.add(map);
                     }
                     loadingAnimation.setVisibility(View.GONE);
@@ -289,9 +291,9 @@ public class AddOrderActivity extends AppCompatActivity {
             final ImageView imageviewminus = (ImageView) v.findViewById(R.id.imageviewminus);
             final ImageView imageviewplus = (ImageView) v.findViewById(R.id.imageviewplus);
 
-            textviewItemName.setText(filtered.get(position).get("name").toString());
-            textviewItemPrice.setText(filtered.get(position).get("price").toString());
-            textviewItemQty.setText("0");
+            textviewItemName.setText(filtered.get(position).get("name"));
+            textviewItemPrice.setText(filtered.get(position).get("price"));
+            textviewItemQty.setText(filtered.get(position).get("qty"));
 
             imageviewplus.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -301,13 +303,11 @@ public class AddOrderActivity extends AppCompatActivity {
                     itm.put("qty", textviewItemQty.getText().toString());
                     amt = amt + Double.parseDouble(filtered.get(position).get("price"));
                     setAmount(amt);
-                    int t = 0;
-                    for (int i = 0; i < (int) (cart.size()); i++) {
-                        if (cart.get((int) t).get("id").toString().equals(filtered.get((int) position).get("id").toString())) {
-                            cart.remove((int) (t));
+                    for (int i = 0; i < cart.size(); i++) {
+                        if (cart.get(i).get("id").equals(filtered.get(position).get("id"))) {
+                            cart.remove(i);
                             break;
                         }
-                        t++;
                     }
                     cart.add(itm);
                 }
@@ -321,13 +321,11 @@ public class AddOrderActivity extends AppCompatActivity {
                         itm.put("qty", textviewItemQty.getText().toString());
                         amt = amt - Double.parseDouble(filtered.get(position).get("price"));
                         setAmount(amt);
-                        int t = 0;
-                        for (int i = 0; i < (int) (cart.size()); i++) {
-                            if (cart.get((int) t).get("id").toString().equals(filtered.get((int) position).get("id").toString())) {
-                                cart.remove((int) (t));
+                        for (int i = 0; i < cart.size(); i++) {
+                            if (cart.get(i).get("id").equals(filtered.get(position).get("id"))) {
+                                cart.remove(i);
                                 break;
                             }
-                            t++;
                         }
                         if (Double.parseDouble(textviewItemQty.getText().toString()) > 0) {
                             cart.add(itm);
