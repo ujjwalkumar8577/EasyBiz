@@ -68,8 +68,10 @@
                     android:id="@+id/edittextName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:lines="1"
                     android:padding="8dp"
                     android:textColor="#FFFFFF"
+                    android:inputType="textCapWords"
                     android:imeOptions="actionNext"/>
             </LinearLayout>
             <LinearLayout
@@ -148,6 +150,7 @@
                     android:imeOptions="actionDone"
                     android:padding="8dp"
                     android:textColor="#FFFFFF"
+                    android:inputType="text"
                     android:textColorHint="#607D8B" />
             </LinearLayout>
             <LinearLayout
