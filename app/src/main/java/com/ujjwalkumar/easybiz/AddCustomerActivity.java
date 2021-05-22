@@ -1,5 +1,6 @@
 package com.ujjwalkumar.easybiz;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -7,14 +8,18 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,18 +34,33 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.ujjwalkumar.easybiz.helper.Customer;
+
+import java.io.IOException;
+import java.util.UUID;
 
 public class AddCustomerActivity extends AppCompatActivity {
 
     String custID, name, user, lat, lng, img, area, address, contact;
+    String downloadURL = "";
     boolean locationSet = false;
+    boolean imageSet = false;
     private double latitude = 0;
     private double longitude = 0;
 
-    private ImageView backBtn;
+    private final int PICK_IMAGE_REQUEST = 22;
+
+    private ImageView backBtn, imageView;
     private EditText edittextName, edittextContact, edittextAddress;
     private Spinner spinnerArea;
     private MapView mapView;
@@ -50,6 +70,8 @@ public class AddCustomerActivity extends AppCompatActivity {
     private SharedPreferences details;
     private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private DatabaseReference dbref = fbdb.getReference("customers");
+    private FirebaseStorage fbst = FirebaseStorage.getInstance();
+    private StorageReference stref = fbst.getReference("customers");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,10 +85,12 @@ public class AddCustomerActivity extends AppCompatActivity {
         edittextContact = findViewById(R.id.edittextContact);
         edittextAddress = findViewById(R.id.edittextAddress);
         spinnerArea = findViewById(R.id.spinnerArea);
+        imageView = findViewById(R.id.imageView);
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
 
         locationSet = false;
+        imageSet = false;
         details = getSharedPreferences("user", Activity.MODE_PRIVATE);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED
@@ -84,6 +108,20 @@ public class AddCustomerActivity extends AppCompatActivity {
         if (!loc.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             Toast.makeText(this, "GPS not enabled", Toast.LENGTH_SHORT).show();
         }
+
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!imageSet) {
+                    // Select Image
+                    Intent intent = new Intent();
+                    intent.setType("image/*");
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    startActivityForResult(
+                            Intent.createChooser(intent, "Select Image from here..."), PICK_IMAGE_REQUEST);
+                }
+            }
+        });
 
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,7 +151,7 @@ public class AddCustomerActivity extends AppCompatActivity {
                                     user = details.getString("name", "");
                                     lat = String.valueOf(latitude);
                                     lng = String.valueOf(longitude);
-                                    img = "";
+                                    img = downloadURL;
                                     area = spinnerArea.getSelectedItem().toString();
 
                                     Customer customer = new Customer(custID, name, user, lat, lng, img, area, address, contact);
@@ -224,10 +262,75 @@ public class AddCustomerActivity extends AppCompatActivity {
         mapView.onResume();
     }
 
+    // Required for selecting image
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            // Get the Uri of data
+            Uri filePath = data.getData();
+            try {
+                // Setting image on image view using Bitmap
+                Bitmap bitmap = MediaStore
+                        .Images
+                        .Media
+                        .getBitmap(getContentResolver(), filePath);
+                imageView.setImageBitmap(bitmap);
+                uploadImage(filePath);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void clear() {
         edittextName.setText("");
         edittextContact.setText("");
         edittextAddress.setText("");
         locationSet = false;
+        imageSet = false;
+        downloadURL = "";
+        imageView.setImageResource(R.drawable.imageupload);
+    }
+
+    private void uploadImage(Uri filePath) {
+        if (filePath != null) {
+            // showing progressDialog while uploading
+            ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Uploading...");
+            progressDialog.show();
+
+            // uploading file and adding listeners on upload or failure of image
+            stref.child(UUID.randomUUID().toString()).putFile(filePath)
+
+                .addOnSuccessListener(taskSnapshot -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(AddCustomerActivity.this, "Image uploaded", Toast.LENGTH_SHORT).show();
+                })
+
+                .addOnFailureListener(e -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(AddCustomerActivity.this, "Upload failed", Toast.LENGTH_SHORT).show();
+                })
+
+                .addOnProgressListener(taskSnapshot -> {
+                    double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
+                    progressDialog.setMessage("Uploaded " + (int)progress + "%");
+                })
+
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()) {
+                        try {
+                            downloadURL = stref.getDownloadUrl().getResult().getPath();
+                            Toast.makeText(this, downloadURL, Toast.LENGTH_SHORT).show();
+                        }
+                        catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+        }
     }
 }
