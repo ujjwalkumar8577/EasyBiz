@@ -1,5 +1,6 @@
 package com.ujjwalkumar.easybiz;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -17,6 +18,7 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.LayoutInflater;
@@ -40,7 +42,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ujjwalkumar.easybiz.helper.Order;
-import com.ujjwalkumar.easybiz.util.PDFprinter;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -70,6 +71,7 @@ public class OrderActivity extends AppCompatActivity {
     private DatabaseReference dbref = fbdb.getReference("orders");
     private DatabaseReference dbref2 = fbdb.getReference("items");
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -205,12 +207,13 @@ public class OrderActivity extends AppCompatActivity {
         String result = "Area : " + String.format("%-20s", " ") + "Date : " + curDate;
         canvas.drawText(result, 50, 50, title);
         result = String.format("%-5s", "S.N.") + String.format("%-20s", "Customer");
-        for(HashMap<String,String> item : items) {
-            String name = item.get("name");
-            if(name.length()>5)
-                name = name.substring(name.length()-5,name.length());
-            result += name + " ";
-        }
+        // Print Item Names
+//        for(HashMap<String,String> item : items) {
+//            String name = item.get("name");
+//            if(name.length()>5)
+//                name = name.substring(name.length()-5,name.length());
+//            result += name + " ";
+//        }
         canvas.drawText(result, 50, 70, title);
 
         int sno = 1;

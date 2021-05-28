@@ -39,7 +39,7 @@ import java.util.HashMap;
 
 public class AddOrderActivity extends AppCompatActivity {
 
-    String custID,orderID,name,user,lat,lng,area,address,contact,cartLmp,delTime,status;
+    String custID,orderID,name,user,lat,lng,area,address,contact,cartLmp;
     private String[] customers;
     private HashMap<String, String> mp = new HashMap<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
