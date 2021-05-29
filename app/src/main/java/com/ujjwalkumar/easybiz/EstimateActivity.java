@@ -38,16 +38,13 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ujjwalkumar.easybiz.helper.Order;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 
 public class EstimateActivity extends AppCompatActivity {
 
     private String curDate = "";
     private String key = "";
-    private HashMap<String, String> mp = new HashMap<>();
     private ArrayList<HashMap<String, String>> items = new ArrayList<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
     private ArrayList<HashMap<String, String>> cart = new ArrayList<>();
@@ -137,10 +134,10 @@ public class EstimateActivity extends AppCompatActivity {
         String tmp = Integer.toString(y);
         m = m+1;
         if(m/10==0)
-            tmp = tmp + "0" + Integer.toString(m);
+            tmp = tmp + "0" + m;
         else
-            tmp = tmp + Integer.toString(m);
-        tmp = tmp + Integer.toString(d);
+            tmp = tmp + m;
+        tmp = tmp + d;
 
         return tmp;
     }
@@ -157,7 +154,6 @@ public class EstimateActivity extends AppCompatActivity {
                         HashMap<String, String> map = data.getValue(ind);
                         items.add(map);
                     }
-                    Toast.makeText(EstimateActivity.this, Integer.toString(items.size()), Toast.LENGTH_SHORT).show();
                 }
                 catch (Exception e) {
                     Toast.makeText(EstimateActivity.this, "Failed to load items", Toast.LENGTH_SHORT).show();
@@ -252,26 +248,26 @@ public class EstimateActivity extends AppCompatActivity {
                 manageOrderView.setVisibility(View.GONE);
             }
 
-            double lat = Double.parseDouble(filtered.get(position).get("lat").toString());
-            double lng = Double.parseDouble(filtered.get(position).get("lng").toString());
-            String estimateID = filtered.get(position).get("estimateID").toString();
+            double lat = Double.parseDouble(filtered.get(position).get("lat"));
+            double lng = Double.parseDouble(filtered.get(position).get("lng"));
+            String estimateID = filtered.get(position).get("estimateID");
 
             cart = new Gson().fromJson(filtered.get(position).get("cart"),new TypeToken<ArrayList<HashMap<String, String>>>() { }.getType());
-            String tmpOrder = "";
+            StringBuilder tmpOrder = new StringBuilder();
             for(HashMap<String, String> map : cart) {
-                tmpOrder = tmpOrder + map.get("qty") + " * " + map.get("name") + "\n";
+                tmpOrder.append(map.get("qty")).append(" * ").append(map.get("name")).append("\n");
             }
 
-            textview1.setText(filtered.get(position).get("name").toString());
-            textview2.setText(filtered.get(position).get("area").toString());
-            textview3.setText(tmpOrder);
+            textview1.setText(filtered.get(position).get("name"));
+            textview2.setText(filtered.get(position).get("area"));
+            textview3.setText(tmpOrder.toString());
 
             imageviewCall.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View _view) {
                     Intent inv = new Intent();
                     inv.setAction(Intent.ACTION_CALL);
-                    inv.setData(Uri.parse("tel:".concat(filtered.get(position).get("contact").toString())));
+                    inv.setData(Uri.parse("tel:".concat(filtered.get(position).get("contact"))));
                     startActivity(inv);
                 }
             });

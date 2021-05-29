@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -43,7 +42,6 @@ import java.util.HashMap;
 public class MyAccountActivity extends AppCompatActivity {
 
     private String name,email,password,uid,type,number;
-    private HashMap<String, String> mp = new HashMap<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
 
     private ImageView backBtn,addStaffBtn;
@@ -284,15 +282,15 @@ public class MyAccountActivity extends AppCompatActivity {
             final ImageView imageviewCall = (ImageView) v.findViewById(R.id.imageviewCall);
             final ImageView imageview1Dir = (ImageView) v.findViewById(R.id.imageviewDir);
 
-            textview1.setText(filtered.get(position).get("name").toString());
-            textview2.setText(filtered.get(position).get("number").toString());
+            textview1.setText(filtered.get(position).get("name"));
+            textview2.setText(filtered.get(position).get("number"));
 
             imageviewCall.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View _view) {
                     Intent inv = new Intent();
                     inv.setAction(Intent.ACTION_CALL);
-                    inv.setData(Uri.parse("tel:".concat(filtered.get(position).get("number").toString())));
+                    inv.setData(Uri.parse("tel:".concat(filtered.get(position).get("number"))));
                     startActivity(inv);
                 }
             });
@@ -302,8 +300,8 @@ public class MyAccountActivity extends AppCompatActivity {
                     Intent in = new Intent();
                     in.setAction(Intent.ACTION_VIEW);
                     in.setClass(getApplicationContext(), StaffActivity.class);
-                    in.putExtra("uid", filtered.get(position).get("uid").toString());
-                    in.putExtra("name", filtered.get(position).get("name").toString());
+                    in.putExtra("uid", filtered.get(position).get("uid"));
+                    in.putExtra("name", filtered.get(position).get("name"));
                     in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     startActivity(in);
                     finish();

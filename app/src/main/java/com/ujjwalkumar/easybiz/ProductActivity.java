@@ -34,7 +34,6 @@ import java.util.HashMap;
 
 public class ProductActivity extends AppCompatActivity {
 
-    private HashMap<String, String> mp = new HashMap<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
 
     private ImageView backBtn,addItemBtn,syncItemBtn;
@@ -130,12 +129,12 @@ public class ProductActivity extends AppCompatActivity {
                 {
                     AlertDialog.Builder delete = new AlertDialog.Builder(ProductActivity.this);
                     delete.setTitle("Delete");
-                    delete.setMessage("Do you want to delete " + filtered.get(i).get("name").toString() + " ?");
+                    delete.setMessage("Do you want to delete " + filtered.get(i).get("name") + " ?");
                     delete.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface _dialog, int _which) {
-                            dbref.child(filtered.get(i).get("id").toString()).removeValue();
-                            Toast.makeText(ProductActivity.this, filtered.get(i).get("name").toString() + " removed", Toast.LENGTH_SHORT).show();
+                            dbref.child(filtered.get(i).get("id")).removeValue();
+                            Toast.makeText(ProductActivity.this, filtered.get(i).get("name") + " removed", Toast.LENGTH_SHORT).show();
                         }
                     });
                     delete.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -242,9 +241,9 @@ public class ProductActivity extends AppCompatActivity {
             final TextView textViewItemPrice = (TextView) v.findViewById(R.id.textViewItemPrice);
             final TextView textViewItemWeight = (TextView) v.findViewById(R.id.textViewItemWeight);
 
-            textViewItemName.setText(filtered.get(position).get("name").toString());
-            textViewItemPrice.setText(filtered.get(position).get("price").toString());
-            textViewItemWeight.setText(filtered.get(position).get("weight").toString());
+            textViewItemName.setText(filtered.get(position).get("name"));
+            textViewItemPrice.setText(filtered.get(position).get("price"));
+            textViewItemWeight.setText(filtered.get(position).get("weight"));
 
             return v;
         }

@@ -55,7 +55,6 @@ public class OrderActivity extends AppCompatActivity {
 
     private String curDate = "";
     private String key = "";
-    private HashMap<String, String> mp = new HashMap<>();
     private ArrayList<HashMap<String, String>> items = new ArrayList<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
     private ArrayList<HashMap<String, String>> cart = new ArrayList<>();
@@ -109,7 +108,7 @@ public class OrderActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //saveOrderPDF();
-                savePDf2();
+                savePDF();
             }
         });
 
@@ -154,10 +153,10 @@ public class OrderActivity extends AppCompatActivity {
         String tmp = Integer.toString(y);
         m = m+1;
         if(m/10==0)
-            tmp = tmp + "0" + Integer.toString(m);
+            tmp = tmp + "0" + m;
         else
-            tmp = tmp + Integer.toString(m);
-        tmp = tmp + Integer.toString(d);
+            tmp = tmp + m;
+        tmp = tmp + d;
 
         return tmp;
     }
@@ -174,7 +173,6 @@ public class OrderActivity extends AppCompatActivity {
                         HashMap<String, String> map = data.getValue(ind);
                         items.add(map);
                     }
-                    Toast.makeText(OrderActivity.this, Integer.toString(items.size()), Toast.LENGTH_SHORT).show();
                 }
                 catch (Exception e) {
                     Toast.makeText(OrderActivity.this, "Failed to load items", Toast.LENGTH_SHORT).show();
@@ -189,7 +187,7 @@ public class OrderActivity extends AppCompatActivity {
         });
     }
 
-    private void savePDf2() {
+    private void savePDF() {
 
         int pageHeight = 842;
         int pagewidth = 595;
@@ -203,9 +201,9 @@ public class OrderActivity extends AppCompatActivity {
         title.setTextSize(15);
         title.setColor(ContextCompat.getColor(this, R.color.black));
 
-        String result = "Area : " + String.format("%-20s", " ") + "Date : " + curDate;
-        canvas.drawText(result, 50, 50, title);
-        result = String.format("%-5s", "S.N.") + String.format("%-20s", "Customer");
+        StringBuilder result = new StringBuilder("Area : " + String.format("%-20s", " ") + "Date : " + curDate);
+        canvas.drawText(result.toString(), 50, 50, title);
+        result = new StringBuilder(String.format("%-5s", "S.N.") + String.format("%-20s", "Customer"));
         // Print Item Names
 //        for(HashMap<String,String> item : items) {
 //            String name = item.get("name");
@@ -213,7 +211,7 @@ public class OrderActivity extends AppCompatActivity {
 //                name = name.substring(name.length()-5,name.length());
 //            result += name + " ";
 //        }
-        canvas.drawText(result, 50, 70, title);
+        canvas.drawText(result.toString(), 50, 70, title);
 
         int sno = 1;
         for(HashMap<String,String> hmp : filtered) {
@@ -225,14 +223,14 @@ public class OrderActivity extends AppCompatActivity {
                 tmpOrder.put(map.get("name"),map.get("qty"));
             }
 
-            result = String.format("%-5s", sno) + String.format("%-20s", hmp.get("name"));
+            result = new StringBuilder(String.format("%-5s", sno) + String.format("%-20s", hmp.get("name")));
             for(HashMap<String,String> item : items) {
                 if(tmpOrder.containsKey(item.get("name")))
-                    result += String.format("%-6s", tmpOrder.get(item.get("name")));
+                    result.append(String.format("%-6s", tmpOrder.get(item.get("name"))));
                 else
-                    result += String.format("%-6s", "0");
+                    result.append(String.format("%-6s", "0"));
             }
-            canvas.drawText(result, 50, 70+sno*20, title);
+            canvas.drawText(result.toString(), 50, 70+sno*20, title);
             sno++;
         }
 
@@ -335,27 +333,27 @@ public class OrderActivity extends AppCompatActivity {
                 manageOrderView.setVisibility(View.GONE);
             }
 
-            double lat = Double.parseDouble(filtered.get(position).get("lat").toString());
-            double lng = Double.parseDouble(filtered.get(position).get("lng").toString());
-            String orderID = filtered.get(position).get("orderID").toString();
+            double lat = Double.parseDouble(filtered.get(position).get("lat"));
+            double lng = Double.parseDouble(filtered.get(position).get("lng"));
+            String orderID = filtered.get(position).get("orderID");
             long delTime = Long.parseLong(filtered.get(position).get("delTime"));
 
             cart = new Gson().fromJson(filtered.get(position).get("cart"),new TypeToken<ArrayList<HashMap<String, String>>>() { }.getType());
-            String tmpOrder = "";
+            StringBuilder tmpOrder = new StringBuilder();
             for(HashMap<String, String> map : cart) {
-                tmpOrder = tmpOrder + map.get("qty") + " * " + map.get("name") + "\n";
+                tmpOrder.append(map.get("qty")).append(" * ").append(map.get("name")).append("\n");
             }
 
-            textview1.setText(filtered.get(position).get("name").toString());
-            textview2.setText(filtered.get(position).get("area").toString());
-            textview3.setText(tmpOrder);
+            textview1.setText(filtered.get(position).get("name"));
+            textview2.setText(filtered.get(position).get("area"));
+            textview3.setText(tmpOrder.toString());
 
             imageviewCall.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View _view) {
                     Intent inv = new Intent();
                     inv.setAction(Intent.ACTION_CALL);
-                    inv.setData(Uri.parse("tel:".concat(filtered.get(position).get("contact").toString())));
+                    inv.setData(Uri.parse("tel:".concat(filtered.get(position).get("contact"))));
                     startActivity(inv);
                 }
             });

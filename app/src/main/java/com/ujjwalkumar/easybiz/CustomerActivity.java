@@ -31,14 +31,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
-import com.ujjwalkumar.easybiz.helper.Customer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class CustomerActivity extends AppCompatActivity {
 
-    private HashMap<String, String> mp = new HashMap<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
 
     private ImageView backBtn;
@@ -81,12 +79,12 @@ public class CustomerActivity extends AppCompatActivity {
                 {
                     AlertDialog.Builder delete = new AlertDialog.Builder(CustomerActivity.this);
                     delete.setTitle("Delete");
-                    delete.setMessage("Do you want to delete " + filtered.get(i).get("name").toString() + " ?");
+                    delete.setMessage("Do you want to delete " + filtered.get(i).get("name") + " ?");
                     delete.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface _dialog, int _which) {
-                            dbref.child(filtered.get(i).get("custID").toString()).removeValue();
-                            Toast.makeText(CustomerActivity.this, filtered.get(i).get("name").toString() + " removed", Toast.LENGTH_SHORT).show();
+                            dbref.child(filtered.get(i).get("custID")).removeValue();
+                            Toast.makeText(CustomerActivity.this, filtered.get(i).get("name") + " removed", Toast.LENGTH_SHORT).show();
                         }
                     });
                     delete.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -195,19 +193,19 @@ public class CustomerActivity extends AppCompatActivity {
             final ImageView imageviewCall = (ImageView) v.findViewById(R.id.imageviewCall);
             final ImageView imageview1Dir = (ImageView) v.findViewById(R.id.imageviewDir);
 
-            double lat = Double.parseDouble(filtered.get(position).get("lat").toString());
-            double lng = Double.parseDouble(filtered.get(position).get("lng").toString());
+            double lat = Double.parseDouble(filtered.get(position).get("lat"));
+            double lng = Double.parseDouble(filtered.get(position).get("lng"));
 
-            textview1.setText(filtered.get(position).get("name").toString());
-            textview2.setText(filtered.get(position).get("contact").toString());
-            textview3.setText(filtered.get(position).get("area").toString());
+            textview1.setText(filtered.get(position).get("name"));
+            textview2.setText(filtered.get(position).get("contact"));
+            textview3.setText(filtered.get(position).get("area"));
 
             imageviewCall.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View _view) {
                     Intent inv = new Intent();
                     inv.setAction(Intent.ACTION_CALL);
-                    inv.setData(Uri.parse("tel:".concat(filtered.get(position).get("contact").toString())));
+                    inv.setData(Uri.parse("tel:".concat(filtered.get(position).get("contact"))));
                     startActivity(inv);
                 }
             });

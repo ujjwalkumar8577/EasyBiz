@@ -7,16 +7,16 @@ public class Customer {
     String custID,name,user,lat,lng,img,area,address,contact,time;
 
     public Customer() {
-        this.custID = custID;
-        this.name = name;
-        this.user = user;
-        this.lat = lat;
-        this.lng = lng;
-        this.img = img;
-        this.area = area;
-        this.address = address;
-        this.contact = contact;
-        this.time = time;
+        this.custID = "custID";
+        this.name = "name";
+        this.user = "user";
+        this.lat = "lat";
+        this.lng = "lng";
+        this.img = "img";
+        this.area = "area";
+        this.address = "address";
+        this.contact = "contact";
+        this.time = "time";
     }
 
     public Customer(String custID, String name, String user, String lat, String lng, String img, String area, String address, String contact) {

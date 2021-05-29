@@ -19,7 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Design.NoActionBar">
 
-        <activity android:name=".AddEstimateActivity"></activity>
+        <activity android:name=".AddEstimateActivity" />
         <activity android:name=".EstimateActivity" />
         <activity android:name=".AddOrderActivity" />
         <activity android:name=".OrderActivity" />

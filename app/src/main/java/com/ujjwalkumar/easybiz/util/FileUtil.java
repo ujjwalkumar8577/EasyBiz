@@ -47,7 +47,7 @@ public class FileUtil {
             fr = new FileReader(new File(path));
 
             char[] buff = new char[1024];
-            int length = 0;
+            int length;
 
             while ((length = fr.read(buff)) > 0) {
                 sb.append(new String(buff, 0, length));
@@ -99,7 +99,7 @@ public class FileUtil {
             fos = new FileOutputStream(destPath, false);
 
             byte[] buff = new byte[1024];
-            int length = 0;
+            int length;
 
             while ((length = fis.read(buff)) > 0) {
                 fos.write(buff, 0, length);
@@ -230,7 +230,7 @@ public class FileUtil {
                 }
 
                 final Uri contentUri = ContentUris
-                        .withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                        .withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
 
                 path = getDataColumn(context, contentUri, null, null);
             } else if (isMediaDocument(uri)) {
@@ -284,9 +284,11 @@ public class FileUtil {
                 final int column_index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(column_index);
             }
-        } catch (Exception e) {
-
-        } finally {
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
             if (cursor != null) {
                 cursor.close();
             }

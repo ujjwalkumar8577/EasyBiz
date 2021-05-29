@@ -41,7 +41,6 @@ public class AddOrderActivity extends AppCompatActivity {
 
     String custID,orderID,name,user,lat,lng,area,address,contact,cartLmp;
     private String[] customers;
-    private HashMap<String, String> mp = new HashMap<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
     private ArrayList<HashMap<String, String>> clmp = new ArrayList<>();
     private ArrayList<String> al = new ArrayList<>();
@@ -204,7 +203,7 @@ public class AddOrderActivity extends AppCompatActivity {
                     customers = al.toArray(customers);
 
                     //Creating the instance of ArrayAdapter containing list of customers
-                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_selectable_list_item, customers);
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_selectable_list_item, customers);
 
                     //Getting the instance of AutoCompleteTextView
                     autoCompleteName.setThreshold(2);                       //will start working from first character
