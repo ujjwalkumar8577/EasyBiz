@@ -55,7 +55,6 @@ public class OrderActivity extends AppCompatActivity {
 
     private String curDate = "";
     private String key = "";
-    private String oid = "";
     private HashMap<String, String> mp = new HashMap<>();
     private ArrayList<HashMap<String, String>> items = new ArrayList<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();

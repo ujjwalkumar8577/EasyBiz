@@ -26,17 +26,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:text="Orders"
+            android:text="Estimates"
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_weight="1" />
 
-        <ImageView
-            android:id="@+id/printBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="30dp"
-            android:src="@android:drawable/ic_menu_save"/>
+<!--        <ImageView-->
+<!--            android:id="@+id/printBtn"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginRight="30dp"-->
+<!--            android:src="@android:drawable/ic_menu_save"/>-->
 
     </LinearLayout>
 
@@ -73,7 +73,7 @@
                 app:lottie_rawRes="@raw/loadinggrey" />
 
             <ListView
-                android:id="@+id/listviewOrder"
+                android:id="@+id/listviewEstimate"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 tools:listitem="@android:layout/simple_list_item_1"/>

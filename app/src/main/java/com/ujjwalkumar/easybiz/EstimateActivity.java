@@ -47,14 +47,13 @@ public class EstimateActivity extends AppCompatActivity {
 
     private String curDate = "";
     private String key = "";
-    private String oid = "";
     private HashMap<String, String> mp = new HashMap<>();
     private ArrayList<HashMap<String, String>> items = new ArrayList<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
     private ArrayList<HashMap<String, String>> cart = new ArrayList<>();
 
     private ImageView backBtn;
-    private ListView listviewOrder;
+    private ListView listviewEstimate;
     private DatePicker datepicker;
     private LottieAnimationView loadingAnimation;
 
@@ -75,7 +74,7 @@ public class EstimateActivity extends AppCompatActivity {
         }
 
         backBtn = findViewById(R.id.backBtn);
-        listviewOrder = findViewById(R.id.listviewOrder);
+        listviewEstimate = findViewById(R.id.listviewEstimate);
         datepicker = findViewById(R.id.datepicker);
         loadingAnimation = findViewById(R.id.loadingAnimation);
         details = getSharedPreferences("user", Activity.MODE_PRIVATE);
@@ -188,8 +187,8 @@ public class EstimateActivity extends AppCompatActivity {
                             filtered.add(map);
                     }
                     loadingAnimation.setVisibility(View.GONE);
-                    listviewOrder.setAdapter(new EstimateActivity.ListviewOrderAdapter(filtered));
-                    ((BaseAdapter)listviewOrder.getAdapter()).notifyDataSetChanged();
+                    listviewEstimate.setAdapter(new EstimateActivity.ListviewOrderAdapter(filtered));
+                    ((BaseAdapter)listviewEstimate.getAdapter()).notifyDataSetChanged();
                 }
                 catch (Exception e) {
                     Toast.makeText(EstimateActivity.this, "An exception occurred", Toast.LENGTH_SHORT).show();
@@ -244,6 +243,9 @@ public class EstimateActivity extends AppCompatActivity {
             final TextView textviewPostpone = (TextView) v.findViewById(R.id.textviewPostpone);
             final TextView textviewDeliver = (TextView) v.findViewById(R.id.textviewDeliver);
 
+            textviewPostpone.setVisibility(View.GONE);
+            textviewCancel.setText("Delete");
+            textviewDeliver.setText("Done");
             if (details.getString("type", "").equals("Admin")) {
                 manageOrderView.setVisibility(View.VISIBLE);
             } else {
@@ -252,8 +254,7 @@ public class EstimateActivity extends AppCompatActivity {
 
             double lat = Double.parseDouble(filtered.get(position).get("lat").toString());
             double lng = Double.parseDouble(filtered.get(position).get("lng").toString());
-            String orderID = filtered.get(position).get("orderID").toString();
-            long delTime = Long.parseLong(filtered.get(position).get("delTime"));
+            String estimateID = filtered.get(position).get("estimateID").toString();
 
             cart = new Gson().fromJson(filtered.get(position).get("cart"),new TypeToken<ArrayList<HashMap<String, String>>>() { }.getType());
             String tmpOrder = "";
@@ -292,28 +293,8 @@ public class EstimateActivity extends AppCompatActivity {
             textviewCancel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    HashMap<String, Object> mpUpdate = new HashMap<>();
-                    mpUpdate.put("status", Order.STATUS_CANCELLED);
-                    dbref.child(curDate).child(orderID).updateChildren(mpUpdate);
-                    Toast.makeText(EstimateActivity.this, "Cancelled successfully", Toast.LENGTH_SHORT).show();
-                }
-            });
-            textviewPostpone.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    long updatedDelTime = delTime + 86400000L;
-                    Calendar cal = Calendar.getInstance();
-                    cal.setTimeInMillis(updatedDelTime);
-                    key = new SimpleDateFormat("yyyyMMdd").format(cal.getTime());
-
-                    HashMap<String, String> mpUpdate = new HashMap<>();
-                    mpUpdate = filtered.get(position);
-                    mpUpdate.put("delTime",Long.toString(updatedDelTime));
-
-                    dbref.child(curDate).child(orderID).removeValue();
-                    dbref.child(key).child(orderID).setValue(mpUpdate);
-                    Toast.makeText(EstimateActivity.this, "Postponed successfully", Toast.LENGTH_SHORT).show();
-                    loadList();
+                    dbref.child(curDate).child(estimateID).removeValue();
+                    Toast.makeText(EstimateActivity.this, "Deleted successfully", Toast.LENGTH_SHORT).show();
                 }
             });
             textviewDeliver.setOnClickListener(new View.OnClickListener() {
@@ -321,8 +302,8 @@ public class EstimateActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     HashMap<String, Object> mpUpdate = new HashMap<>();
                     mpUpdate.put("status", Order.STATUS_DELIVERED);
-                    dbref.child(curDate).child(orderID).updateChildren(mpUpdate);
-                    Toast.makeText(EstimateActivity.this, "Delivered successfully", Toast.LENGTH_SHORT).show();
+                    dbref.child(curDate).child(estimateID).updateChildren(mpUpdate);
+                    Toast.makeText(EstimateActivity.this, "Done successfully", Toast.LENGTH_SHORT).show();
                 }
             });
 

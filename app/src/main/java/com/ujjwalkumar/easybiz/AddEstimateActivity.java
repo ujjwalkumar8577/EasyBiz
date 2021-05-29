@@ -30,7 +30,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
-import com.ujjwalkumar.easybiz.helper.Order;
+import com.ujjwalkumar.easybiz.helper.Estimate;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -122,9 +122,9 @@ public class AddEstimateActivity extends AppCompatActivity {
                             contact = tmp.get("contact");
                             cartLmp = new Gson().toJson(cart);
 
-                            Order estimate = new Order(estimateID,name,user,lat,lng,area,address,contact,cartLmp);
+                            Estimate estimate = new Estimate(estimateID,name,user,lat,lng,area,address,contact,cartLmp);
                             Calendar cal = Calendar.getInstance();
-                            cal.setTimeInMillis(Long.parseLong(estimate.getDelTime()));
+                            cal.setTimeInMillis(Long.parseLong(estimate.getCreateTime()));
                             String key = new SimpleDateFormat("yyyyMMdd").format(cal.getTime());
 
                             dbref3.child(key).child(estimateID).setValue(estimate);
