@@ -1,5 +1,6 @@
 package com.ujjwalkumar.easybiz;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -33,10 +34,14 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.ujjwalkumar.easybiz.helper.Customer;
 
 import java.io.IOException;
@@ -44,12 +49,13 @@ import java.util.UUID;
 
 public class AddCustomerActivity extends AppCompatActivity {
 
-    String custID, name, user, lat, lng, img, area, address, contact;
-    String downloadURL = "";
-    boolean locationSet = false;
-    boolean imageSet = false;
+    private String custID, name, user, lat, lng, img, area, address, contact;
+    private String downloadURL = "";
+    private boolean locationSet = false;
+    private boolean imageSet = false;
     private double latitude = 0;
     private double longitude = 0;
+    private Uri filePath;
 
     private final int PICK_IMAGE_REQUEST = 22;
 
@@ -64,7 +70,6 @@ public class AddCustomerActivity extends AppCompatActivity {
     private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private DatabaseReference dbref = fbdb.getReference("customers");
     private FirebaseStorage fbst = FirebaseStorage.getInstance();
-    private StorageReference stref = fbst.getReference("customers");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,16 +145,24 @@ public class AddCustomerActivity extends AppCompatActivity {
                         if (!address.equals("")) {
                             if (locationSet) {
                                 if (spinnerArea.getSelectedItemPosition() != 0) {
-                                    custID = dbref.push().getKey();
-                                    user = details.getString("name", "");
-                                    lat = String.valueOf(latitude);
-                                    lng = String.valueOf(longitude);
-                                    img = downloadURL;
-                                    area = spinnerArea.getSelectedItem().toString();
 
-                                    Customer customer = new Customer(custID, name, user, lat, lng, img, area, address, contact);
-                                    dbref.child(custID).setValue(customer);
-                                    clear();
+                                    if(imageSet) {
+                                        uploadImage(filePath, UUID.randomUUID().toString());
+                                    }
+                                    else {
+                                        custID = dbref.push().getKey();
+                                        user = details.getString("name", "");
+                                        lat = String.valueOf(latitude);
+                                        lng = String.valueOf(longitude);
+                                        img = downloadURL;
+                                        area = spinnerArea.getSelectedItem().toString();
+
+                                        Customer customer = new Customer(custID, name, user, lat, lng, img, area, address, contact);
+                                        dbref.child(custID).setValue(customer);
+                                        Toast.makeText(AddCustomerActivity.this, "Customer added successfully", Toast.LENGTH_SHORT).show();
+                                        clear();
+                                    }
+
                                 } else {
                                     Toast.makeText(AddCustomerActivity.this, "Select area", Toast.LENGTH_SHORT).show();
                                 }
@@ -261,7 +274,7 @@ public class AddCustomerActivity extends AppCompatActivity {
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             // Get the Uri of data
-            Uri filePath = data.getData();
+            filePath = data.getData();
             try {
                 // Setting image on image view using Bitmap
                 Bitmap bitmap = MediaStore
@@ -269,7 +282,7 @@ public class AddCustomerActivity extends AppCompatActivity {
                         .Media
                         .getBitmap(getContentResolver(), filePath);
                 imageView.setImageBitmap(bitmap);
-                uploadImage(filePath);
+                imageSet = true;
             }
             catch (IOException e) {
                 e.printStackTrace();
@@ -287,16 +300,17 @@ public class AddCustomerActivity extends AppCompatActivity {
         imageView.setImageResource(R.drawable.imageupload);
     }
 
-    private void uploadImage(Uri filePath) {
+    private void uploadImage(Uri filePath, String fileName) {
         if (filePath != null) {
             // showing progressDialog while uploading
             ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setTitle("Uploading...");
+            progressDialog.setTitle("Uploading image ...");
             progressDialog.show();
 
+            custID = dbref.push().getKey();
             // uploading file and adding listeners on upload or failure of image
-            stref.child(UUID.randomUUID().toString()).putFile(filePath)
-
+            StorageReference stref = fbst.getReference("customers").child(custID);
+            stref.putFile(filePath)
                 .addOnSuccessListener(taskSnapshot -> {
                     progressDialog.dismiss();
                     Toast.makeText(AddCustomerActivity.this, "Image uploaded", Toast.LENGTH_SHORT).show();
@@ -312,14 +326,26 @@ public class AddCustomerActivity extends AppCompatActivity {
                     progressDialog.setMessage("Uploaded " + (int)progress + "%");
                 })
 
-                .addOnCompleteListener(task -> {
-                    if(task.isSuccessful()) {
-                        try {
-                            downloadURL = stref.getDownloadUrl().getResult().getPath();
-                            Toast.makeText(this, downloadURL, Toast.LENGTH_SHORT).show();
-                        }
-                        catch(Exception e) {
-                            e.printStackTrace();
+                .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        if(task.isSuccessful()) {
+                            stref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    downloadURL = uri.toString();
+                                    user = details.getString("name", "");
+                                    lat = String.valueOf(latitude);
+                                    lng = String.valueOf(longitude);
+                                    img = downloadURL;
+                                    area = spinnerArea.getSelectedItem().toString();
+
+                                    Customer customer = new Customer(custID, name, user, lat, lng, img, area, address, contact);
+                                    dbref.child(custID).setValue(customer);
+                                    Toast.makeText(AddCustomerActivity.this, "Customer added successfully", Toast.LENGTH_SHORT).show();
+                                    clear();
+                                }
+                            });
                         }
                     }
                 });

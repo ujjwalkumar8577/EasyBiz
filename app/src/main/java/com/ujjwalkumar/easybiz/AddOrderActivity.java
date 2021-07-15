@@ -9,6 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -311,6 +313,7 @@ public class AddOrderActivity extends AppCompatActivity {
                     cart.add(itm);
                 }
             });
+
             imageviewminus.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View _view) {
@@ -333,8 +336,59 @@ public class AddOrderActivity extends AppCompatActivity {
                 }
             });
 
+            textviewItemQty.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    itm = filtered.get(position);
+                    if(!charSequence.equals("")) {
+                        int q = Integer.parseInt(charSequence.toString());
+                        if (q>0) {
+                            itm.put("qty", Integer.toString(q));
+                            filtered.set(position, itm);
+                        }
+                        else {
+                            itm.put("qty", Integer.toString(0));
+                            filtered.set(position, itm);
+                        }
+                    }
+                    else {
+                        itm.put("qty", Integer.toString(0));
+                        filtered.set(position, itm);
+                    }
+
+                    setAmount(calculateAmount());
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+
+                }
+            });
+
             return v;
         }
+    }
+
+    double calculateAmount() {
+        double qty, price;
+        amt = 0.0;
+        cart = new ArrayList<>();
+        for (int i = 0; i < filtered.size(); i++) {
+            if(filtered.get(i).get("qty")!=null && filtered.get(i).get("price")!=null) {
+                qty = Double.parseDouble(filtered.get(i).get("qty"));
+                price = Double.parseDouble(filtered.get(i).get("price"));
+                if (qty>0) {
+                    amt += qty * price;
+                    cart.add(filtered.get(i));
+                }
+            }
+        }
+        return  amt;
     }
 
     void setAmount(double amount) {
