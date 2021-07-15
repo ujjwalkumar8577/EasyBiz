@@ -19,24 +19,29 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.bumptech.glide.Glide;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+import com.ujjwalkumar.easybiz.helper.Customer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class CustomerActivity extends AppCompatActivity {
 
+    private String userType = "Staff";
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
 
     private ImageView backBtn;
@@ -55,6 +60,9 @@ public class CustomerActivity extends AppCompatActivity {
         listviewCustomer = findViewById(R.id.listviewCustomer);
         loadingAnimation = findViewById(R.id.loadingAnimation);
 
+        SharedPreferences details = getSharedPreferences("user", Activity.MODE_PRIVATE);
+        userType = details.getString("type", "");
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 1000);
         }
@@ -71,11 +79,68 @@ public class CustomerActivity extends AppCompatActivity {
             }
         });
 
+        listviewCustomer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                if(userType.equals("Admin")) {
+                    // get xml view
+                    LayoutInflater li = LayoutInflater.from(CustomerActivity.this);
+                    View promptsView = li.inflate(R.layout.edit_customer_dialog, null);
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CustomerActivity.this);
+                    alertDialogBuilder.setView(promptsView);
+
+                    // get user input
+                    final ImageView imageView = (ImageView) promptsView.findViewById(R.id.imageView);
+                    final EditText userInput1 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput1);
+                    final EditText userInput2 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput2);
+                    final EditText userInput3 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput3);
+                    final Spinner dialogSpinnerArea = (Spinner) promptsView.findViewById(R.id.dialogSpinnerArea);
+
+                    String area = filtered.get(i).get("area");
+                    int ind = Integer.parseInt("0" + area.charAt(area.length()-1));
+                    userInput1.setText(filtered.get(i).get("name"));
+                    userInput2.setText(filtered.get(i).get("contact"));
+                    userInput3.setText(filtered.get(i).get("address"));
+                    dialogSpinnerArea.setSelection(ind);
+                    Glide.with(CustomerActivity.this).load(filtered.get(i).get("img"))
+                            .placeholder(R.drawable.imageupload)
+                            .into(imageView);
+
+                    // set dialog message
+                    alertDialogBuilder
+                            .setCancelable(false)
+                            .setPositiveButton("Update",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,int id) {
+                                            // get user input
+//                                            uid = "uidNotSet";
+//                                            name = userInput1.getText().toString();
+//                                            email = userInput2.getText().toString();
+//                                            password = userInput3.getText().toString();
+//                                            number = userInput4.getText().toString();
+//                                            type = dialogSpinnerRole.getSelectedItem().toString();
+//
+//                                            auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(MyAccountActivity.this, auth_create_user_listener);
+                                        }
+                                    })
+                            .setNegativeButton("Cancel",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,int id) {
+                                            dialog.cancel();
+                                        }
+                                    });
+
+                    // create alert dialog and show it
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
+                }
+            }
+        });
+
         listviewCustomer.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                SharedPreferences details = getSharedPreferences("user", Activity.MODE_PRIVATE);
-                if(details.getString("type", "").equals("Admin"))
+                if(userType.equals("Admin"))
                 {
                     AlertDialog.Builder delete = new AlertDialog.Builder(CustomerActivity.this);
                     delete.setTitle("Delete");

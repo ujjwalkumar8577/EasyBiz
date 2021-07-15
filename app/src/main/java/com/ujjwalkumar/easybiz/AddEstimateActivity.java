@@ -209,7 +209,7 @@ public class AddEstimateActivity extends AppCompatActivity {
                     autoCompleteName.setThreshold(2);                       //will start working from first character
                     autoCompleteName.setAdapter(adapter);                   //setting the adapter data into the AutoCompleteTextView
 
-                    Toast.makeText(AddEstimateActivity.this, "Got customer list", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(AddEstimateActivity.this, "Got customer list", Toast.LENGTH_SHORT).show();
                 }
                 catch (Exception e) {
                     Toast.makeText(AddEstimateActivity.this, "An exception occurred", Toast.LENGTH_SHORT).show();

@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -205,13 +207,13 @@ public class AddOrderActivity extends AppCompatActivity {
                     customers = al.toArray(customers);
 
                     //Creating the instance of ArrayAdapter containing list of customers
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_selectable_list_item, customers);
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_dropdown_item_1line, customers);
 
                     //Getting the instance of AutoCompleteTextView
                     autoCompleteName.setThreshold(2);                       //will start working from first character
                     autoCompleteName.setAdapter(adapter);                   //setting the adapter data into the AutoCompleteTextView
 
-                    Toast.makeText(AddOrderActivity.this, "Got customer list", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(AddOrderActivity.this, "Got customer list", Toast.LENGTH_SHORT).show();
                 }
                 catch (Exception e) {
                     Toast.makeText(AddOrderActivity.this, "An exception occurred", Toast.LENGTH_SHORT).show();

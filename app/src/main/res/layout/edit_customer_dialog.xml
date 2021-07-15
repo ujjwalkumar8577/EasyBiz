@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/add_staff_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Customer Details"
+        android:textColor="#ffffff"
+        android:textSize="18dp"
+        android:textStyle="bold" />
+    
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="240dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:src="@drawable/imageupload"/>
+
+    <EditText
+        android:id="@+id/editTextDialogUserInput1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="#2d2d2d"
+        android:imeOptions="actionNext"
+        android:hint="Enter name"
+        android:inputType="textPersonName"
+        android:padding="8dp"
+        android:text=""
+        android:textColor="#ffffff" />
+
+    <EditText
+        android:id="@+id/editTextDialogUserInput2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="#2d2d2d"
+        android:imeOptions="actionDone"
+        android:hint="Enter phone number"
+        android:inputType="phone"
+        android:padding="8dp"
+        android:text=""
+        android:textColor="#ffffff" />
+
+    <Spinner
+        android:id="@+id/dialogSpinnerArea"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:layout_marginTop="10dp"
+        android:background="#2d2d2d"
+        android:entries="@array/areas_array"
+        android:spinnerMode="dropdown"/>
+
+    <EditText
+        android:id="@+id/editTextDialogUserInput3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="#2d2d2d"
+        android:imeOptions="actionNext"
+        android:hint="Enter address"
+        android:inputType="textEmailAddress"
+        android:padding="8dp"
+        android:text=""
+        android:textColor="#ffffff" />
+
+</LinearLayout>
