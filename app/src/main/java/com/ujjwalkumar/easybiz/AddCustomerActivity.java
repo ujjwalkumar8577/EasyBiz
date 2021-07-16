@@ -111,12 +111,10 @@ public class AddCustomerActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(!imageSet) {
-                    // Select Image
                     Intent intent = new Intent();
                     intent.setType("image/*");
                     intent.setAction(Intent.ACTION_GET_CONTENT);
-                    startActivityForResult(
-                            Intent.createChooser(intent, "Select Image from here..."), PICK_IMAGE_REQUEST);
+                    startActivityForResult(Intent.createChooser(intent, "Select Image from here..."), PICK_IMAGE_REQUEST);
                 }
             }
         });

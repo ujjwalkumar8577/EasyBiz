@@ -4,13 +4,13 @@
 
 ## Introduction
 
-**EasyBiz** is a distribution management tool build on the theme **E-Administration** to help suppliers deliver efficiently.
+**EasyBiz** is a Distribution Management System build on the theme **E-Administration** to help suppliers deliver efficiently.
 
 ## Links
 
 [Demo Video](https://drive.google.com/drive/folders/1o3edONGYjBb_8QBdeNu1M8S_WaDgfWES?usp=sharing)
 
-[PPT](https://drive.google.com/drive/folders/1o3edONGYjBb_8QBdeNu1M8S_WaDgfWES?usp=sharing)
+[PPT](https://drive.google.com/file/d/1wMau8PRXDylbWO84JbDuqHAyRNNZFyx0/view?usp=sharing)
 
 [APK](https://drive.google.com/drive/folders/1o3edONGYjBb_8QBdeNu1M8S_WaDgfWES?usp=sharing)
 
@@ -21,7 +21,7 @@
 3. Firebase Realtime Database
 4. Firebase Storage
 5. Firebase Authentication
-6. Google Map API
+6. Google Maps API
 
 
 ## Contributors:
