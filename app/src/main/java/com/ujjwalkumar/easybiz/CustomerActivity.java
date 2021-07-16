@@ -64,9 +64,9 @@ public class CustomerActivity extends AppCompatActivity {
     private ListView listviewCustomer;
     private LottieAnimationView loadingAnimation;
 
-    private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
-    private DatabaseReference dbref = fbdb.getReference("customers");
-    private FirebaseStorage fbst = FirebaseStorage.getInstance();
+    private final FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+    private final DatabaseReference dbref = fbdb.getReference("customers");
+    private final FirebaseStorage fbst = FirebaseStorage.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,11 +105,11 @@ public class CustomerActivity extends AppCompatActivity {
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(CustomerActivity.this);
                     alertDialogBuilder.setView(promptsView);
 
-                    imageView = (ImageView) promptsView.findViewById(R.id.imageView);
-                    final EditText userInput1 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput1);
-                    final EditText userInput2 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput2);
-                    final EditText userInput3 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput3);
-                    final Spinner dialogSpinnerArea = (Spinner) promptsView.findViewById(R.id.dialogSpinnerArea);
+                    imageView = promptsView.findViewById(R.id.imageView);
+                    final EditText userInput1 = promptsView.findViewById(R.id.editTextDialogUserInput1);
+                    final EditText userInput2 = promptsView.findViewById(R.id.editTextDialogUserInput2);
+                    final EditText userInput3 = promptsView.findViewById(R.id.editTextDialogUserInput3);
+                    final Spinner dialogSpinnerArea = promptsView.findViewById(R.id.dialogSpinnerArea);
 
                     String area = filtered.get(i).get("area");
                     int ind = Integer.parseInt("0" + area.charAt(area.length() - 1));
@@ -189,12 +189,12 @@ public class CustomerActivity extends AppCompatActivity {
                                                                     }
                                                                 });
                                                     }
-                                                } else {
+                                                }
+                                                else {
                                                     Customer customer = new Customer(custID, name, user, lat, lng, img, area, address, contact);
                                                     dbref.child(custID).setValue(customer);
                                                     Toast.makeText(CustomerActivity.this, "Customer updated successfully", Toast.LENGTH_SHORT).show();
                                                 }
-
                                             } else {
                                                 Toast.makeText(CustomerActivity.this, "Empty Field", Toast.LENGTH_SHORT).show();
                                             }
@@ -207,7 +207,6 @@ public class CustomerActivity extends AppCompatActivity {
                                         }
                                     });
 
-                    // create alert dialog and show it
                     AlertDialog alertDialog = alertDialogBuilder.create();
                     alertDialog.show();
                 }
@@ -348,11 +347,11 @@ public class CustomerActivity extends AppCompatActivity {
                 v = inflater.inflate(R.layout.customers, null);
             }
 
-            final TextView textview1 = (TextView) v.findViewById(R.id.textview1);
-            final TextView textview2 = (TextView) v.findViewById(R.id.textview2);
-            final TextView textview3 = (TextView) v.findViewById(R.id.textview3);
-            final ImageView imageviewCall = (ImageView) v.findViewById(R.id.imageviewCall);
-            final ImageView imageview1Dir = (ImageView) v.findViewById(R.id.imageviewDir);
+            final TextView textview1 = v.findViewById(R.id.textview1);
+            final TextView textview2 = v.findViewById(R.id.textview2);
+            final TextView textview3 = v.findViewById(R.id.textview3);
+            final ImageView imageviewCall = v.findViewById(R.id.imageviewCall);
+            final ImageView imageview1Dir = v.findViewById(R.id.imageviewDir);
 
             double lat = Double.parseDouble(filtered.get(position).get("lat"));
             double lng = Double.parseDouble(filtered.get(position).get("lng"));

@@ -14,7 +14,7 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Timer timer = new Timer();
+    private final Timer timer = new Timer();
     private TimerTask Splash;
 
     @Override

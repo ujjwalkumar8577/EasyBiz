@@ -40,8 +40,8 @@ public class ProductActivity extends AppCompatActivity {
     private ListView listviewItem;
     private LottieAnimationView loadingAnimation;
     
-    private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
-    private DatabaseReference dbref = fbdb.getReference("items");
+    private final FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+    private final DatabaseReference dbref = fbdb.getReference("items");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,9 +77,9 @@ public class ProductActivity extends AppCompatActivity {
                 alertDialogBuilder.setView(promptsView);
 
                 // get user input
-                final EditText userInput1 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput1);
-                final EditText userInput2 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput2);
-                final EditText userInput3 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput3);
+                final EditText userInput1 = promptsView.findViewById(R.id.editTextDialogUserInput1);
+                final EditText userInput2 = promptsView.findViewById(R.id.editTextDialogUserInput2);
+                final EditText userInput3 = promptsView.findViewById(R.id.editTextDialogUserInput3);
 
                 // set dialog message
                 alertDialogBuilder
@@ -237,9 +237,9 @@ public class ProductActivity extends AppCompatActivity {
                 v = inflater.inflate(R.layout.items1, null);
             }
 
-            final TextView textViewItemName = (TextView) v.findViewById(R.id.textViewItemName);
-            final TextView textViewItemPrice = (TextView) v.findViewById(R.id.textViewItemPrice);
-            final TextView textViewItemWeight = (TextView) v.findViewById(R.id.textViewItemWeight);
+            final TextView textViewItemName = v.findViewById(R.id.textViewItemName);
+            final TextView textViewItemPrice = v.findViewById(R.id.textViewItemPrice);
+            final TextView textViewItemWeight = v.findViewById(R.id.textViewItemWeight);
 
             textViewItemName.setText(filtered.get(position).get("name"));
             textViewItemPrice.setText(filtered.get(position).get("price"));

@@ -14,8 +14,8 @@ import java.util.HashMap;
 public class GoogleMapController {
 
     private GoogleMap googleMap;
-    private MapView mapView;
-    private HashMap<String, Marker> mapMarker;
+    private final MapView mapView;
+    private final HashMap<String, Marker> mapMarker;
     private GoogleMap.OnMarkerClickListener onMarkerClickListener;
 
     public GoogleMapController(MapView mapView, OnMapReadyCallback onMapReadyCallback) {

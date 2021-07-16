@@ -67,9 +67,9 @@ public class AddCustomerActivity extends AppCompatActivity {
 
     private LocationManager loc;
     private SharedPreferences details;
-    private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
-    private DatabaseReference dbref = fbdb.getReference("customers");
-    private FirebaseStorage fbst = FirebaseStorage.getInstance();
+    private final FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+    private final DatabaseReference dbref = fbdb.getReference("customers");
+    private final FirebaseStorage fbst = FirebaseStorage.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

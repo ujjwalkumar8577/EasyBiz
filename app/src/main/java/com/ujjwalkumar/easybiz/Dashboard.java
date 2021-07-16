@@ -34,9 +34,9 @@ public class Dashboard extends AppCompatActivity {
     private CardView cardview1,cardview2,cardview3,cardview4,cardview5,cardview6,cardview7,cardview8;
 
     private SharedPreferences details;
-    private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
-    private DatabaseReference dbref = fbdb.getReference("locations");
-    private Intent in = new Intent();
+    private final FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+    private final DatabaseReference dbref = fbdb.getReference("locations");
+    private final Intent in = new Intent();
     private LocationManager locationManager;
     private FusedLocationProviderClient fusedLocationClient;
 

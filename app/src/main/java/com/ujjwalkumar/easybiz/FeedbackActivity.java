@@ -27,8 +27,8 @@ public class FeedbackActivity extends AppCompatActivity {
     private LinearLayout sendBtn;
 
     private SharedPreferences details;
-    private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
-    private DatabaseReference dbref = fbdb.getReference("feedbacks");
+    private final FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+    private final DatabaseReference dbref = fbdb.getReference("feedbacks");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

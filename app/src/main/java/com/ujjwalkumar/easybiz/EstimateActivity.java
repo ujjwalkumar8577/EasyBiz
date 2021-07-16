@@ -44,7 +44,7 @@ import java.util.HashMap;
 public class EstimateActivity extends AppCompatActivity {
 
     private String curDate = "";
-    private String key = "";
+    private final String key = "";
     private ArrayList<HashMap<String, String>> items = new ArrayList<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
     private ArrayList<HashMap<String, String>> cart = new ArrayList<>();
@@ -55,9 +55,9 @@ public class EstimateActivity extends AppCompatActivity {
     private LottieAnimationView loadingAnimation;
 
     private SharedPreferences details;
-    private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
-    private DatabaseReference dbref = fbdb.getReference("estimates");
-    private DatabaseReference dbref2 = fbdb.getReference("items");
+    private final FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+    private final DatabaseReference dbref = fbdb.getReference("estimates");
+    private final DatabaseReference dbref2 = fbdb.getReference("items");
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -229,15 +229,15 @@ public class EstimateActivity extends AppCompatActivity {
                 v = inflater.inflate(R.layout.orders, null);
             }
 
-            final TextView textview1 = (TextView) v.findViewById(R.id.textview1);
-            final TextView textview2 = (TextView) v.findViewById(R.id.textview2);
-            final TextView textview3 = (TextView) v.findViewById(R.id.textview3);
-            final ImageView imageviewCall = (ImageView) v.findViewById(R.id.imageviewCall);
-            final ImageView imageview1Dir = (ImageView) v.findViewById(R.id.imageviewDir);
-            final LinearLayout manageOrderView = (LinearLayout) v.findViewById(R.id.manageOrderView);
-            final TextView textviewCancel = (TextView) v.findViewById(R.id.textviewCancel);
-            final TextView textviewPostpone = (TextView) v.findViewById(R.id.textviewPostpone);
-            final TextView textviewDeliver = (TextView) v.findViewById(R.id.textviewDeliver);
+            final TextView textview1 = v.findViewById(R.id.textview1);
+            final TextView textview2 = v.findViewById(R.id.textview2);
+            final TextView textview3 = v.findViewById(R.id.textview3);
+            final ImageView imageviewCall = v.findViewById(R.id.imageviewCall);
+            final ImageView imageview1Dir = v.findViewById(R.id.imageviewDir);
+            final LinearLayout manageOrderView = v.findViewById(R.id.manageOrderView);
+            final TextView textviewCancel = v.findViewById(R.id.textviewCancel);
+            final TextView textviewPostpone = v.findViewById(R.id.textviewPostpone);
+            final TextView textviewDeliver = v.findViewById(R.id.textviewDeliver);
 
             textviewPostpone.setVisibility(View.GONE);
             textviewCancel.setText("Delete");

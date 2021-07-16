@@ -39,8 +39,8 @@ public class LoginActivity extends AppCompatActivity {
     private TextView forgotPasswordBtn;
     private LottieAnimationView loadingAnimation;
 
-    private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
-    private DatabaseReference dbref = fbdb.getReference("users");
+    private final FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+    private final DatabaseReference dbref = fbdb.getReference("users");
     private SharedPreferences details;
     private FirebaseAuth auth;
     private OnCompleteListener<Void> auth_reset_password_listener;

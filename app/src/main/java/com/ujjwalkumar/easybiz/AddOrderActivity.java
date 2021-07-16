@@ -61,10 +61,10 @@ public class AddOrderActivity extends AppCompatActivity {
 
     private AlertDialog.Builder exit;
     private SharedPreferences details;
-    private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
-    private DatabaseReference dbref = fbdb.getReference("customers");
-    private DatabaseReference dbref2 = fbdb.getReference("items");
-    private DatabaseReference dbref3 = fbdb.getReference("orders");
+    private final FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+    private final DatabaseReference dbref = fbdb.getReference("customers");
+    private final DatabaseReference dbref2 = fbdb.getReference("items");
+    private final DatabaseReference dbref3 = fbdb.getReference("orders");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -288,11 +288,11 @@ public class AddOrderActivity extends AppCompatActivity {
                 v = inflater.inflate(R.layout.items3, null);
             }
 
-            final TextView textviewItemName = (TextView) v.findViewById(R.id.textviewItemName);
-            final TextView textviewItemPrice = (TextView) v.findViewById(R.id.textviewItemPrice);
-            final EditText textviewItemQty = (EditText) v.findViewById(R.id.textviewItemQty);
-            final ImageView imageviewminus = (ImageView) v.findViewById(R.id.imageviewminus);
-            final ImageView imageviewplus = (ImageView) v.findViewById(R.id.imageviewplus);
+            final TextView textviewItemName = v.findViewById(R.id.textviewItemName);
+            final TextView textviewItemPrice = v.findViewById(R.id.textviewItemPrice);
+            final EditText textviewItemQty = v.findViewById(R.id.textviewItemQty);
+            final ImageView imageviewminus = v.findViewById(R.id.imageviewminus);
+            final ImageView imageviewplus = v.findViewById(R.id.imageviewplus);
 
             textviewItemName.setText(filtered.get(position).get("name"));
             textviewItemPrice.setText(filtered.get(position).get("price"));

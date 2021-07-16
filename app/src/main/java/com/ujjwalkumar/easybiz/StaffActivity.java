@@ -35,8 +35,8 @@ public class StaffActivity extends AppCompatActivity {
     private MapView mapView;
 
     private GoogleMapController mapviewController;
-    private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
-    private DatabaseReference dbref = fbdb.getReference("locations");
+    private final FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+    private final DatabaseReference dbref = fbdb.getReference("locations");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

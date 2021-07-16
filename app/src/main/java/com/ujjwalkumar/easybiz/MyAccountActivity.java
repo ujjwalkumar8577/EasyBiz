@@ -51,8 +51,8 @@ public class MyAccountActivity extends AppCompatActivity {
     private ListView listviewStaff;
     private LottieAnimationView loadingAnimation;
 
-    private FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
-    private DatabaseReference dbref = fbdb.getReference("users");
+    private final FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
+    private final DatabaseReference dbref = fbdb.getReference("users");
     private SharedPreferences details;
     private FirebaseAuth auth;
     private OnCompleteListener<AuthResult> auth_create_user_listener;
@@ -138,11 +138,11 @@ public class MyAccountActivity extends AppCompatActivity {
                 alertDialogBuilder.setView(promptsView);
 
                 // get user input
-                final EditText userInput1 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput1);
-                final EditText userInput2 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput2);
-                final EditText userInput3 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput3);
-                final EditText userInput4 = (EditText) promptsView.findViewById(R.id.editTextDialogUserInput4);
-                final Spinner dialogSpinnerRole = (Spinner) promptsView.findViewById(R.id.dialogSpinnerRole);
+                final EditText userInput1 = promptsView.findViewById(R.id.editTextDialogUserInput1);
+                final EditText userInput2 = promptsView.findViewById(R.id.editTextDialogUserInput2);
+                final EditText userInput3 = promptsView.findViewById(R.id.editTextDialogUserInput3);
+                final EditText userInput4 = promptsView.findViewById(R.id.editTextDialogUserInput4);
+                final Spinner dialogSpinnerRole = promptsView.findViewById(R.id.dialogSpinnerRole);
 
                 // set dialog message
                 alertDialogBuilder
@@ -277,10 +277,10 @@ public class MyAccountActivity extends AppCompatActivity {
                 v = inflater.inflate(R.layout.staffs, null);
             }
 
-            final TextView textview1 = (TextView) v.findViewById(R.id.textview1);
-            final TextView textview2 = (TextView) v.findViewById(R.id.textview2);
-            final ImageView imageviewCall = (ImageView) v.findViewById(R.id.imageviewCall);
-            final ImageView imageview1Dir = (ImageView) v.findViewById(R.id.imageviewDir);
+            final TextView textview1 = v.findViewById(R.id.textview1);
+            final TextView textview2 = v.findViewById(R.id.textview2);
+            final ImageView imageviewCall = v.findViewById(R.id.imageviewCall);
+            final ImageView imageview1Dir = v.findViewById(R.id.imageviewDir);
 
             textview1.setText(filtered.get(position).get("name"));
             textview2.setText(filtered.get(position).get("number"));
