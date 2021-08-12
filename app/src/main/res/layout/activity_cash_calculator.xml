@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#000000"
     android:orientation="vertical"
-    tools:context=".CashCalculatorActivity">
+    tools:context=".activity.CashCalculatorActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

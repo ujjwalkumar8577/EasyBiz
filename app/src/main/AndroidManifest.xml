@@ -19,21 +19,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Design.NoActionBar">
 
-        <activity android:name=".AddEstimateActivity" />
-        <activity android:name=".EstimateActivity" />
-        <activity android:name=".AddOrderActivity" />
-        <activity android:name=".OrderActivity" />
-        <activity android:name=".AddCustomerActivity" />
-        <activity android:name=".CustomerActivity" />
-        <activity android:name=".ProductActivity" />
-        <activity android:name=".CashCalculatorActivity" />
-        <activity android:name=".StaffActivity" />
-        <activity android:name=".FeedbackActivity" />
-        <activity android:name=".MyAccountActivity" />
-        <activity android:name=".AboutActivity" />
-        <activity android:name=".LoginActivity" />
-        <activity android:name=".Dashboard" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".activity.AddEstimateActivity" />
+        <activity android:name=".activity.EstimateActivity" />
+        <activity android:name=".activity.AddOrderActivity" />
+        <activity android:name=".activity.OrderActivity" />
+        <activity android:name=".activity.AddCustomerActivity" />
+        <activity android:name=".activity.CustomerActivity" />
+        <activity android:name=".activity.ProductActivity" />
+        <activity android:name=".activity.CashCalculatorActivity" />
+        <activity android:name=".activity.StaffActivity" />
+        <activity android:name=".activity.FeedbackActivity" />
+        <activity android:name=".activity.MyAccountActivity" />
+        <activity android:name=".activity.AboutActivity" />
+        <activity android:name=".activity.LoginActivity" />
+        <activity android:name=".activity.DashboardActivity" />
+        <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

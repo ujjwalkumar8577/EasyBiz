@@ -1,4 +1,4 @@
-package com.ujjwalkumar.easybiz;
+package com.ujjwalkumar.easybiz.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+
+import com.ujjwalkumar.easybiz.R;
 
 public class AboutActivity extends AppCompatActivity {
 
@@ -25,7 +27,7 @@ public class AboutActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent in = new Intent();
                 in.setAction(Intent.ACTION_VIEW);
-                in.setClass(getApplicationContext(),Dashboard.class);
+                in.setClass(getApplicationContext(), DashboardActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
                 finish();
@@ -43,7 +45,7 @@ public class AboutActivity extends AppCompatActivity {
             public void onClick(DialogInterface _dialog, int _which) {
                 Intent inf = new Intent();
                 inf.setAction(Intent.ACTION_VIEW);
-                inf.setClass(getApplicationContext(), Dashboard.class);
+                inf.setClass(getApplicationContext(), DashboardActivity.class);
                 inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(inf);
                 finish();

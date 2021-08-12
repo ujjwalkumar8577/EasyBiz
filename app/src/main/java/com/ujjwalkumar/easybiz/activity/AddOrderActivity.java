@@ -1,26 +1,18 @@
-package com.ujjwalkumar.easybiz;
+package com.ujjwalkumar.easybiz.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
-import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -34,6 +26,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
+import com.ujjwalkumar.easybiz.R;
+import com.ujjwalkumar.easybiz.adapter.CartItemAdapter;
+import com.ujjwalkumar.easybiz.helper.Cart;
+import com.ujjwalkumar.easybiz.helper.CartItem;
 import com.ujjwalkumar.easybiz.helper.Order;
 
 import java.text.SimpleDateFormat;
@@ -44,13 +40,12 @@ import java.util.HashMap;
 public class AddOrderActivity extends AppCompatActivity {
 
     String custID,orderID,name,user,lat,lng,area,address,contact,cartLmp;
-    private String[] customers;
-    private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
-    private ArrayList<HashMap<String, String>> clmp = new ArrayList<>();
-    private ArrayList<String> al = new ArrayList<>();
-    private HashMap<String, String> itm = new HashMap<>();
-    private ArrayList<HashMap<String, String>> cart = new ArrayList<>();
-    private double amt = 0;
+    private String[] customers;                                                 // array of name of customers
+    private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();    // map of items with qty
+    private ArrayList<HashMap<String, String>> clmp = new ArrayList<>();        // map of customers
+    private ArrayList<String> al = new ArrayList<>();                           // name of customers
+    private final ArrayList<CartItem> items = new ArrayList<>();                      // CartItem
+    private Cart cart = new Cart();
 
     private ImageView backBtn;
     private AutoCompleteTextView autoCompleteName;
@@ -90,7 +85,7 @@ public class AddOrderActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent in = new Intent();
                 in.setAction(Intent.ACTION_VIEW);
-                in.setClass(getApplicationContext(),Dashboard.class);
+                in.setClass(getApplicationContext(), DashboardActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
                 finish();
@@ -104,9 +99,9 @@ public class AddOrderActivity extends AppCompatActivity {
 
                 name = autoCompleteName.getText().toString();
                 if(!name.equals("")) {
-                    if(amt!=0) {
+                    if(cart.getCartAmount()>0) {
                         for(HashMap<String, String> map : clmp) {
-                            if(map.containsKey("name")&&map.get("name").equals(name)) {
+                            if(map.containsKey("name") && map.get("name").equals(name)) {
                                 tmp = map;
                                 custID = map.get("custID");
                             }
@@ -123,7 +118,13 @@ public class AddOrderActivity extends AppCompatActivity {
                             area = tmp.get("area");
                             address = tmp.get("address");
                             contact = tmp.get("contact");
-                            cartLmp = new Gson().toJson(cart);
+
+                            ArrayList<HashMap<String, String>> alCart = new ArrayList<>();
+                            for(HashMap<String, String> mp: filtered) {
+                                if(Integer.parseInt(mp.get("qty"))>0)
+                                    alCart.add(mp);
+                            }
+                            cartLmp = new Gson().toJson(alCart);
 
                             Order order = new Order(orderID,name,user,lat,lng,area,address,contact,cartLmp);
                             Calendar cal = Calendar.getInstance();
@@ -163,7 +164,7 @@ public class AddOrderActivity extends AppCompatActivity {
             public void onClick(DialogInterface _dialog, int _which) {
                 Intent inf = new Intent();
                 inf.setAction(Intent.ACTION_VIEW);
-                inf.setClass(getApplicationContext(), Dashboard.class);
+                inf.setClass(getApplicationContext(), DashboardActivity.class);
                 inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(inf);
                 finish();
@@ -179,12 +180,11 @@ public class AddOrderActivity extends AppCompatActivity {
     }
 
     private void clear() {
-        cart = new ArrayList<>();
-        amt = 0;
+        cart = new Cart();
         name = "";
         custID = "-1";
         autoCompleteName.setText("");
-        setAmount(amt);
+        setAmount();
         loadList();
     }
 
@@ -239,11 +239,13 @@ public class AddOrderActivity extends AppCompatActivity {
                     };
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         HashMap<String, String> map = data.getValue(ind);
-                        map.put("qty","0");
-                        filtered.add(map);
+                        CartItem tmp = new CartItem(map.get("id"), map.get("name"), map.get("price"), map.get("weight"), "0");
+                        items.add(tmp);
+//                        map.put("qty","0");
+//                        filtered.add(map);
                     }
                     loadingAnimation.setVisibility(View.GONE);
-                    listview.setAdapter(new AddOrderActivity.ListviewItemAdapter3(filtered));
+                    listview.setAdapter(new CartItemAdapter(AddOrderActivity.this, items));
                     ((BaseAdapter)listview.getAdapter()).notifyDataSetChanged();
                 }
                 catch (Exception e) {
@@ -258,142 +260,7 @@ public class AddOrderActivity extends AppCompatActivity {
         });
     }
 
-    public class ListviewItemAdapter3 extends BaseAdapter {
-        ArrayList<HashMap<String, String>> data;
-
-        public ListviewItemAdapter3(ArrayList<HashMap<String, String>> arr) {
-            data = arr;
-        }
-
-        @Override
-        public int getCount() {
-            return data.size();
-        }
-
-        @Override
-        public HashMap<String, String> getItem(int index) {
-            return data.get(index);
-        }
-
-        @Override
-        public long getItemId(int index) {
-            return index;
-        }
-
-        @Override
-        public View getView(final int position, View view, ViewGroup viewGroup) {
-            LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View v = view;
-            if (v == null) {
-                v = inflater.inflate(R.layout.items3, null);
-            }
-
-            final TextView textviewItemName = v.findViewById(R.id.textviewItemName);
-            final TextView textviewItemPrice = v.findViewById(R.id.textviewItemPrice);
-            final EditText textviewItemQty = v.findViewById(R.id.textviewItemQty);
-            final ImageView imageviewminus = v.findViewById(R.id.imageviewminus);
-            final ImageView imageviewplus = v.findViewById(R.id.imageviewplus);
-
-            textviewItemName.setText(filtered.get(position).get("name"));
-            textviewItemPrice.setText(filtered.get(position).get("price"));
-            textviewItemQty.setText(filtered.get(position).get("qty"));
-
-            imageviewplus.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View _view) {
-                    itm = filtered.get(position);
-                    textviewItemQty.setText(String.valueOf((long) (Double.parseDouble(textviewItemQty.getText().toString()) + 1)));
-                    itm.put("qty", textviewItemQty.getText().toString());
-                    amt = amt + Double.parseDouble(filtered.get(position).get("price"));
-                    setAmount(amt);
-                    for (int i = 0; i < cart.size(); i++) {
-                        if (cart.get(i).get("id").equals(filtered.get(position).get("id"))) {
-                            cart.remove(i);
-                            break;
-                        }
-                    }
-                    cart.add(itm);
-                }
-            });
-
-            imageviewminus.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View _view) {
-                    if (Double.parseDouble(textviewItemQty.getText().toString()) > 0) {
-                        itm = filtered.get(position);
-                        textviewItemQty.setText(String.valueOf((long) (Double.parseDouble(textviewItemQty.getText().toString()) - 1)));
-                        itm.put("qty", textviewItemQty.getText().toString());
-                        amt = amt - Double.parseDouble(filtered.get(position).get("price"));
-                        setAmount(amt);
-                        for (int i = 0; i < cart.size(); i++) {
-                            if (cart.get(i).get("id").equals(filtered.get(position).get("id"))) {
-                                cart.remove(i);
-                                break;
-                            }
-                        }
-                        if (Double.parseDouble(textviewItemQty.getText().toString()) > 0) {
-                            cart.add(itm);
-                        }
-                    }
-                }
-            });
-
-            textviewItemQty.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                }
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                    itm = filtered.get(position);
-                    if(!charSequence.equals("")) {
-                        int q = Integer.parseInt(charSequence.toString());
-                        if (q>0) {
-                            itm.put("qty", Integer.toString(q));
-                            filtered.set(position, itm);
-                        }
-                        else {
-                            itm.put("qty", Integer.toString(0));
-                            filtered.set(position, itm);
-                        }
-                    }
-                    else {
-                        itm.put("qty", Integer.toString(0));
-                        filtered.set(position, itm);
-                    }
-
-                    setAmount(calculateAmount());
-                }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-
-                }
-            });
-
-            return v;
-        }
-    }
-
-    double calculateAmount() {
-        double qty, price;
-        amt = 0.0;
-        cart = new ArrayList<>();
-        for (int i = 0; i < filtered.size(); i++) {
-            if(filtered.get(i).get("qty")!=null && filtered.get(i).get("price")!=null) {
-                qty = Double.parseDouble(filtered.get(i).get("qty"));
-                price = Double.parseDouble(filtered.get(i).get("price"));
-                if (qty>0) {
-                    amt += qty * price;
-                    cart.add(filtered.get(i));
-                }
-            }
-        }
-        return  amt;
-    }
-
-    void setAmount(double amount) {
-        textviewamt.setText(String.valueOf(amount));
+    void setAmount() {
+        textviewamt.setText(String.valueOf(cart.getCartAmount()));
     }
 }

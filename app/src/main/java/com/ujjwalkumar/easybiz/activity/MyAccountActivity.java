@@ -1,19 +1,16 @@
-package com.ujjwalkumar.easybiz;
+package com.ujjwalkumar.easybiz.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -34,6 +31,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+import com.ujjwalkumar.easybiz.R;
+import com.ujjwalkumar.easybiz.adapter.StaffAdapter;
 import com.ujjwalkumar.easybiz.helper.User;
 
 import java.util.ArrayList;
@@ -120,7 +119,7 @@ public class MyAccountActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent in = new Intent();
                 in.setAction(Intent.ACTION_VIEW);
-                in.setClass(getApplicationContext(),Dashboard.class);
+                in.setClass(getApplicationContext(), DashboardActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
                 finish();
@@ -133,7 +132,7 @@ public class MyAccountActivity extends AppCompatActivity {
 
                 // get xml view
                 LayoutInflater li = LayoutInflater.from(MyAccountActivity.this);
-                View promptsView = li.inflate(R.layout.add_staff_dialog, null);
+                View promptsView = li.inflate(R.layout.dialog_add_staff, null);
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MyAccountActivity.this);
                 alertDialogBuilder.setView(promptsView);
 
@@ -202,7 +201,7 @@ public class MyAccountActivity extends AppCompatActivity {
             public void onClick(DialogInterface _dialog, int _which) {
                 Intent inf = new Intent();
                 inf.setAction(Intent.ACTION_VIEW);
-                inf.setClass(getApplicationContext(), Dashboard.class);
+                inf.setClass(getApplicationContext(), DashboardActivity.class);
                 inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(inf);
                 finish();
@@ -232,7 +231,7 @@ public class MyAccountActivity extends AppCompatActivity {
                             filtered.add(map);
                     }
                     loadingAnimation.setVisibility(View.GONE);
-                    listviewStaff.setAdapter(new MyAccountActivity.ListviewStaffAdapter(filtered));
+                    listviewStaff.setAdapter(new StaffAdapter(MyAccountActivity.this, filtered));
                     ((BaseAdapter)listviewStaff.getAdapter()).notifyDataSetChanged();
                 }
                 catch (Exception e) {
@@ -246,70 +245,4 @@ public class MyAccountActivity extends AppCompatActivity {
             }
         });
     }
-
-    public class ListviewStaffAdapter extends BaseAdapter {
-        ArrayList<HashMap<String, String>> data;
-
-        public ListviewStaffAdapter(ArrayList<HashMap<String, String>> arr) {
-            data = arr;
-        }
-
-        @Override
-        public int getCount() {
-            return data.size();
-        }
-
-        @Override
-        public HashMap<String, String> getItem(int index) {
-            return data.get(index);
-        }
-
-        @Override
-        public long getItemId(int index) {
-            return index;
-        }
-
-        @Override
-        public View getView(final int position, View view, ViewGroup viewGroup) {
-            LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View v = view;
-            if (v == null) {
-                v = inflater.inflate(R.layout.staffs, null);
-            }
-
-            final TextView textview1 = v.findViewById(R.id.textview1);
-            final TextView textview2 = v.findViewById(R.id.textview2);
-            final ImageView imageviewCall = v.findViewById(R.id.imageviewCall);
-            final ImageView imageview1Dir = v.findViewById(R.id.imageviewDir);
-
-            textview1.setText(filtered.get(position).get("name"));
-            textview2.setText(filtered.get(position).get("number"));
-
-            imageviewCall.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View _view) {
-                    Intent inv = new Intent();
-                    inv.setAction(Intent.ACTION_CALL);
-                    inv.setData(Uri.parse("tel:".concat(filtered.get(position).get("number"))));
-                    startActivity(inv);
-                }
-            });
-            imageview1Dir.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View _view) {
-                    Intent in = new Intent();
-                    in.setAction(Intent.ACTION_VIEW);
-                    in.setClass(getApplicationContext(), StaffActivity.class);
-                    in.putExtra("uid", filtered.get(position).get("uid"));
-                    in.putExtra("name", filtered.get(position).get("name"));
-                    in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    startActivity(in);
-                    finish();
-                }
-            });
-
-            return v;
-        }
-    }
-
 }

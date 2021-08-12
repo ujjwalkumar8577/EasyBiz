@@ -1,4 +1,4 @@
-package com.ujjwalkumar.easybiz;
+package com.ujjwalkumar.easybiz.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -25,9 +25,10 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.ujjwalkumar.easybiz.R;
 import com.ujjwalkumar.easybiz.helper.MyLocation;
 
-public class Dashboard extends AppCompatActivity {
+public class DashboardActivity extends AppCompatActivity {
 
     private TextView textviewUserName,textviewUserType;
     private ImageView myAccountBtn,feedbackBtn,aboutBtn;

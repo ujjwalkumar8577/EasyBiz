@@ -1,4 +1,4 @@
-package com.ujjwalkumar.easybiz;
+package com.ujjwalkumar.easybiz.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -20,6 +20,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+import com.ujjwalkumar.easybiz.R;
 import com.ujjwalkumar.easybiz.util.GoogleMapController;
 
 import java.util.ArrayList;

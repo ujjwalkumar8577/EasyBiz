@@ -1,23 +1,20 @@
-package com.ujjwalkumar.easybiz;
+package com.ujjwalkumar.easybiz.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -27,6 +24,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+import com.ujjwalkumar.easybiz.R;
+import com.ujjwalkumar.easybiz.adapter.ItemAdapter;
 import com.ujjwalkumar.easybiz.helper.Item;
 
 import java.util.ArrayList;
@@ -59,7 +58,7 @@ public class ProductActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent in = new Intent();
                 in.setAction(Intent.ACTION_VIEW);
-                in.setClass(getApplicationContext(),Dashboard.class);
+                in.setClass(getApplicationContext(), DashboardActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
                 finish();
@@ -72,7 +71,7 @@ public class ProductActivity extends AppCompatActivity {
 
                 // get xml view
                 LayoutInflater li = LayoutInflater.from(ProductActivity.this);
-                View promptsView = li.inflate(R.layout.add_item_dialog, null);
+                View promptsView = li.inflate(R.layout.dialog_add_item, null);
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ProductActivity.this);
                 alertDialogBuilder.setView(promptsView);
 
@@ -162,7 +161,7 @@ public class ProductActivity extends AppCompatActivity {
             public void onClick(DialogInterface _dialog, int _which) {
                 Intent inf = new Intent();
                 inf.setAction(Intent.ACTION_VIEW);
-                inf.setClass(getApplicationContext(), Dashboard.class);
+                inf.setClass(getApplicationContext(), DashboardActivity.class);
                 inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(inf);
                 finish();
@@ -191,7 +190,7 @@ public class ProductActivity extends AppCompatActivity {
                         filtered.add(map);
                     }
                     loadingAnimation.setVisibility(View.GONE);
-                    listviewItem.setAdapter(new ListviewItemAdapter1(filtered));
+                    listviewItem.setAdapter(new ItemAdapter(ProductActivity.this, filtered));
                     ((BaseAdapter)listviewItem.getAdapter()).notifyDataSetChanged();
                 }
                 catch (Exception e) {
@@ -205,47 +204,5 @@ public class ProductActivity extends AppCompatActivity {
                 Toast.makeText(ProductActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    public class ListviewItemAdapter1 extends BaseAdapter {
-        ArrayList<HashMap<String, String>> data;
-
-        public ListviewItemAdapter1(ArrayList<HashMap<String, String>> arr) {
-            data = arr;
-        }
-
-        @Override
-        public int getCount() {
-            return data.size();
-        }
-
-        @Override
-        public HashMap<String, String> getItem(int index) {
-            return data.get(index);
-        }
-
-        @Override
-        public long getItemId(int index) {
-            return index;
-        }
-
-        @Override
-        public View getView(final int position, View view, ViewGroup viewGroup) {
-            LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View v = view;
-            if (v == null) {
-                v = inflater.inflate(R.layout.items1, null);
-            }
-
-            final TextView textViewItemName = v.findViewById(R.id.textViewItemName);
-            final TextView textViewItemPrice = v.findViewById(R.id.textViewItemPrice);
-            final TextView textViewItemWeight = v.findViewById(R.id.textViewItemWeight);
-
-            textViewItemName.setText(filtered.get(position).get("name"));
-            textViewItemPrice.setText(filtered.get(position).get("price"));
-            textViewItemWeight.setText(filtered.get(position).get("weight"));
-
-            return v;
-        }
     }
 }

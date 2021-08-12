@@ -1,4 +1,4 @@
-package com.ujjwalkumar.easybiz;
+package com.ujjwalkumar.easybiz.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,6 +12,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.ujjwalkumar.easybiz.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -86,7 +88,7 @@ public class CashCalculatorActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent in = new Intent();
                 in.setAction(Intent.ACTION_VIEW);
-                in.setClass(getApplicationContext(),Dashboard.class);
+                in.setClass(getApplicationContext(), DashboardActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
                 finish();
@@ -225,7 +227,7 @@ public class CashCalculatorActivity extends AppCompatActivity {
             public void onClick(DialogInterface _dialog, int _which) {
                 Intent inf = new Intent();
                 inf.setAction(Intent.ACTION_VIEW);
-                inf.setClass(getApplicationContext(), Dashboard.class);
+                inf.setClass(getApplicationContext(), DashboardActivity.class);
                 inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(inf);
                 finish();

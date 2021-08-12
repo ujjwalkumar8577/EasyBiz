@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#000000"
     android:orientation="vertical"
-    tools:context=".MyAccountActivity">
+    tools:context=".activity.MyAccountActivity">
 
     <LinearLayout
         android:id="@+id/linear1"

@@ -1,22 +1,18 @@
-package com.ujjwalkumar.easybiz;
+package com.ujjwalkumar.easybiz.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -30,6 +26,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
+import com.ujjwalkumar.easybiz.R;
+import com.ujjwalkumar.easybiz.adapter.ListviewItemAdapter3;
 import com.ujjwalkumar.easybiz.helper.Estimate;
 
 import java.text.SimpleDateFormat;
@@ -44,7 +42,7 @@ public class AddEstimateActivity extends AppCompatActivity {
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
     private ArrayList<HashMap<String, String>> clmp = new ArrayList<>();
     private ArrayList<String> al = new ArrayList<>();
-    private HashMap<String, String> itm = new HashMap<>();
+    private final HashMap<String, String> itm = new HashMap<>();
     private ArrayList<HashMap<String, String>> cart = new ArrayList<>();
     private double amt = 0;
 
@@ -86,7 +84,7 @@ public class AddEstimateActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent in = new Intent();
                 in.setAction(Intent.ACTION_VIEW);
-                in.setClass(getApplicationContext(),Dashboard.class);
+                in.setClass(getApplicationContext(), DashboardActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
                 finish();
@@ -159,7 +157,7 @@ public class AddEstimateActivity extends AppCompatActivity {
             public void onClick(DialogInterface _dialog, int _which) {
                 Intent inf = new Intent();
                 inf.setAction(Intent.ACTION_VIEW);
-                inf.setClass(getApplicationContext(), Dashboard.class);
+                inf.setClass(getApplicationContext(), DashboardActivity.class);
                 inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(inf);
                 finish();
@@ -239,7 +237,7 @@ public class AddEstimateActivity extends AppCompatActivity {
                         filtered.add(map);
                     }
                     loadingAnimation.setVisibility(View.GONE);
-                    listview.setAdapter(new AddEstimateActivity.ListviewItemAdapter3(filtered));
+                    listview.setAdapter(new ListviewItemAdapter3(AddEstimateActivity.this, filtered));
                     ((BaseAdapter)listview.getAdapter()).notifyDataSetChanged();
                 }
                 catch (Exception e) {
@@ -252,89 +250,6 @@ public class AddEstimateActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError _databaseError) {
             }
         });
-    }
-
-    public class ListviewItemAdapter3 extends BaseAdapter {
-        ArrayList<HashMap<String, String>> data;
-
-        public ListviewItemAdapter3(ArrayList<HashMap<String, String>> arr) {
-            data = arr;
-        }
-
-        @Override
-        public int getCount() {
-            return data.size();
-        }
-
-        @Override
-        public HashMap<String, String> getItem(int index) {
-            return data.get(index);
-        }
-
-        @Override
-        public long getItemId(int index) {
-            return index;
-        }
-
-        @Override
-        public View getView(final int position, View view, ViewGroup viewGroup) {
-            LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View v = view;
-            if (v == null) {
-                v = inflater.inflate(R.layout.items3, null);
-            }
-
-            final TextView textviewItemName = v.findViewById(R.id.textviewItemName);
-            final TextView textviewItemPrice = v.findViewById(R.id.textviewItemPrice);
-            final EditText textviewItemQty = v.findViewById(R.id.textviewItemQty);
-            final ImageView imageviewminus = v.findViewById(R.id.imageviewminus);
-            final ImageView imageviewplus = v.findViewById(R.id.imageviewplus);
-
-            textviewItemName.setText(filtered.get(position).get("name"));
-            textviewItemPrice.setText(filtered.get(position).get("price"));
-            textviewItemQty.setText(filtered.get(position).get("qty"));
-
-            imageviewplus.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View _view) {
-                    itm = filtered.get(position);
-                    textviewItemQty.setText(String.valueOf((long) (Double.parseDouble(textviewItemQty.getText().toString()) + 1)));
-                    itm.put("qty", textviewItemQty.getText().toString());
-                    amt = amt + Double.parseDouble(filtered.get(position).get("price"));
-                    setAmount(amt);
-                    for (int i = 0; i < cart.size(); i++) {
-                        if (cart.get(i).get("id").equals(filtered.get(position).get("id"))) {
-                            cart.remove(i);
-                            break;
-                        }
-                    }
-                    cart.add(itm);
-                }
-            });
-            imageviewminus.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View _view) {
-                    if (Double.parseDouble(textviewItemQty.getText().toString()) > 0) {
-                        itm = filtered.get(position);
-                        textviewItemQty.setText(String.valueOf((long) (Double.parseDouble(textviewItemQty.getText().toString()) - 1)));
-                        itm.put("qty", textviewItemQty.getText().toString());
-                        amt = amt - Double.parseDouble(filtered.get(position).get("price"));
-                        setAmount(amt);
-                        for (int i = 0; i < cart.size(); i++) {
-                            if (cart.get(i).get("id").equals(filtered.get(position).get("id"))) {
-                                cart.remove(i);
-                                break;
-                            }
-                        }
-                        if (Double.parseDouble(textviewItemQty.getText().toString()) > 0) {
-                            cart.add(itm);
-                        }
-                    }
-                }
-            });
-
-            return v;
-        }
     }
 
     void setAmount(double amount) {

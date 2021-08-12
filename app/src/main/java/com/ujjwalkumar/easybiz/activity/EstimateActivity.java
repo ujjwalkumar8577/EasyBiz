@@ -1,4 +1,4 @@
-package com.ujjwalkumar.easybiz;
+package com.ujjwalkumar.easybiz.activity;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,23 +8,17 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.DatePicker;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -34,8 +28,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.ujjwalkumar.easybiz.R;
+import com.ujjwalkumar.easybiz.adapter.EstimateAdapter;
 import com.ujjwalkumar.easybiz.helper.Order;
 
 import java.util.ArrayList;
@@ -43,11 +37,12 @@ import java.util.HashMap;
 
 public class EstimateActivity extends AppCompatActivity {
 
+    private String userType = "Staff";
     private String curDate = "";
     private final String key = "";
     private ArrayList<HashMap<String, String>> items = new ArrayList<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
-    private ArrayList<HashMap<String, String>> cart = new ArrayList<>();
+    private final ArrayList<HashMap<String, String>> cart = new ArrayList<>();
 
     private ImageView backBtn;
     private ListView listviewEstimate;
@@ -76,6 +71,7 @@ public class EstimateActivity extends AppCompatActivity {
         loadingAnimation = findViewById(R.id.loadingAnimation);
         details = getSharedPreferences("user", Activity.MODE_PRIVATE);
         curDate = getCurDate(datepicker.getYear(),datepicker.getMonth(),datepicker.getDayOfMonth());
+        userType = details.getString("type", "");
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 1000);
@@ -86,7 +82,7 @@ public class EstimateActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent in = new Intent();
                 in.setAction(Intent.ACTION_VIEW);
-                in.setClass(getApplicationContext(),Dashboard.class);
+                in.setClass(getApplicationContext(), DashboardActivity.class);
                 in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(in);
                 finish();
@@ -115,7 +111,7 @@ public class EstimateActivity extends AppCompatActivity {
             public void onClick(DialogInterface _dialog, int _which) {
                 Intent inf = new Intent();
                 inf.setAction(Intent.ACTION_VIEW);
-                inf.setClass(getApplicationContext(), Dashboard.class);
+                inf.setClass(getApplicationContext(), DashboardActivity.class);
                 inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(inf);
                 finish();
@@ -183,7 +179,7 @@ public class EstimateActivity extends AppCompatActivity {
                             filtered.add(map);
                     }
                     loadingAnimation.setVisibility(View.GONE);
-                    listviewEstimate.setAdapter(new EstimateActivity.ListviewOrderAdapter(filtered));
+                    listviewEstimate.setAdapter(new EstimateAdapter(EstimateActivity.this, userType, curDate, filtered));
                     ((BaseAdapter)listviewEstimate.getAdapter()).notifyDataSetChanged();
                 }
                 catch (Exception e) {
@@ -198,113 +194,4 @@ public class EstimateActivity extends AppCompatActivity {
             }
         });
     }
-
-    public class ListviewOrderAdapter extends BaseAdapter {
-        ArrayList<HashMap<String, String>> data;
-
-        public ListviewOrderAdapter(ArrayList<HashMap<String, String>> arr) {
-            data = arr;
-        }
-
-        @Override
-        public int getCount() {
-            return data.size();
-        }
-
-        @Override
-        public HashMap<String, String> getItem(int index) {
-            return data.get(index);
-        }
-
-        @Override
-        public long getItemId(int index) {
-            return index;
-        }
-
-        @Override
-        public View getView(final int position, View view, ViewGroup viewGroup) {
-            LayoutInflater inflater = (LayoutInflater) getBaseContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View v = view;
-            if (v == null) {
-                v = inflater.inflate(R.layout.orders, null);
-            }
-
-            final TextView textview1 = v.findViewById(R.id.textview1);
-            final TextView textview2 = v.findViewById(R.id.textview2);
-            final TextView textview3 = v.findViewById(R.id.textview3);
-            final ImageView imageviewCall = v.findViewById(R.id.imageviewCall);
-            final ImageView imageview1Dir = v.findViewById(R.id.imageviewDir);
-            final LinearLayout manageOrderView = v.findViewById(R.id.manageOrderView);
-            final TextView textviewCancel = v.findViewById(R.id.textviewCancel);
-            final TextView textviewPostpone = v.findViewById(R.id.textviewPostpone);
-            final TextView textviewDeliver = v.findViewById(R.id.textviewDeliver);
-
-            textviewPostpone.setVisibility(View.GONE);
-            textviewCancel.setText("Delete");
-            textviewDeliver.setText("Done");
-            if (details.getString("type", "").equals("Admin")) {
-                manageOrderView.setVisibility(View.VISIBLE);
-            } else {
-                manageOrderView.setVisibility(View.GONE);
-            }
-
-            double lat = Double.parseDouble(filtered.get(position).get("lat"));
-            double lng = Double.parseDouble(filtered.get(position).get("lng"));
-            String estimateID = filtered.get(position).get("estimateID");
-
-            cart = new Gson().fromJson(filtered.get(position).get("cart"),new TypeToken<ArrayList<HashMap<String, String>>>() { }.getType());
-            StringBuilder tmpOrder = new StringBuilder();
-            for(HashMap<String, String> map : cart) {
-                tmpOrder.append(map.get("qty")).append(" * ").append(map.get("name")).append("\n");
-            }
-
-            textview1.setText(filtered.get(position).get("name"));
-            textview2.setText(filtered.get(position).get("area"));
-            textview3.setText(tmpOrder.toString());
-
-            imageviewCall.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View _view) {
-                    Intent inv = new Intent();
-                    inv.setAction(Intent.ACTION_CALL);
-                    inv.setData(Uri.parse("tel:".concat(filtered.get(position).get("contact"))));
-                    startActivity(inv);
-                }
-            });
-            imageview1Dir.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View _view) {
-                    Intent inv = new Intent();
-                    inv.setAction(Intent.ACTION_VIEW);
-                    inv.setData(Uri.parse("google.navigation:q=".concat(String.valueOf(lat).concat(",".concat(String.valueOf(lng))))));
-                    if(inv.resolveActivity(getPackageManager())!=null) {
-                        startActivity(inv);
-                    }
-                    else
-                    {
-                        Toast.makeText(EstimateActivity.this, "No app found for navigation", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-            textviewCancel.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    dbref.child(curDate).child(estimateID).removeValue();
-                    Toast.makeText(EstimateActivity.this, "Deleted successfully", Toast.LENGTH_SHORT).show();
-                }
-            });
-            textviewDeliver.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    HashMap<String, Object> mpUpdate = new HashMap<>();
-                    mpUpdate.put("status", Order.STATUS_DELIVERED);
-                    dbref.child(curDate).child(estimateID).updateChildren(mpUpdate);
-                    Toast.makeText(EstimateActivity.this, "Done successfully", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            return v;
-        }
-    }
-
 }

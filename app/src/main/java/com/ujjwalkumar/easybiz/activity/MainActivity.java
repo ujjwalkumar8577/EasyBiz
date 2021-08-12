@@ -1,4 +1,4 @@
-package com.ujjwalkumar.easybiz;
+package com.ujjwalkumar.easybiz.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.ujjwalkumar.easybiz.R;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
                         in.setAction(Intent.ACTION_VIEW);
 
                         if(FirebaseAuth.getInstance().getCurrentUser()!=null)
-                            in.setClass(getApplicationContext(), Dashboard.class);
+                            in.setClass(getApplicationContext(), DashboardActivity.class);
                         else
                             in.setClass(getApplicationContext(), LoginActivity.class);
 
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface _dialog, int _which) {
                 Intent inf = new Intent();
                 inf.setAction(Intent.ACTION_VIEW);
-                inf.setClass(getApplicationContext(), Dashboard.class);
+                inf.setClass(getApplicationContext(), DashboardActivity.class);
                 inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(inf);
                 finish();

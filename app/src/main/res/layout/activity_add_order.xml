@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#000000"
     android:orientation="vertical"
-    tools:context=".AddOrderActivity">
+    tools:context=".activity.AddOrderActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
