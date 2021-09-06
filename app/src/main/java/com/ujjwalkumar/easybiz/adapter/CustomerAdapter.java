@@ -61,26 +61,20 @@ public class CustomerAdapter extends BaseAdapter {
         textview2.setText(data.get(position).get("contact"));
         textview3.setText(data.get(position).get("area"));
 
-        imageviewCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View _view) {
-                Intent inv = new Intent();
-                inv.setAction(Intent.ACTION_CALL);
-                inv.setData(Uri.parse("tel:".concat(data.get(position).get("contact"))));
-                context.startActivity(inv);
-            }
+        imageviewCall.setOnClickListener(_view -> {
+            Intent inv = new Intent();
+            inv.setAction(Intent.ACTION_CALL);
+            inv.setData(Uri.parse("tel:".concat(data.get(position).get("contact"))));
+            context.startActivity(inv);
         });
-        imageview1Dir.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View _view) {
-                Intent inv = new Intent();
-                inv.setAction(Intent.ACTION_VIEW);
-                inv.setData(Uri.parse("google.navigation:q=".concat(String.valueOf(lat).concat(",".concat(String.valueOf(lng))))));
-                if (inv.resolveActivity(context.getPackageManager()) != null) {
-                    context.startActivity(inv);
-                } else {
-                    Toast.makeText(context, "No app found for navigation", Toast.LENGTH_SHORT).show();
-                }
+        imageview1Dir.setOnClickListener(_view -> {
+            Intent inv = new Intent();
+            inv.setAction(Intent.ACTION_VIEW);
+            inv.setData(Uri.parse("google.navigation:q=".concat(String.valueOf(lat).concat(",".concat(String.valueOf(lng))))));
+            if (inv.resolveActivity(context.getPackageManager()) != null) {
+                context.startActivity(inv);
+            } else {
+                Toast.makeText(context, "No app found for navigation", Toast.LENGTH_SHORT).show();
             }
         });
 

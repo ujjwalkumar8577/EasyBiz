@@ -1,13 +1,8 @@
 package com.ujjwalkumar.easybiz.activity;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -25,6 +20,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.firebase.database.DataSnapshot;
@@ -88,104 +87,87 @@ public class AddOrderActivity extends AppCompatActivity {
         loadCustomers();
         loadItems();
 
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent in = new Intent();
-                in.setAction(Intent.ACTION_VIEW);
-                in.setClass(getApplicationContext(), DashboardActivity.class);
-                in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(in);
-                finish();
-            }
+        backBtn.setOnClickListener(view -> {
+            Intent in = new Intent();
+            in.setAction(Intent.ACTION_VIEW);
+            in.setClass(getApplicationContext(), DashboardActivity.class);
+            in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(in);
+            finish();
         });
 
-        addBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                HashMap<String, String> tmp = new HashMap<>();
-                name = autoCompleteName.getText().toString();
-                if(!name.equals("")) {
-                    if(cart.getCartAmount()>0) {
-                        for(HashMap<String, String> map : clmp) {
-                            if(map.containsKey("name") && map.get("name").equals(name)) {
-                                tmp = map;
-                                custID = map.get("custID");
-                            }
-                        }
-
-                        if(custID.equals("-1")) {
-                            Toast.makeText(AddOrderActivity.this, "Select customer from list or add new customer", Toast.LENGTH_SHORT).show();
-                        }
-                        else {
-                            orderID = dbref3.push().getKey();
-                            user = details.getString("name", "");
-                            lat = tmp.get("lat");
-                            lng = tmp.get("lng");
-                            area = tmp.get("area");
-                            address = tmp.get("address");
-                            contact = tmp.get("contact");
-
-                            ArrayList<HashMap<String, String>> alCart = new ArrayList<>();
-                            for(CartItem item: items) {
-                                if(item.getQuantity()>0) {
-                                    HashMap<String, String> mp = new HashMap<>();
-                                    mp.put("name", String.valueOf(item.getName()));
-                                    mp.put("qty", String.valueOf(item.getQuantity()));
-                                    alCart.add(mp);
-                                }
-                            }
-                            cartLmp = new Gson().toJson(alCart);
-
-                            Order order = new Order(orderID,name,user,lat,lng,area,address,contact,cartLmp);
-                            Calendar cal = Calendar.getInstance();
-                            cal.setTimeInMillis(Long.parseLong(order.getDelTime()));
-                            String key = new SimpleDateFormat("yyyyMMdd").format(cal.getTime());
-
-                            dbref3.child(key).child(orderID).setValue(order);
-                            Toast.makeText(AddOrderActivity.this, "Added successfully", Toast.LENGTH_SHORT).show();
-                            clear();
+        addBtn.setOnClickListener(view -> {
+            HashMap<String, String> tmp = new HashMap<>();
+            name = autoCompleteName.getText().toString();
+            if(!name.equals("")) {
+                if(cart.getCartAmount()>0) {
+                    for(HashMap<String, String> map : clmp) {
+                        if(map.containsKey("name") && map.get("name").equals(name)) {
+                            tmp = map;
+                            custID = map.get("custID");
                         }
                     }
+
+                    if(custID.equals("-1")) {
+                        Toast.makeText(AddOrderActivity.this, "Select customer from list or add new customer", Toast.LENGTH_SHORT).show();
+                    }
                     else {
-                        Toast.makeText(AddOrderActivity.this, "Cart empty", Toast.LENGTH_SHORT).show();
+                        orderID = dbref3.push().getKey();
+                        user = details.getString("name", "");
+                        lat = tmp.get("lat");
+                        lng = tmp.get("lng");
+                        area = tmp.get("area");
+                        address = tmp.get("address");
+                        contact = tmp.get("contact");
+
+                        ArrayList<HashMap<String, String>> alCart = new ArrayList<>();
+                        for(CartItem item: items) {
+                            if(item.getQuantity()>0) {
+                                HashMap<String, String> mp = new HashMap<>();
+                                mp.put("name", String.valueOf(item.getName()));
+                                mp.put("qty", String.valueOf(item.getQuantity()));
+                                alCart.add(mp);
+                            }
+                        }
+                        cartLmp = new Gson().toJson(alCart);
+
+                        Order order = new Order(orderID,name,user,lat,lng,area,address,contact,cartLmp);
+                        Calendar cal = Calendar.getInstance();
+                        cal.setTimeInMillis(Long.parseLong(order.getDelTime()));
+                        String key = new SimpleDateFormat("yyyyMMdd").format(cal.getTime());
+
+                        dbref3.child(key).child(orderID).setValue(order);
+                        Toast.makeText(AddOrderActivity.this, "Added successfully", Toast.LENGTH_SHORT).show();
+                        clear();
                     }
                 }
                 else {
-                    Toast.makeText(AddOrderActivity.this, "Customer name required", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddOrderActivity.this, "Cart empty", Toast.LENGTH_SHORT).show();
                 }
-
             }
+            else {
+                Toast.makeText(AddOrderActivity.this, "Customer name required", Toast.LENGTH_SHORT).show();
+            }
+
         });
 
-        clearBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                clear();
-            }
-        });
+        clearBtn.setOnClickListener(view -> clear());
     }
 
     @Override
     public void onBackPressed() {
         exit.setTitle("Exit");
         exit.setMessage("Do you want to exit?");
-        exit.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface _dialog, int _which) {
-                Intent inf = new Intent();
-                inf.setAction(Intent.ACTION_VIEW);
-                inf.setClass(getApplicationContext(), DashboardActivity.class);
-                inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(inf);
-                finish();
-            }
+        exit.setPositiveButton("Yes", (_dialog, _which) -> {
+            Intent inf = new Intent();
+            inf.setAction(Intent.ACTION_VIEW);
+            inf.setClass(getApplicationContext(), DashboardActivity.class);
+            inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(inf);
+            finish();
         });
-        exit.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface _dialog, int _which) {
+        exit.setNegativeButton("No", (dialog, which) -> {
 
-            }
         });
         exit.create().show();
     }
@@ -210,8 +192,7 @@ public class AddOrderActivity extends AppCompatActivity {
                 al = new ArrayList<>();
                 clmp = new ArrayList<>();
                 try {
-                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {
-                    };
+                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {};
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         HashMap<String, String> map = data.getValue(ind);
                         clmp.add(map);
@@ -295,24 +276,18 @@ public class AddOrderActivity extends AppCompatActivity {
             textviewItemPrice.setText(String.valueOf(item.getPrice()));
             textviewItemQty.setText(String.valueOf(item.getQuantity()));
 
-            imageviewplus.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    cart.increaseItemQuantity(item.getItemID(), item.getName(), item.getPrice(), item.getWeight());
-                    item.setQuantity(cart.getItemQuantity(item.getItemID()));
-                    textviewItemQty.setText(String.valueOf(item.getQuantity()));
-                    setAmount();
-                }
+            imageviewplus.setOnClickListener(view -> {
+                cart.increaseItemQuantity(item.getItemID(), item.getName(), item.getPrice(), item.getWeight());
+                item.setQuantity(cart.getItemQuantity(item.getItemID()));
+                textviewItemQty.setText(String.valueOf(item.getQuantity()));
+                setAmount();
             });
 
-            imageviewminus.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    cart.decreaseItemQuantity(item.getItemID(), item.getName(), item.getPrice(), item.getWeight());
-                    item.setQuantity(cart.getItemQuantity(item.getItemID()));
-                    textviewItemQty.setText(String.valueOf(item.getQuantity()));
-                    setAmount();
-                }
+            imageviewminus.setOnClickListener(view -> {
+                cart.decreaseItemQuantity(item.getItemID(), item.getName(), item.getPrice(), item.getWeight());
+                item.setQuantity(cart.getItemQuantity(item.getItemID()));
+                textviewItemQty.setText(String.valueOf(item.getQuantity()));
+                setAmount();
             });
 
             textviewItemQty.addTextChangedListener(new TextWatcher() {
@@ -328,17 +303,18 @@ public class AddOrderActivity extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable editable) {
-//                    String str = editable.toString();
-//                    double qty = 0;
-//                    try {
-//                        qty = Double.parseDouble(str);
-//                    }
-//                    catch (Exception e) {
-//
-//                    }
-//                    cart.setItemQuantity(item.getItemID(), item.getName(), item.getPrice(), item.getWeight(), qty);
-//                    item.setQuantity(cart.getItemQuantity(item.getItemID()));
-//                    setAmount();
+                    if(textviewItemQty.hasFocus()) {
+                        String str = editable.toString();
+                        double qty = 0;
+                        try {
+                            qty = Double.parseDouble(str);
+                        } catch (Exception e) {
+                            Toast.makeText(AddOrderActivity.this, "Enter valid number", Toast.LENGTH_SHORT).show();
+                        }
+                        cart.setItemQuantity(item.getItemID(), item.getName(), item.getPrice(), item.getWeight(), qty);
+                        item.setQuantity(cart.getItemQuantity(item.getItemID()));
+                        setAmount();
+                    }
                 }
             });
 

@@ -56,27 +56,21 @@ public class StaffAdapter extends BaseAdapter {
         textview1.setText(data.get(position).get("name"));
         textview2.setText(data.get(position).get("number"));
 
-        imageviewCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View _view) {
-                Intent inv = new Intent();
-                inv.setAction(Intent.ACTION_CALL);
-                inv.setData(Uri.parse("tel:".concat(data.get(position).get("number"))));
-                context.startActivity(inv);
-            }
+        imageviewCall.setOnClickListener(_view -> {
+            Intent inv = new Intent();
+            inv.setAction(Intent.ACTION_CALL);
+            inv.setData(Uri.parse("tel:".concat(data.get(position).get("number"))));
+            context.startActivity(inv);
         });
-        imageview1Dir.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View _view) {
-                Intent in = new Intent();
-                in.setAction(Intent.ACTION_VIEW);
-                in.setClass(context, StaffActivity.class);
-                in.putExtra("uid", data.get(position).get("uid"));
-                in.putExtra("name", data.get(position).get("name"));
-                in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                context.startActivity(in);
+        imageview1Dir.setOnClickListener(_view -> {
+            Intent in = new Intent();
+            in.setAction(Intent.ACTION_VIEW);
+            in.setClass(context, StaffActivity.class);
+            in.putExtra("uid", data.get(position).get("uid"));
+            in.putExtra("name", data.get(position).get("name"));
+            in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            context.startActivity(in);
 //                finish();
-            }
         });
 
         return v;

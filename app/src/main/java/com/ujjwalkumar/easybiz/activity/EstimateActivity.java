@@ -1,14 +1,8 @@
 package com.ujjwalkumar.easybiz.activity;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -20,6 +14,11 @@ import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.firebase.database.DataSnapshot;
@@ -39,10 +38,8 @@ public class EstimateActivity extends AppCompatActivity {
 
     private String userType = "Staff";
     private String curDate = "";
-    private final String key = "";
     private ArrayList<HashMap<String, String>> items = new ArrayList<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
-    private final ArrayList<HashMap<String, String>> cart = new ArrayList<>();
 
     private ImageView backBtn;
     private ListView listviewEstimate;
@@ -77,24 +74,18 @@ public class EstimateActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 1000);
         }
 
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent in = new Intent();
-                in.setAction(Intent.ACTION_VIEW);
-                in.setClass(getApplicationContext(), DashboardActivity.class);
-                in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(in);
-                finish();
-            }
+        backBtn.setOnClickListener(view -> {
+            Intent in = new Intent();
+            in.setAction(Intent.ACTION_VIEW);
+            in.setClass(getApplicationContext(), DashboardActivity.class);
+            in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(in);
+            finish();
         });
 
-        datepicker.setOnDateChangedListener(new DatePicker.OnDateChangedListener() {
-            @Override
-            public void onDateChanged(DatePicker datePicker, int i, int i1, int i2) {
-                curDate = getCurDate(i,i1,i2);
-                loadList();
-            }
+        datepicker.setOnDateChangedListener((datePicker, i, i1, i2) -> {
+            curDate = getCurDate(i,i1,i2);
+            loadList();
         });
 
         loadItems();
@@ -106,22 +97,16 @@ public class EstimateActivity extends AppCompatActivity {
         AlertDialog.Builder exit = new AlertDialog.Builder(this);
         exit.setTitle("Exit");
         exit.setMessage("Do you want to exit?");
-        exit.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface _dialog, int _which) {
-                Intent inf = new Intent();
-                inf.setAction(Intent.ACTION_VIEW);
-                inf.setClass(getApplicationContext(), DashboardActivity.class);
-                inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(inf);
-                finish();
-            }
+        exit.setPositiveButton("Yes", (_dialog, _which) -> {
+            Intent inf = new Intent();
+            inf.setAction(Intent.ACTION_VIEW);
+            inf.setClass(getApplicationContext(), DashboardActivity.class);
+            inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(inf);
+            finish();
         });
-        exit.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface _dialog, int _which) {
+        exit.setNegativeButton("No", (_dialog, _which) -> {
 
-            }
         });
         exit.create().show();
     }

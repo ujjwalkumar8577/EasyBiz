@@ -92,45 +92,33 @@ public class EstimateAdapter extends BaseAdapter {
         textview2.setText(data.get(position).get("area"));
         textview3.setText(tmpOrder.toString());
 
-        imageviewCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View _view) {
-                Intent inv = new Intent();
-                inv.setAction(Intent.ACTION_CALL);
-                inv.setData(Uri.parse("tel:".concat(data.get(position).get("contact"))));
+        imageviewCall.setOnClickListener(_view -> {
+            Intent inv = new Intent();
+            inv.setAction(Intent.ACTION_CALL);
+            inv.setData(Uri.parse("tel:".concat(data.get(position).get("contact"))));
+            context.startActivity(inv);
+        });
+        imageview1Dir.setOnClickListener(_view -> {
+            Intent inv = new Intent();
+            inv.setAction(Intent.ACTION_VIEW);
+            inv.setData(Uri.parse("google.navigation:q=".concat(String.valueOf(lat).concat(",".concat(String.valueOf(lng))))));
+            if(inv.resolveActivity(context.getPackageManager())!=null) {
                 context.startActivity(inv);
             }
-        });
-        imageview1Dir.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View _view) {
-                Intent inv = new Intent();
-                inv.setAction(Intent.ACTION_VIEW);
-                inv.setData(Uri.parse("google.navigation:q=".concat(String.valueOf(lat).concat(",".concat(String.valueOf(lng))))));
-                if(inv.resolveActivity(context.getPackageManager())!=null) {
-                    context.startActivity(inv);
-                }
-                else
-                {
-                    Toast.makeText(context, "No app found for navigation", Toast.LENGTH_SHORT).show();
-                }
+            else
+            {
+                Toast.makeText(context, "No app found for navigation", Toast.LENGTH_SHORT).show();
             }
         });
-        textviewCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dbref.child(curDate).child(estimateID).removeValue();
-                Toast.makeText(context, "Deleted successfully", Toast.LENGTH_SHORT).show();
-            }
+        textviewCancel.setOnClickListener(view12 -> {
+            dbref.child(curDate).child(estimateID).removeValue();
+            Toast.makeText(context, "Deleted successfully", Toast.LENGTH_SHORT).show();
         });
-        textviewDeliver.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                HashMap<String, Object> mpUpdate = new HashMap<>();
-                mpUpdate.put("status", Order.STATUS_DELIVERED);
-                dbref.child(curDate).child(estimateID).updateChildren(mpUpdate);
-                Toast.makeText(context, "Done successfully", Toast.LENGTH_SHORT).show();
-            }
+        textviewDeliver.setOnClickListener(view1 -> {
+            HashMap<String, Object> mpUpdate = new HashMap<>();
+            mpUpdate.put("status", Order.STATUS_DELIVERED);
+            dbref.child(curDate).child(estimateID).updateChildren(mpUpdate);
+            Toast.makeText(context, "Done successfully", Toast.LENGTH_SHORT).show();
         });
 
         return v;

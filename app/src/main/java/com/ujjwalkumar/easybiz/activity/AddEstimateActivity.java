@@ -1,22 +1,29 @@
 package com.ujjwalkumar.easybiz.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.firebase.database.DataSnapshot;
@@ -27,8 +34,10 @@ import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.ujjwalkumar.easybiz.R;
-import com.ujjwalkumar.easybiz.adapter.ListviewItemAdapter3;
+import com.ujjwalkumar.easybiz.helper.Cart;
+import com.ujjwalkumar.easybiz.helper.CartItem;
 import com.ujjwalkumar.easybiz.helper.Estimate;
+import com.ujjwalkumar.easybiz.helper.Item;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,14 +46,12 @@ import java.util.HashMap;
 
 public class AddEstimateActivity extends AppCompatActivity {
 
-    String custID,estimateID,name,user,lat,lng,area,address,contact,cartLmp;
-    private String[] customers;
-    private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
-    private ArrayList<HashMap<String, String>> clmp = new ArrayList<>();
-    private ArrayList<String> al = new ArrayList<>();
-    private final HashMap<String, String> itm = new HashMap<>();
-    private ArrayList<HashMap<String, String>> cart = new ArrayList<>();
-    private double amt = 0;
+    String custID, estimateID, name, user, lat, lng, area, address, contact, cartLmp;
+    private String[] customers;                                                 // array of name of customers
+    private ArrayList<HashMap<String, String>> clmp = new ArrayList<>();        // map of customers
+    private ArrayList<String> al = new ArrayList<>();                           // name of customers
+    private ArrayList<CartItem> items = new ArrayList<>();                      // map of items
+    private Cart cart;
 
     private ImageView backBtn;
     private AutoCompleteTextView autoCompleteName;
@@ -75,111 +82,107 @@ public class AddEstimateActivity extends AppCompatActivity {
         exit = new AlertDialog.Builder(this);
         details = getSharedPreferences("user", Activity.MODE_PRIVATE);
 
+        cart = new Cart();
         clear();
         loadCustomers();
-        loadList();
+        loadItems();
 
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent in = new Intent();
-                in.setAction(Intent.ACTION_VIEW);
-                in.setClass(getApplicationContext(), DashboardActivity.class);
-                in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(in);
-                finish();
-            }
+        backBtn.setOnClickListener(view -> {
+            Intent in = new Intent();
+            in.setAction(Intent.ACTION_VIEW);
+            in.setClass(getApplicationContext(), DashboardActivity.class);
+            in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(in);
+            finish();
         });
 
-        addBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                HashMap<String, String> tmp = new HashMap<>();
-
-                name = autoCompleteName.getText().toString();
-                if(!name.equals("")) {
-                    if(amt!=0) {
-                        for(HashMap<String, String> map : clmp) {
-                            if(map.containsKey("name")&&map.get("name").equals(name)) {
-                                tmp = map;
-                                custID = map.get("custID");
-                            }
-                        }
-
-                        if(custID.equals("-1")) {
-                            Toast.makeText(AddEstimateActivity.this, "Select customer from list or add new customer", Toast.LENGTH_SHORT).show();
-                        }
-                        else {
-                            estimateID = dbref3.push().getKey();
-                            user = details.getString("name", "");
-                            lat = tmp.get("lat");
-                            lng = tmp.get("lng");
-                            area = tmp.get("area");
-                            address = tmp.get("address");
-                            contact = tmp.get("contact");
-                            cartLmp = new Gson().toJson(cart);
-
-                            Estimate estimate = new Estimate(estimateID,name,user,lat,lng,area,address,contact,cartLmp);
-                            Calendar cal = Calendar.getInstance();
-                            cal.setTimeInMillis(Long.parseLong(estimate.getCreateTime()));
-                            String key = new SimpleDateFormat("yyyyMMdd").format(cal.getTime());
-
-                            dbref3.child(key).child(estimateID).setValue(estimate);
-                            Toast.makeText(AddEstimateActivity.this, "Added successfully", Toast.LENGTH_SHORT).show();
-                            clear();
+        addBtn.setOnClickListener(view -> {
+            HashMap<String, String> tmp = new HashMap<>();
+            name = autoCompleteName.getText().toString();
+            if(!name.equals("")) {
+                if(cart.getCartAmount()>0) {
+                    for(HashMap<String, String> map : clmp) {
+                        if(map.containsKey("name") && map.get("name").equals(name)) {
+                            tmp = map;
+                            custID = map.get("custID");
                         }
                     }
+
+                    if(custID.equals("-1")) {
+                        Toast.makeText(AddEstimateActivity.this, "Select customer from list or add new customer", Toast.LENGTH_SHORT).show();
+                    }
                     else {
-                        Toast.makeText(AddEstimateActivity.this, "Cart empty", Toast.LENGTH_SHORT).show();
+                        estimateID = dbref3.push().getKey();
+                        user = details.getString("name", "");
+                        lat = tmp.get("lat");
+                        lng = tmp.get("lng");
+                        area = tmp.get("area");
+                        address = tmp.get("address");
+                        contact = tmp.get("contact");
+
+                        ArrayList<HashMap<String, String>> alCart = new ArrayList<>();
+                        for(CartItem item: items) {
+                            if(item.getQuantity()>0) {
+                                HashMap<String, String> mp = new HashMap<>();
+                                mp.put("name", String.valueOf(item.getName()));
+                                mp.put("qty", String.valueOf(item.getQuantity()));
+                                alCart.add(mp);
+                            }
+                        }
+                        cartLmp = new Gson().toJson(alCart);
+
+                        Estimate estimate = new Estimate(estimateID,name,user,lat,lng,area,address,contact,cartLmp);
+                        Calendar cal = Calendar.getInstance();
+                        cal.setTimeInMillis(Long.parseLong(estimate.getCreateTime()));
+                        String key = new SimpleDateFormat("yyyyMMdd").format(cal.getTime());
+
+                        dbref3.child(key).child(estimateID).setValue(estimate);
+                        Toast.makeText(AddEstimateActivity.this, "Added successfully", Toast.LENGTH_SHORT).show();
+                        clear();
                     }
                 }
                 else {
-                    Toast.makeText(AddEstimateActivity.this, "Customer name required", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddEstimateActivity.this, "Cart empty", Toast.LENGTH_SHORT).show();
                 }
-
             }
+            else {
+                Toast.makeText(AddEstimateActivity.this, "Customer name required", Toast.LENGTH_SHORT).show();
+            }
+
         });
 
-        clearBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                clear();
-            }
-        });
+        clearBtn.setOnClickListener(view -> clear());
     }
 
     @Override
     public void onBackPressed() {
         exit.setTitle("Exit");
         exit.setMessage("Do you want to exit?");
-        exit.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface _dialog, int _which) {
-                Intent inf = new Intent();
-                inf.setAction(Intent.ACTION_VIEW);
-                inf.setClass(getApplicationContext(), DashboardActivity.class);
-                inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(inf);
-                finish();
-            }
+        exit.setPositiveButton("Yes", (_dialog, _which) -> {
+            Intent inf = new Intent();
+            inf.setAction(Intent.ACTION_VIEW);
+            inf.setClass(getApplicationContext(), DashboardActivity.class);
+            inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(inf);
+            finish();
         });
-        exit.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface _dialog, int _which) {
+        exit.setNegativeButton("No", (dialog, which) -> {
 
-            }
         });
         exit.create().show();
     }
 
     private void clear() {
-        cart = new ArrayList<>();
-        amt = 0;
+        cart = new Cart();
         name = "";
         custID = "-1";
         autoCompleteName.setText("");
-        setAmount(amt);
-        loadList();
+        setAmount();
+        loadItems();
+    }
+
+    void setAmount() {
+        textviewamt.setText(String.valueOf(cart.getCartAmount()));
     }
 
     private void loadCustomers() {
@@ -189,8 +192,7 @@ public class AddEstimateActivity extends AppCompatActivity {
                 al = new ArrayList<>();
                 clmp = new ArrayList<>();
                 try {
-                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {
-                    };
+                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {};
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         HashMap<String, String> map = data.getValue(ind);
                         clmp.add(map);
@@ -222,22 +224,20 @@ public class AddEstimateActivity extends AppCompatActivity {
         });
     }
 
-    private void loadList() {
+    private void loadItems() {
         loadingAnimation.setVisibility(View.VISIBLE);
         dbref2.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                filtered = new ArrayList<>();
+                items = new ArrayList<>();
                 try {
-                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {
-                    };
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
-                        HashMap<String, String> map = data.getValue(ind);
-                        map.put("qty","0");
-                        filtered.add(map);
+                        Item item = data.getValue(Item.class);
+                        CartItem tmp = new CartItem(item.getId(), item.getName(), Double.parseDouble(item.getPrice()), Double.parseDouble(item.getWeight()), 0);
+                        items.add(tmp);
                     }
                     loadingAnimation.setVisibility(View.GONE);
-                    listview.setAdapter(new ListviewItemAdapter3(AddEstimateActivity.this, filtered));
+                    listview.setAdapter(new AddEstimateActivity.CartItemAdapter(AddEstimateActivity.this, items));
                     ((BaseAdapter)listview.getAdapter()).notifyDataSetChanged();
                 }
                 catch (Exception e) {
@@ -252,7 +252,74 @@ public class AddEstimateActivity extends AppCompatActivity {
         });
     }
 
-    void setAmount(double amount) {
-        textviewamt.setText(String.valueOf(amount));
+    class CartItemAdapter extends ArrayAdapter<CartItem> {
+
+        public CartItemAdapter(Context context, ArrayList<CartItem> items) {
+            super(context, 0, items);
+        }
+
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            CartItem item = getItem(position);
+
+            if(convertView == null) {
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.custom_items2, parent, false);
+            }
+
+            TextView textviewItemName = convertView.findViewById(R.id.textviewItemName);
+            TextView textviewItemPrice = convertView.findViewById(R.id.textviewItemPrice);
+            EditText textviewItemQty = convertView.findViewById(R.id.textviewItemQty);
+            ImageView imageviewminus = convertView.findViewById(R.id.imageviewminus);
+            ImageView imageviewplus = convertView.findViewById(R.id.imageviewplus);
+
+            textviewItemName.setText(item.getName());
+            textviewItemPrice.setText(String.valueOf(item.getPrice()));
+            textviewItemQty.setText(String.valueOf(item.getQuantity()));
+
+            imageviewplus.setOnClickListener(view -> {
+                cart.increaseItemQuantity(item.getItemID(), item.getName(), item.getPrice(), item.getWeight());
+                item.setQuantity(cart.getItemQuantity(item.getItemID()));
+                textviewItemQty.setText(String.valueOf(item.getQuantity()));
+                setAmount();
+            });
+
+            imageviewminus.setOnClickListener(view -> {
+                cart.decreaseItemQuantity(item.getItemID(), item.getName(), item.getPrice(), item.getWeight());
+                item.setQuantity(cart.getItemQuantity(item.getItemID()));
+                textviewItemQty.setText(String.valueOf(item.getQuantity()));
+                setAmount();
+            });
+
+            textviewItemQty.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    if(textviewItemQty.hasFocus()) {
+                        String str = editable.toString();
+                        double qty = 0;
+                        try {
+                            qty = Double.parseDouble(str);
+                        } catch (Exception e) {
+                            Toast.makeText(AddEstimateActivity.this, "Enter valid number", Toast.LENGTH_SHORT).show();
+                        }
+                        cart.setItemQuantity(item.getItemID(), item.getName(), item.getPrice(), item.getWeight(), qty);
+                        item.setQuantity(cart.getItemQuantity(item.getItemID()));
+                        setAmount();
+                    }
+                }
+            });
+
+            return convertView;
+        }
     }
+
 }

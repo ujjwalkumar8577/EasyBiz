@@ -1,11 +1,7 @@
 package com.ujjwalkumar.easybiz.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -20,9 +16,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -87,105 +85,84 @@ public class MyAccountActivity extends AppCompatActivity {
             createStaffView.setVisibility(View.GONE);
         }
 
-        auth_create_user_listener = new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(Task<AuthResult> _param1) {
-                final boolean _success = _param1.isSuccessful();
-                final String _errorMessage = _param1.getException() != null ? _param1.getException().getMessage() : "";
-                if (_success) {
-                    Toast.makeText(MyAccountActivity.this, "New user created successfully", Toast.LENGTH_SHORT).show();
-                    uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                    User user = new User(name,email,password,uid,type,number);
-                    dbref.child(uid).setValue(user);
-                    FirebaseAuth.getInstance().signOut();
-                    auth.signInWithEmailAndPassword(details.getString("email", ""), details.getString("password", "")).addOnCompleteListener(MyAccountActivity.this, auth_sign_in_listener);
-                    loadList();
-                } else {
-                    Toast.makeText(MyAccountActivity.this, _errorMessage, Toast.LENGTH_SHORT).show();
-                }
-            }
-        };
-
-        auth_sign_in_listener = new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(Task<AuthResult> param1) {
-                final boolean success = param1.isSuccessful();
-                final String errorMessage = param1.getException() != null ? param1.getException().getMessage() : "";
-            }
-        };
-
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent in = new Intent();
-                in.setAction(Intent.ACTION_VIEW);
-                in.setClass(getApplicationContext(), DashboardActivity.class);
-                in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(in);
-                finish();
-            }
-        });
-
-        addStaffBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                // get xml view
-                LayoutInflater li = LayoutInflater.from(MyAccountActivity.this);
-                View promptsView = li.inflate(R.layout.dialog_add_staff, null);
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MyAccountActivity.this);
-                alertDialogBuilder.setView(promptsView);
-
-                // get user input
-                final EditText userInput1 = promptsView.findViewById(R.id.editTextDialogUserInput1);
-                final EditText userInput2 = promptsView.findViewById(R.id.editTextDialogUserInput2);
-                final EditText userInput3 = promptsView.findViewById(R.id.editTextDialogUserInput3);
-                final EditText userInput4 = promptsView.findViewById(R.id.editTextDialogUserInput4);
-                final Spinner dialogSpinnerRole = promptsView.findViewById(R.id.dialogSpinnerRole);
-
-                // set dialog message
-                alertDialogBuilder
-                        .setCancelable(false)
-                        .setPositiveButton("Add",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,int id) {
-                                        // get user input
-                                        uid = "uidNotSet";
-                                        name = userInput1.getText().toString();
-                                        email = userInput2.getText().toString();
-                                        password = userInput3.getText().toString();
-                                        number = userInput4.getText().toString();
-                                        type = dialogSpinnerRole.getSelectedItem().toString();
-
-                                        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(MyAccountActivity.this, auth_create_user_listener);
-                                    }
-                                })
-                        .setNegativeButton("Cancel",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,int id) {
-                                        dialog.cancel();
-                                    }
-                                });
-
-                // create alert dialog and show it
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
-
-            }
-        });
-
-        logoutBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        auth_create_user_listener = _param1 -> {
+            final boolean _success = _param1.isSuccessful();
+            final String _errorMessage = _param1.getException() != null ? _param1.getException().getMessage() : "";
+            if (_success) {
+                Toast.makeText(MyAccountActivity.this, "New user created successfully", Toast.LENGTH_SHORT).show();
+                uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                User user = new User(name,email,password,uid,type,number);
+                dbref.child(uid).setValue(user);
                 FirebaseAuth.getInstance().signOut();
-                details.edit().putString("uid", "").commit();
-                details.edit().putString("name", "").commit();
-                details.edit().putString("email", "").commit();
-                details.edit().putString("password", "").commit();
-                details.edit().putString("type", "").commit();
-                details.edit().putString("number", "").commit();
-                finish();
+                auth.signInWithEmailAndPassword(details.getString("email", ""), details.getString("password", "")).addOnCompleteListener(MyAccountActivity.this, auth_sign_in_listener);
+                loadList();
+            } else {
+                Toast.makeText(MyAccountActivity.this, _errorMessage, Toast.LENGTH_SHORT).show();
             }
+        };
+
+        auth_sign_in_listener = param1 -> {
+            final boolean success = param1.isSuccessful();
+            final String errorMessage = param1.getException() != null ? param1.getException().getMessage() : "";
+        };
+
+        backBtn.setOnClickListener(view -> {
+            Intent in = new Intent();
+            in.setAction(Intent.ACTION_VIEW);
+            in.setClass(getApplicationContext(), DashboardActivity.class);
+            in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(in);
+            finish();
+        });
+
+        addStaffBtn.setOnClickListener(view -> {
+
+            // get xml view
+            LayoutInflater li = LayoutInflater.from(MyAccountActivity.this);
+            View promptsView = li.inflate(R.layout.dialog_add_staff, null);
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MyAccountActivity.this);
+            alertDialogBuilder.setView(promptsView);
+
+            // get user input
+            final EditText userInput1 = promptsView.findViewById(R.id.editTextDialogUserInput1);
+            final EditText userInput2 = promptsView.findViewById(R.id.editTextDialogUserInput2);
+            final EditText userInput3 = promptsView.findViewById(R.id.editTextDialogUserInput3);
+            final EditText userInput4 = promptsView.findViewById(R.id.editTextDialogUserInput4);
+            final Spinner dialogSpinnerRole = promptsView.findViewById(R.id.dialogSpinnerRole);
+
+            // set dialog message
+            alertDialogBuilder
+                    .setCancelable(false)
+                    .setPositiveButton("Add",
+                            (dialog, id) -> {
+                                // get user input
+                                uid = "uidNotSet";
+                                name = userInput1.getText().toString();
+                                email = userInput2.getText().toString();
+                                password = userInput3.getText().toString();
+                                number = userInput4.getText().toString();
+                                type = dialogSpinnerRole.getSelectedItem().toString();
+
+                                auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(MyAccountActivity.this, auth_create_user_listener);
+                            })
+                    .setNegativeButton("Cancel",
+                            (dialog, id) -> dialog.cancel());
+
+            // create alert dialog and show it
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
+
+        });
+
+        logoutBtn.setOnClickListener(view -> {
+            FirebaseAuth.getInstance().signOut();
+            details.edit().putString("uid", "").apply();
+            details.edit().putString("name", "").apply();
+            details.edit().putString("email", "").apply();
+            details.edit().putString("password", "").apply();
+            details.edit().putString("type", "").apply();
+            details.edit().putString("number", "").apply();
+            finish();
         });
 
         loadList();
@@ -196,22 +173,16 @@ public class MyAccountActivity extends AppCompatActivity {
         AlertDialog.Builder exit = new AlertDialog.Builder(this);
         exit.setTitle("Exit");
         exit.setMessage("Do you want to exit?");
-        exit.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface _dialog, int _which) {
-                Intent inf = new Intent();
-                inf.setAction(Intent.ACTION_VIEW);
-                inf.setClass(getApplicationContext(), DashboardActivity.class);
-                inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(inf);
-                finish();
-            }
+        exit.setPositiveButton("Yes", (_dialog, _which) -> {
+            Intent inf = new Intent();
+            inf.setAction(Intent.ACTION_VIEW);
+            inf.setClass(getApplicationContext(), DashboardActivity.class);
+            inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(inf);
+            finish();
         });
-        exit.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface _dialog, int _which) {
+        exit.setNegativeButton("No", (_dialog, _which) -> {
 
-            }
         });
         exit.create().show();
     }

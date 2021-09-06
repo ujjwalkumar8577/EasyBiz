@@ -12,12 +12,12 @@
 
         <TextView
             android:id="@+id/textviewItemName"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:padding="4dp"
             android:text="Item name"
             android:textStyle="bold"
-            android:textColor="#ffffff"
+            android:textColor="@color/white"
             android:layout_weight="1" />
 
     </LinearLayout>
@@ -33,15 +33,15 @@
             android:layout_height="wrap_content"
             android:padding="4dp"
             android:text="₹"
-            android:textColor="#ffffff" />
+            android:textColor="@color/white" />
 
         <TextView
             android:id="@+id/textviewItemPrice"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:padding="4dp"
             android:text="1000"
-            android:textColor="#ffffff"
+            android:textColor="@color/white"
             android:layout_weight="1" />
 
         <LinearLayout
@@ -64,12 +64,13 @@
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
                 android:padding="4dp"
+                android:translationY="4dp"
                 android:gravity="center_horizontal"
                 android:inputType="number"
                 android:text="0"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="#ffffff" />
+                android:textColor="@color/white" />
 
             <ImageView
                 android:id="@+id/imageviewplus"

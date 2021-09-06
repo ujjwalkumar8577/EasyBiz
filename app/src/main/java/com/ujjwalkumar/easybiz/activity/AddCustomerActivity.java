@@ -1,16 +1,10 @@
 package com.ujjwalkumar.easybiz.activity;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -20,28 +14,25 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.ujjwalkumar.easybiz.R;
 import com.ujjwalkumar.easybiz.helper.Customer;
 
@@ -108,121 +99,98 @@ public class AddCustomerActivity extends AppCompatActivity {
             Toast.makeText(this, "GPS not enabled", Toast.LENGTH_SHORT).show();
         }
 
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!imageSet) {
-                    Intent intent = new Intent();
-                    intent.setType("image/*");
-                    intent.setAction(Intent.ACTION_GET_CONTENT);
-                    startActivityForResult(Intent.createChooser(intent, "Select Image from here..."), PICK_IMAGE_REQUEST);
-                }
+        imageView.setOnClickListener(view -> {
+            if(!imageSet) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Image from here..."), PICK_IMAGE_REQUEST);
             }
         });
 
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent in = new Intent();
-                in.setAction(Intent.ACTION_VIEW);
-                in.setClass(getApplicationContext(), DashboardActivity.class);
-                in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(in);
-                finish();
-            }
+        backBtn.setOnClickListener(view -> {
+            Intent in = new Intent();
+            in.setAction(Intent.ACTION_VIEW);
+            in.setClass(getApplicationContext(), DashboardActivity.class);
+            in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(in);
+            finish();
         });
 
-        addBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                name = edittextName.getText().toString();
-                contact = edittextContact.getText().toString();
-                address = edittextAddress.getText().toString();
+        addBtn.setOnClickListener(view -> {
+            name = edittextName.getText().toString();
+            contact = edittextContact.getText().toString();
+            address = edittextAddress.getText().toString();
 
-                if (!name.equals("")) {
-                    if (!contact.equals("")) {
-                        if (!address.equals("")) {
-                            if (locationSet) {
-                                if (spinnerArea.getSelectedItemPosition() != 0) {
+            if (!name.equals("")) {
+                if (!contact.equals("")) {
+                    if (!address.equals("")) {
+                        if (locationSet) {
+                            if (spinnerArea.getSelectedItemPosition() != 0) {
 
-                                    if(imageSet) {
-                                        uploadImage(filePath, UUID.randomUUID().toString());
-                                    }
-                                    else {
-                                        custID = dbref.push().getKey();
-                                        user = details.getString("name", "");
-                                        lat = String.valueOf(latitude);
-                                        lng = String.valueOf(longitude);
-                                        img = downloadURL;
-                                        area = spinnerArea.getSelectedItem().toString();
-
-                                        Customer customer = new Customer(custID, name, user, lat, lng, img, area, address, contact);
-                                        dbref.child(custID).setValue(customer);
-                                        Toast.makeText(AddCustomerActivity.this, "Customer added successfully", Toast.LENGTH_SHORT).show();
-                                        clear();
-                                    }
-
-                                } else {
-                                    Toast.makeText(AddCustomerActivity.this, "Select area", Toast.LENGTH_SHORT).show();
+                                if(imageSet) {
+                                    uploadImage(filePath, UUID.randomUUID().toString());
                                 }
+                                else {
+                                    custID = dbref.push().getKey();
+                                    user = details.getString("name", "");
+                                    lat = String.valueOf(latitude);
+                                    lng = String.valueOf(longitude);
+                                    img = downloadURL;
+                                    area = spinnerArea.getSelectedItem().toString();
+
+                                    Customer customer = new Customer(custID, name, user, lat, lng, img, area, address, contact);
+                                    dbref.child(custID).setValue(customer);
+                                    Toast.makeText(AddCustomerActivity.this, "Customer added successfully", Toast.LENGTH_SHORT).show();
+                                    clear();
+                                }
+
                             } else {
-                                Toast.makeText(AddCustomerActivity.this, "Location not updated", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(AddCustomerActivity.this, "Select area", Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            Toast.makeText(AddCustomerActivity.this, "Address required", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AddCustomerActivity.this, "Location not updated", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Toast.makeText(AddCustomerActivity.this, "Contact required", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AddCustomerActivity.this, "Address required", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(AddCustomerActivity.this, "Name required", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddCustomerActivity.this, "Contact required", Toast.LENGTH_SHORT).show();
                 }
+            } else {
+                Toast.makeText(AddCustomerActivity.this, "Name required", Toast.LENGTH_SHORT).show();
             }
         });
 
-        clearBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                clear();
+        clearBtn.setOnClickListener(view -> clear());
+
+        mapView.getMapAsync(googleMap -> {
+
+            if (ActivityCompat.checkSelfPermission(AddCustomerActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(AddCustomerActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(AddCustomerActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
+                return;
             }
-        });
 
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
+            googleMap.setMyLocationEnabled(true);
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(25.0,81.0)));
+            googleMap.moveCamera(CameraUpdateFactory.zoomTo(18));
 
-                if (ActivityCompat.checkSelfPermission(AddCustomerActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(AddCustomerActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(AddCustomerActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1000);
-                    return;
+            Location currentLocation = googleMap.getMyLocation();
+            if(currentLocation!=null)
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude())));
+
+            googleMap.setOnMyLocationButtonClickListener(() -> {
+                Location currentLocation1 = googleMap.getMyLocation();
+                if (currentLocation1 != null) {
+                    latitude = currentLocation1.getLatitude();
+                    longitude = currentLocation1.getLongitude();
+                    locationSet = true;
+                    Toast.makeText(AddCustomerActivity.this, "Location updated", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(AddCustomerActivity.this, "Couldn't update location", Toast.LENGTH_SHORT).show();
                 }
-
-                googleMap.setMyLocationEnabled(true);
-                googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(25.0,81.0)));
-                googleMap.moveCamera(CameraUpdateFactory.zoomTo(18));
-
-                Location currentLocation = googleMap.getMyLocation();
-                if(currentLocation!=null)
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude())));
-
-                googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
-                    @Override
-                    public boolean onMyLocationButtonClick() {
-                        Location currentLocation = googleMap.getMyLocation();
-                        if (currentLocation != null)
-                        {
-                            latitude = currentLocation.getLatitude();
-                            longitude = currentLocation.getLongitude();
-                            locationSet = true;
-                            Toast.makeText(AddCustomerActivity.this, "Location updated", Toast.LENGTH_SHORT).show();
-                        }
-                        else
-                        {
-                            Toast.makeText(AddCustomerActivity.this, "Couldn't update location", Toast.LENGTH_SHORT).show();
-                        }
-                        return false;
-                    }
-                });
-            }
+                return false;
+            });
         });
 
     }
@@ -232,22 +200,16 @@ public class AddCustomerActivity extends AppCompatActivity {
         AlertDialog.Builder exit = new AlertDialog.Builder(this);
         exit.setTitle("Exit");
         exit.setMessage("Do you want to exit?");
-        exit.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface _dialog, int _which) {
-                Intent inf = new Intent();
-                inf.setAction(Intent.ACTION_VIEW);
-                inf.setClass(getApplicationContext(), DashboardActivity.class);
-                inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(inf);
-                finish();
-            }
+        exit.setPositiveButton("Yes", (_dialog, _which) -> {
+            Intent inf = new Intent();
+            inf.setAction(Intent.ACTION_VIEW);
+            inf.setClass(getApplicationContext(), DashboardActivity.class);
+            inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(inf);
+            finish();
         });
-        exit.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface _dialog, int _which) {
+        exit.setNegativeButton("No", (_dialog, _which) -> {
 
-            }
         });
         exit.create().show();
     }
@@ -325,27 +287,21 @@ public class AddCustomerActivity extends AppCompatActivity {
                     progressDialog.setMessage("Uploaded " + (int)progress + "%");
                 })
 
-                .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        if(task.isSuccessful()) {
-                            stref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    downloadURL = uri.toString();
-                                    user = details.getString("name", "");
-                                    lat = String.valueOf(latitude);
-                                    lng = String.valueOf(longitude);
-                                    img = downloadURL;
-                                    area = spinnerArea.getSelectedItem().toString();
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()) {
+                        stref.getDownloadUrl().addOnSuccessListener(uri -> {
+                            downloadURL = uri.toString();
+                            user = details.getString("name", "");
+                            lat = String.valueOf(latitude);
+                            lng = String.valueOf(longitude);
+                            img = downloadURL;
+                            area = spinnerArea.getSelectedItem().toString();
 
-                                    Customer customer = new Customer(custID, name, user, lat, lng, img, area, address, contact);
-                                    dbref.child(custID).setValue(customer);
-                                    Toast.makeText(AddCustomerActivity.this, "Customer added successfully", Toast.LENGTH_SHORT).show();
-                                    clear();
-                                }
-                            });
-                        }
+                            Customer customer = new Customer(custID, name, user, lat, lng, img, area, address, contact);
+                            dbref.child(custID).setValue(customer);
+                            Toast.makeText(AddCustomerActivity.this, "Customer added successfully", Toast.LENGTH_SHORT).show();
+                            clear();
+                        });
                     }
                 });
         }

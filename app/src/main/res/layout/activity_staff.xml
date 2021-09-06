@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
+    android:background="@color/black"
     android:orientation="vertical"
     tools:context=".activity.StaffActivity">
 
@@ -41,14 +41,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#2d2d2d"
+            android:background="@color/grey"
             android:padding="15dp"
             android:orientation="vertical">
 
             <com.google.android.gms.maps.MapView
                 android:id="@+id/mapView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_weight="1" />
 
             <LinearLayout

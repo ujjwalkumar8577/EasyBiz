@@ -92,62 +92,46 @@ public class OrderAdapter extends BaseAdapter {
         textview2.setText(data.get(position).get("area"));
         textview3.setText(tmpOrder.toString());
 
-        imageviewCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View _view) {
-                Intent inv = new Intent();
-                inv.setAction(Intent.ACTION_CALL);
-                inv.setData(Uri.parse("tel:".concat(data.get(position).get("contact"))));
+        imageviewCall.setOnClickListener(_view -> {
+            Intent inv = new Intent();
+            inv.setAction(Intent.ACTION_CALL);
+            inv.setData(Uri.parse("tel:".concat(data.get(position).get("contact"))));
+            context.startActivity(inv);
+        });
+        imageview1Dir.setOnClickListener(_view -> {
+            Intent inv = new Intent();
+            inv.setAction(Intent.ACTION_VIEW);
+            inv.setData(Uri.parse("google.navigation:q=".concat(String.valueOf(lat).concat(",".concat(String.valueOf(lng))))));
+            if(inv.resolveActivity(context.getPackageManager())!=null)
                 context.startActivity(inv);
-            }
+            else
+                Toast.makeText(context, "No app found for navigation", Toast.LENGTH_SHORT).show();
         });
-        imageview1Dir.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View _view) {
-                Intent inv = new Intent();
-                inv.setAction(Intent.ACTION_VIEW);
-                inv.setData(Uri.parse("google.navigation:q=".concat(String.valueOf(lat).concat(",".concat(String.valueOf(lng))))));
-                if(inv.resolveActivity(context.getPackageManager())!=null)
-                    context.startActivity(inv);
-                else
-                    Toast.makeText(context, "No app found for navigation", Toast.LENGTH_SHORT).show();
-            }
+        textviewCancel.setOnClickListener(view13 -> {
+            HashMap<String, Object> mpUpdate = new HashMap<>();
+            mpUpdate.put("status", Order.STATUS_CANCELLED);
+            dbref.child(curDate).child(orderID).updateChildren(mpUpdate);
+            Toast.makeText(context, "Cancelled successfully", Toast.LENGTH_SHORT).show();
         });
-        textviewCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                HashMap<String, Object> mpUpdate = new HashMap<>();
-                mpUpdate.put("status", Order.STATUS_CANCELLED);
-                dbref.child(curDate).child(orderID).updateChildren(mpUpdate);
-                Toast.makeText(context, "Cancelled successfully", Toast.LENGTH_SHORT).show();
-            }
-        });
-        textviewPostpone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                long updatedDelTime = delTime + 86400000L;
-                Calendar cal = Calendar.getInstance();
-                cal.setTimeInMillis(updatedDelTime);
-                String key = new SimpleDateFormat("yyyyMMdd").format(cal.getTime());
+        textviewPostpone.setOnClickListener(view12 -> {
+            long updatedDelTime = delTime + 86400000L;
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(updatedDelTime);
+            String key = new SimpleDateFormat("yyyyMMdd").format(cal.getTime());
 
-                HashMap<String, String> mpUpdate = new HashMap<>();
-                mpUpdate = data.get(position);
-                mpUpdate.put("delTime",Long.toString(updatedDelTime));
+            HashMap<String, String> mpUpdate = data.get(position);
+            mpUpdate.put("delTime",Long.toString(updatedDelTime));
 
-                dbref.child(curDate).child(orderID).removeValue();
-                dbref.child(key).child(orderID).setValue(mpUpdate);
-                Toast.makeText(context, "Postponed successfully", Toast.LENGTH_SHORT).show();
+            dbref.child(curDate).child(orderID).removeValue();
+            dbref.child(key).child(orderID).setValue(mpUpdate);
+            Toast.makeText(context, "Postponed successfully", Toast.LENGTH_SHORT).show();
 //                loadList();
-            }
         });
-        textviewDeliver.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                HashMap<String, Object> mpUpdate = new HashMap<>();
-                mpUpdate.put("status", Order.STATUS_DELIVERED);
-                dbref.child(curDate).child(orderID).updateChildren(mpUpdate);
-                Toast.makeText(context, "Delivered successfully", Toast.LENGTH_SHORT).show();
-            }
+        textviewDeliver.setOnClickListener(view1 -> {
+            HashMap<String, Object> mpUpdate = new HashMap<>();
+            mpUpdate.put("status", Order.STATUS_DELIVERED);
+            dbref.child(curDate).child(orderID).updateChildren(mpUpdate);
+            Toast.makeText(context, "Delivered successfully", Toast.LENGTH_SHORT).show();
         });
 
         return v;

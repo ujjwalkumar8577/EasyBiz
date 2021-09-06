@@ -45,8 +45,4 @@ public class Cart {
         }
         return amt;
     }
-
-    public String toString() {
-        return items.toString();
-    }
 }

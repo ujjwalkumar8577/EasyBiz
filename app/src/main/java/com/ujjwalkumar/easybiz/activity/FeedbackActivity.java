@@ -1,18 +1,16 @@
 package com.ujjwalkumar.easybiz.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -42,35 +40,29 @@ public class FeedbackActivity extends AppCompatActivity {
 
         details = getSharedPreferences("user", Activity.MODE_PRIVATE);
 
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent in = new Intent();
-                in.setAction(Intent.ACTION_VIEW);
-                in.setClass(getApplicationContext(), DashboardActivity.class);
-                in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(in);
-                finish();
-            }
+        backBtn.setOnClickListener(view -> {
+            Intent in = new Intent();
+            in.setAction(Intent.ACTION_VIEW);
+            in.setClass(getApplicationContext(), DashboardActivity.class);
+            in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(in);
+            finish();
         });
 
-        sendBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                message = edittextFeedback.getText().toString();
-                if(message.equals("")) {
-                    Toast.makeText(FeedbackActivity.this, "Please enter your message", Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    user = details.getString("uid", "");
-                    name = details.getString("name", "");
-                    email = details.getString("email", "");
+        sendBtn.setOnClickListener(view -> {
+            message = edittextFeedback.getText().toString();
+            if(message.equals("")) {
+                Toast.makeText(FeedbackActivity.this, "Please enter your message", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                user = details.getString("uid", "");
+                name = details.getString("name", "");
+                email = details.getString("email", "");
 
-                    Feedback feedback = new Feedback(message,user,name,email);
-                    dbref.child(dbref.push().getKey()).setValue(feedback);
-                    Toast.makeText(FeedbackActivity.this, "Message sent", Toast.LENGTH_SHORT).show();
-                    edittextFeedback.setText("");
-                }
+                Feedback feedback = new Feedback(message,user,name,email);
+                dbref.child(dbref.push().getKey()).setValue(feedback);
+                Toast.makeText(FeedbackActivity.this, "Message sent", Toast.LENGTH_SHORT).show();
+                edittextFeedback.setText("");
             }
         });
     }
@@ -80,22 +72,16 @@ public class FeedbackActivity extends AppCompatActivity {
         AlertDialog.Builder exit = new AlertDialog.Builder(this);
         exit.setTitle("Exit");
         exit.setMessage("Do you want to exit?");
-        exit.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface _dialog, int _which) {
-                Intent inf = new Intent();
-                inf.setAction(Intent.ACTION_VIEW);
-                inf.setClass(getApplicationContext(), DashboardActivity.class);
-                inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(inf);
-                finish();
-            }
+        exit.setPositiveButton("Yes", (_dialog, _which) -> {
+            Intent inf = new Intent();
+            inf.setAction(Intent.ACTION_VIEW);
+            inf.setClass(getApplicationContext(), DashboardActivity.class);
+            inf.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(inf);
+            finish();
         });
-        exit.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface _dialog, int _which) {
+        exit.setNegativeButton("No", (_dialog, _which) -> {
 
-            }
         });
         exit.create().show();
     }

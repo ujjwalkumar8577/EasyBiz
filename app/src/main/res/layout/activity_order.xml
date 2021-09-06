@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
+    android:background="@color/black"
     android:orientation="vertical"
     tools:context=".activity.OrderActivity">
 
@@ -23,7 +23,7 @@
             app:srcCompat="@drawable/back_new" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:text="Orders"
@@ -50,7 +50,7 @@
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_margin="10dp"
         app:cardCornerRadius="25dp"
         android:layout_weight="1">
@@ -59,7 +59,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="20dp"
-            android:background="#2d2d2d"
+            android:background="@color/grey"
             android:orientation="vertical">
 
             <com.airbnb.lottie.LottieAnimationView

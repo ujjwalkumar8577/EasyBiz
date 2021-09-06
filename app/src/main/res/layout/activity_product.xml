@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
+    android:background="@color/black"
     android:orientation="vertical"
     tools:context=".activity.ProductActivity">
 
@@ -36,7 +36,7 @@
 <!--        android:layout_width="match_parent"-->
 <!--        android:layout_height="wrap_content"-->
 <!--        android:layout_margin="20dp"-->
-<!--        android:background="#2d2d2d"-->
+<!--        android:background="@color/grey"-->
 <!--        app:cardCornerRadius="25dp">-->
 
 <!--        <LinearLayout-->
@@ -127,7 +127,7 @@
 <!--                    android:layout_marginRight="10dp"-->
 <!--                    android:padding="8dp"-->
 <!--                    android:text="Save"-->
-<!--                    android:background="#000000"/>-->
+<!--                    android:background="@color/black"/>-->
 <!--                <Button-->
 <!--                    android:id="@+id/buttonclear"-->
 <!--                    android:layout_width="wrap_content"-->
@@ -136,7 +136,7 @@
 <!--                    android:layout_marginRight="10dp"-->
 <!--                    android:padding="8dp"-->
 <!--                    android:text="Clear"-->
-<!--                    android:background="#000000"/>-->
+<!--                    android:background="@color/black"/>-->
 
 <!--                <ImageButton-->
 <!--                    android:id="@+id/buttonsync"-->
@@ -155,7 +155,7 @@
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_margin="10dp"
         app:cardCornerRadius="25dp"
         android:layout_weight="1">
@@ -164,7 +164,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="20dp"
-            android:background="#2d2d2d"
+            android:background="@color/grey"
             android:orientation="vertical">
 
             <LinearLayout
@@ -174,7 +174,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="Items"
                     android:textColor="@color/white"
@@ -183,13 +183,12 @@
                     android:layout_weight="1" />
 
                 <ImageView
-                    android:id="@+id/syncItemBtn"
+                    android:id="@+id/shareItemsBtn"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_marginLeft="20dp"
-                    android:background="@android:drawable/stat_notify_sync_noanim"
                     android:scaleType="centerCrop"
-                    android:src="@android:drawable/stat_notify_sync_noanim" />
+                    android:src="@drawable/ic_share_white" />
 
                 <ImageView
                     android:id="@+id/addItemBtn"
