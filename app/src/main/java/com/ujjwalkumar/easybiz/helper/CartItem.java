@@ -1,22 +1,23 @@
 package com.ujjwalkumar.easybiz.helper;
 
 public class CartItem {
-    String id, name, price, weight, quantity;
+    String itemID, name;
+    double price, weight, quantity;
 
-    public CartItem(String id, String name, String price, String weight, String quantity) {
-        this.id = id;
+    public CartItem(String itemID, String name, double price, double weight, double quantity) {
+        this.itemID = itemID;
         this.name = name;
         this.price = price;
         this.weight = weight;
         this.quantity = quantity;
     }
 
-    public String getId() {
-        return id;
+    public String getItemID() {
+        return itemID;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setItemID(String itemID) {
+        this.itemID = itemID;
     }
 
     public String getName() {
@@ -27,27 +28,36 @@ public class CartItem {
         this.name = name;
     }
 
-    public String getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
-    public String getWeight() {
+    public double getWeight() {
         return weight;
     }
 
-    public void setWeight(String weight) {
+    public void setWeight(double weight) {
         this.weight = weight;
     }
 
-    public String getQuantity() {
+    public double getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(String quantity) {
+    public void setQuantity(double quantity) {
         this.quantity = quantity;
+    }
+
+    @Override
+    public String toString() {
+        return "CartItem{" +
+                ", name='" + name +
+                ", price=" + price +
+                ", quantity=" + quantity +
+                '}';
     }
 }

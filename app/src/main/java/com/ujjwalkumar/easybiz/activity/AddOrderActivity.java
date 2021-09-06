@@ -1,18 +1,26 @@
 package com.ujjwalkumar.easybiz.activity;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -27,9 +35,9 @@ import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.ujjwalkumar.easybiz.R;
-import com.ujjwalkumar.easybiz.adapter.CartItemAdapter;
 import com.ujjwalkumar.easybiz.helper.Cart;
 import com.ujjwalkumar.easybiz.helper.CartItem;
+import com.ujjwalkumar.easybiz.helper.Item;
 import com.ujjwalkumar.easybiz.helper.Order;
 
 import java.text.SimpleDateFormat;
@@ -39,13 +47,12 @@ import java.util.HashMap;
 
 public class AddOrderActivity extends AppCompatActivity {
 
-    String custID,orderID,name,user,lat,lng,area,address,contact,cartLmp;
+    String custID, orderID, name, user, lat, lng, area, address, contact, cartLmp;
     private String[] customers;                                                 // array of name of customers
-    private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();    // map of items with qty
     private ArrayList<HashMap<String, String>> clmp = new ArrayList<>();        // map of customers
     private ArrayList<String> al = new ArrayList<>();                           // name of customers
-    private final ArrayList<CartItem> items = new ArrayList<>();                      // CartItem
-    private Cart cart = new Cart();
+    private ArrayList<CartItem> items = new ArrayList<>();                      // map of items
+    private Cart cart;
 
     private ImageView backBtn;
     private AutoCompleteTextView autoCompleteName;
@@ -76,9 +83,10 @@ public class AddOrderActivity extends AppCompatActivity {
         exit = new AlertDialog.Builder(this);
         details = getSharedPreferences("user", Activity.MODE_PRIVATE);
 
+        cart = new Cart();
         clear();
         loadCustomers();
-        loadList();
+        loadItems();
 
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,7 +104,6 @@ public class AddOrderActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 HashMap<String, String> tmp = new HashMap<>();
-
                 name = autoCompleteName.getText().toString();
                 if(!name.equals("")) {
                     if(cart.getCartAmount()>0) {
@@ -120,9 +127,13 @@ public class AddOrderActivity extends AppCompatActivity {
                             contact = tmp.get("contact");
 
                             ArrayList<HashMap<String, String>> alCart = new ArrayList<>();
-                            for(HashMap<String, String> mp: filtered) {
-                                if(Integer.parseInt(mp.get("qty"))>0)
+                            for(CartItem item: items) {
+                                if(item.getQuantity()>0) {
+                                    HashMap<String, String> mp = new HashMap<>();
+                                    mp.put("name", String.valueOf(item.getName()));
+                                    mp.put("qty", String.valueOf(item.getQuantity()));
                                     alCart.add(mp);
+                                }
                             }
                             cartLmp = new Gson().toJson(alCart);
 
@@ -185,7 +196,11 @@ public class AddOrderActivity extends AppCompatActivity {
         custID = "-1";
         autoCompleteName.setText("");
         setAmount();
-        loadList();
+        loadItems();
+    }
+
+    void setAmount() {
+        textviewamt.setText(String.valueOf(cart.getCartAmount()));
     }
 
     private void loadCustomers() {
@@ -228,21 +243,17 @@ public class AddOrderActivity extends AppCompatActivity {
         });
     }
 
-    private void loadList() {
+    private void loadItems() {
         loadingAnimation.setVisibility(View.VISIBLE);
         dbref2.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                filtered = new ArrayList<>();
+                items = new ArrayList<>();
                 try {
-                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {
-                    };
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
-                        HashMap<String, String> map = data.getValue(ind);
-                        CartItem tmp = new CartItem(map.get("id"), map.get("name"), map.get("price"), map.get("weight"), "0");
+                        Item item = data.getValue(Item.class);
+                        CartItem tmp = new CartItem(item.getId(), item.getName(), Double.parseDouble(item.getPrice()), Double.parseDouble(item.getWeight()), 0);
                         items.add(tmp);
-//                        map.put("qty","0");
-//                        filtered.add(map);
                     }
                     loadingAnimation.setVisibility(View.GONE);
                     listview.setAdapter(new CartItemAdapter(AddOrderActivity.this, items));
@@ -260,7 +271,79 @@ public class AddOrderActivity extends AppCompatActivity {
         });
     }
 
-    void setAmount() {
-        textviewamt.setText(String.valueOf(cart.getCartAmount()));
+    class CartItemAdapter extends ArrayAdapter<CartItem> {
+
+        public CartItemAdapter(Context context, ArrayList<CartItem> items) {
+            super(context, 0, items);
+        }
+
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            CartItem item = getItem(position);
+
+            if(convertView == null) {
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.custom_items2, parent, false);
+            }
+
+            TextView textviewItemName = convertView.findViewById(R.id.textviewItemName);
+            TextView textviewItemPrice = convertView.findViewById(R.id.textviewItemPrice);
+            EditText textviewItemQty = convertView.findViewById(R.id.textviewItemQty);
+            ImageView imageviewminus = convertView.findViewById(R.id.imageviewminus);
+            ImageView imageviewplus = convertView.findViewById(R.id.imageviewplus);
+
+            textviewItemName.setText(item.getName());
+            textviewItemPrice.setText(String.valueOf(item.getPrice()));
+            textviewItemQty.setText(String.valueOf(item.getQuantity()));
+
+            imageviewplus.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    cart.increaseItemQuantity(item.getItemID(), item.getName(), item.getPrice(), item.getWeight());
+                    item.setQuantity(cart.getItemQuantity(item.getItemID()));
+                    textviewItemQty.setText(String.valueOf(item.getQuantity()));
+                    setAmount();
+                }
+            });
+
+            imageviewminus.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    cart.decreaseItemQuantity(item.getItemID(), item.getName(), item.getPrice(), item.getWeight());
+                    item.setQuantity(cart.getItemQuantity(item.getItemID()));
+                    textviewItemQty.setText(String.valueOf(item.getQuantity()));
+                    setAmount();
+                }
+            });
+
+            textviewItemQty.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+//                    String str = editable.toString();
+//                    double qty = 0;
+//                    try {
+//                        qty = Double.parseDouble(str);
+//                    }
+//                    catch (Exception e) {
+//
+//                    }
+//                    cart.setItemQuantity(item.getItemID(), item.getName(), item.getPrice(), item.getWeight(), qty);
+//                    item.setQuantity(cart.getItemQuantity(item.getItemID()));
+//                    setAmount();
+                }
+            });
+
+            return convertView;
+        }
     }
+
 }

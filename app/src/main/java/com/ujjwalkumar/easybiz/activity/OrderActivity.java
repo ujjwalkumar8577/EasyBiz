@@ -103,7 +103,6 @@ public class OrderActivity extends AppCompatActivity {
         printBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //saveOrderPDF();
                 savePDF();
             }
         });
@@ -152,7 +151,10 @@ public class OrderActivity extends AppCompatActivity {
             tmp = tmp + "0" + m;
         else
             tmp = tmp + m;
-        tmp = tmp + d;
+        if(d/10==0)
+            tmp = tmp + "0" + d;
+        else
+            tmp = tmp + d;
 
         return tmp;
     }
@@ -184,9 +186,8 @@ public class OrderActivity extends AppCompatActivity {
     }
 
     private void savePDF() {
-
-        int pageHeight = 842;
-        int pagewidth = 595;
+        int pageHeight = 595;
+        int pagewidth = 842;
         PdfDocument pdfDocument = new PdfDocument();
         Paint title = new Paint();
         PdfDocument.PageInfo mypageInfo = new PdfDocument.PageInfo.Builder(pagewidth, pageHeight, 1).create();
@@ -244,7 +245,6 @@ public class OrderActivity extends AppCompatActivity {
 //                startActivity(intent);
 //            } catch (ActivityNotFoundException e) {
 //                Toast.makeText(this, "No PDF reader found", Toast.LENGTH_SHORT).show();
-//                // Instruct the user to install a PDF reader here, or something
 //            }
         } catch (IOException e) {
             e.printStackTrace();
@@ -263,7 +263,7 @@ public class OrderActivity extends AppCompatActivity {
                     };
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         HashMap<String, String> map = data.getValue(ind);
-                        if(map.containsKey("status")&&map.get("status").equals(Order.STATUS_PENDING))
+                        if(map.containsKey("status") && map.get("status").equals(Order.STATUS_PENDING))
                             filtered.add(map);
                     }
                     loadingAnimation.setVisibility(View.GONE);

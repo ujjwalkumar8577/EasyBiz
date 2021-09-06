@@ -133,7 +133,10 @@ public class EstimateActivity extends AppCompatActivity {
             tmp = tmp + "0" + m;
         else
             tmp = tmp + m;
-        tmp = tmp + d;
+        if(d/10==0)
+            tmp = tmp + "0" + d;
+        else
+            tmp = tmp + d;
 
         return tmp;
     }
