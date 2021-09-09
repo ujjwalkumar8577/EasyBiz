@@ -10,7 +10,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.pdf.PdfDocument;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -20,7 +19,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -42,6 +40,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 
 public class OrderActivity extends AppCompatActivity {
@@ -61,7 +60,6 @@ public class OrderActivity extends AppCompatActivity {
     private final DatabaseReference dbref = fbdb.getReference("orders");
     private final DatabaseReference dbref2 = fbdb.getReference("items");
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,7 +94,9 @@ public class OrderActivity extends AppCompatActivity {
 
         printBtn.setOnClickListener(view -> savePDF());
 
-        datepicker.setOnDateChangedListener((datePicker, i, i1, i2) -> {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        datepicker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), (datePicker, i, i1, i2) -> {
             curDate = getCurDate(i,i1,i2);
             loadList();
         });
@@ -110,7 +110,7 @@ public class OrderActivity extends AppCompatActivity {
         AlertDialog.Builder exit = new AlertDialog.Builder(this);
         exit.setTitle("Exit");
         exit.setMessage("Do you want to exit?");
-        exit.setPositiveButton("Yes", (_dialog, _which) -> {
+        exit.setPositiveButton("Yes", (dialog, which) -> {
             Intent inf = new Intent();
             inf.setAction(Intent.ACTION_VIEW);
             inf.setClass(getApplicationContext(), DashboardActivity.class);
@@ -118,7 +118,7 @@ public class OrderActivity extends AppCompatActivity {
             startActivity(inf);
             finish();
         });
-        exit.setNegativeButton("No", (_dialog, _which) -> {
+        exit.setNegativeButton("No", (dialog, which) -> {
 
         });
         exit.create().show();
@@ -145,8 +145,7 @@ public class OrderActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 items = new ArrayList<>();
                 try {
-                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {
-                    };
+                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {};
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         HashMap<String, String> map = data.getValue(ind);
                         items.add(map);
@@ -210,7 +209,13 @@ public class OrderActivity extends AppCompatActivity {
         }
 
         pdfDocument.finishPage(myPage);
-        File file = new File(Environment.getExternalStorageDirectory(), "Order_" + curDate + ".pdf");
+
+        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() + "/EasyBiz/";
+        File dir = new File(path);
+        if(!dir.exists())
+            dir.mkdirs();
+
+        File file = new File(dir, "Order_" + curDate + ".pdf");
         try {
             pdfDocument.writeTo(new FileOutputStream(file));
             Toast.makeText(OrderActivity.this, "PDF generated successfully.", Toast.LENGTH_SHORT).show();
@@ -224,6 +229,7 @@ public class OrderActivity extends AppCompatActivity {
 //                Toast.makeText(this, "No PDF reader found", Toast.LENGTH_SHORT).show();
 //            }
         } catch (IOException e) {
+            Toast.makeText(OrderActivity.this, "Error in saving PDF", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
         pdfDocument.close();
@@ -236,8 +242,7 @@ public class OrderActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 filtered = new ArrayList<>();
                 try {
-                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {
-                    };
+                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {};
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         HashMap<String, String> map = data.getValue(ind);
                         if(map.containsKey("status") && map.get("status").equals(Order.STATUS_PENDING))

@@ -30,7 +30,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ujjwalkumar.easybiz.R;
 import com.ujjwalkumar.easybiz.adapter.ItemAdapter;
-import com.ujjwalkumar.easybiz.helper.Customer;
 import com.ujjwalkumar.easybiz.helper.Item;
 
 import java.io.IOException;
@@ -157,7 +156,6 @@ public class ProductActivity extends AppCompatActivity {
 
         shareItemsBtn.setOnClickListener(view -> {
             Toast.makeText(ProductActivity.this, "Sharing catalogue coming soon!", Toast.LENGTH_SHORT).show();
-            loadList();
         });
 
         listviewItem.setOnItemLongClickListener((adapterView, view, i, l) -> {

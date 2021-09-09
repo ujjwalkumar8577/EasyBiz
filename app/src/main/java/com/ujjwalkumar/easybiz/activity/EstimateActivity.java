@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.BaseAdapter;
@@ -15,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -32,6 +30,7 @@ import com.ujjwalkumar.easybiz.adapter.EstimateAdapter;
 import com.ujjwalkumar.easybiz.helper.Order;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 
 public class EstimateActivity extends AppCompatActivity {
@@ -51,7 +50,6 @@ public class EstimateActivity extends AppCompatActivity {
     private final DatabaseReference dbref = fbdb.getReference("estimates");
     private final DatabaseReference dbref2 = fbdb.getReference("items");
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,7 +81,9 @@ public class EstimateActivity extends AppCompatActivity {
             finish();
         });
 
-        datepicker.setOnDateChangedListener((datePicker, i, i1, i2) -> {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        datepicker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), (datePicker, i, i1, i2) -> {
             curDate = getCurDate(i,i1,i2);
             loadList();
         });
