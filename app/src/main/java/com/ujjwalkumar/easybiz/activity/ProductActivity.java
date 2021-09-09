@@ -2,9 +2,13 @@ package com.ujjwalkumar.easybiz.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.BaseAdapter;
@@ -22,16 +26,25 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.ujjwalkumar.easybiz.R;
 import com.ujjwalkumar.easybiz.adapter.ItemAdapter;
+import com.ujjwalkumar.easybiz.helper.Customer;
 import com.ujjwalkumar.easybiz.helper.Item;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ProductActivity extends AppCompatActivity {
 
+    private boolean imageSet = false;
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
+
+    private Uri filePath;
+    private final int PICK_IMAGE_REQUEST = 39;
+    private ImageView imageView;
 
     private ImageView backBtn,addItemBtn,shareItemsBtn;
     private ListView listviewItem;
@@ -39,6 +52,7 @@ public class ProductActivity extends AppCompatActivity {
     
     private final FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private final DatabaseReference dbref = fbdb.getReference("items");
+    private final FirebaseStorage fbst = FirebaseStorage.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,32 +75,76 @@ public class ProductActivity extends AppCompatActivity {
         });
 
         addItemBtn.setOnClickListener(view -> {
-            // get xml view
             LayoutInflater li = LayoutInflater.from(ProductActivity.this);
             View promptsView = li.inflate(R.layout.dialog_add_item, null);
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ProductActivity.this);
             alertDialogBuilder.setView(promptsView);
 
-            // get user input
+            imageView = promptsView.findViewById(R.id.imageView);
             final EditText userInput1 = promptsView.findViewById(R.id.editTextDialogUserInput1);
             final EditText userInput2 = promptsView.findViewById(R.id.editTextDialogUserInput2);
             final EditText userInput3 = promptsView.findViewById(R.id.editTextDialogUserInput3);
+
+            imageView.setOnClickListener(view1 -> {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Image from here..."), PICK_IMAGE_REQUEST);
+            });
 
             // set dialog message
             alertDialogBuilder
                     .setCancelable(false)
                     .setPositiveButton("Add",
                             (dialog, id) -> {
-                                // get user input
                                 String itemID = dbref.push().getKey();
                                 String name = userInput1.getText().toString();
                                 String price = userInput2.getText().toString();
                                 String weight = userInput3.getText().toString();
 
-                                Item item = new Item(itemID, name, price, weight);
-                                dbref.child(itemID).setValue(item);
-                                Toast.makeText(ProductActivity.this, "Adding " + name, Toast.LENGTH_SHORT).show();
-                                loadList();
+                                if (imageSet) {
+                                    if (filePath != null) {
+                                        // showing progressDialog while uploading
+                                        ProgressDialog progressDialog = new ProgressDialog(ProductActivity.this);
+                                        progressDialog.setTitle("Uploading image ...");
+                                        progressDialog.show();
+
+                                        // uploading file and adding listeners on upload or failure of image
+                                        StorageReference stref = fbst.getReference("items").child(itemID);
+                                        stref.putFile(filePath)
+                                                .addOnSuccessListener(taskSnapshot -> {
+                                                    progressDialog.dismiss();
+                                                    Toast.makeText(ProductActivity.this, "Image uploaded", Toast.LENGTH_SHORT).show();
+                                                })
+
+                                                .addOnFailureListener(e -> {
+                                                    progressDialog.dismiss();
+                                                    Toast.makeText(ProductActivity.this, "Upload failed", Toast.LENGTH_SHORT).show();
+                                                })
+
+                                                .addOnProgressListener(taskSnapshot -> {
+                                                    double progress = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
+                                                    progressDialog.setMessage("Uploaded " + (int) progress + "%");
+                                                })
+
+                                                .addOnCompleteListener(task -> {
+                                                    if (task.isSuccessful()) {
+                                                        stref.getDownloadUrl().addOnSuccessListener(uri -> {
+                                                            String downloadURL = uri.toString();
+                                                            Item item = new Item(itemID, name, price, weight, downloadURL);
+                                                            dbref.child(itemID).setValue(item);
+                                                            Toast.makeText(ProductActivity.this, "Adding " + name, Toast.LENGTH_SHORT).show();
+                                                            loadList();
+                                                        });
+                                                    }
+                                                });
+                                    }
+                                } else {
+                                    Item item = new Item(itemID, name, price, weight, "No image uploaded");
+                                    dbref.child(itemID).setValue(item);
+                                    Toast.makeText(ProductActivity.this, "Adding " + name, Toast.LENGTH_SHORT).show();
+                                    loadList();
+                                }
                             })
                     .setNegativeButton("Cancel",
                             (dialog, id) -> dialog.cancel());
@@ -109,11 +167,11 @@ public class ProductActivity extends AppCompatActivity {
                 AlertDialog.Builder delete = new AlertDialog.Builder(ProductActivity.this);
                 delete.setTitle("Delete");
                 delete.setMessage("Do you want to delete " + filtered.get(i).get("name") + " ?");
-                delete.setPositiveButton("Yes", (_dialog, _which) -> {
+                delete.setPositiveButton("Yes", (dialog, which) -> {
                     dbref.child(filtered.get(i).get("id")).removeValue();
                     Toast.makeText(ProductActivity.this, filtered.get(i).get("name") + " removed", Toast.LENGTH_SHORT).show();
                 });
-                delete.setNegativeButton("No", (_dialog, _which) -> {
+                delete.setNegativeButton("No", (dialog, which) -> {
 
                 });
                 delete.create().show();
@@ -129,7 +187,7 @@ public class ProductActivity extends AppCompatActivity {
         AlertDialog.Builder exit = new AlertDialog.Builder(this);
         exit.setTitle("Exit");
         exit.setMessage("Do you want to exit?");
-        exit.setPositiveButton("Yes", (_dialog, _which) -> {
+        exit.setPositiveButton("Yes", (dialog, which) -> {
             Intent inf = new Intent();
             inf.setAction(Intent.ACTION_VIEW);
             inf.setClass(getApplicationContext(), DashboardActivity.class);
@@ -137,7 +195,7 @@ public class ProductActivity extends AppCompatActivity {
             startActivity(inf);
             finish();
         });
-        exit.setNegativeButton("No", (_dialog, _which) -> {
+        exit.setNegativeButton("No", (dialog, which) -> {
 
         });
         exit.create().show();
@@ -150,8 +208,7 @@ public class ProductActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 filtered = new ArrayList<>();
                 try {
-                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {
-                    };
+                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {};
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         HashMap<String, String> map = data.getValue(ind);
                         filtered.add(map);
@@ -171,5 +228,26 @@ public class ProductActivity extends AppCompatActivity {
                 Toast.makeText(ProductActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            // Get the Uri of data
+            filePath = data.getData();
+            try {
+                // Setting image on image view using Bitmap
+                Bitmap bitmap = MediaStore
+                        .Images
+                        .Media
+                        .getBitmap(getContentResolver(), filePath);
+                imageView.setImageBitmap(bitmap);
+                imageSet = true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

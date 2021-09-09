@@ -5,8 +5,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.ujjwalkumar.easybiz.R;
 
 import java.util.ArrayList;
@@ -47,10 +49,14 @@ public class ItemAdapter extends BaseAdapter {
         final TextView textViewItemName = v.findViewById(R.id.textViewItemName);
         final TextView textViewItemPrice = v.findViewById(R.id.textViewItemPrice);
         final TextView textViewItemWeight = v.findViewById(R.id.textViewItemWeight);
+        final ImageView imageView = v.findViewById(R.id.imageView);
 
         textViewItemName.setText(data.get(position).get("name"));
         textViewItemPrice.setText(data.get(position).get("price"));
         textViewItemWeight.setText(data.get(position).get("weight"));
+        Glide.with(context).load(data.get(position).get("img"))
+                .placeholder(R.drawable.imageupload)
+                .into(imageView);
 
         return v;
     }

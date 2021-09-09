@@ -233,7 +233,7 @@ public class AddEstimateActivity extends AppCompatActivity {
                 try {
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         Item item = data.getValue(Item.class);
-                        CartItem tmp = new CartItem(item.getId(), item.getName(), Double.parseDouble(item.getPrice()), Double.parseDouble(item.getWeight()), 0);
+                        CartItem tmp = new CartItem(item.getItemID(), item.getName(), Double.parseDouble(item.getPrice()), Double.parseDouble(item.getWeight()), 0);
                         items.add(tmp);
                     }
                     loadingAnimation.setVisibility(View.GONE);

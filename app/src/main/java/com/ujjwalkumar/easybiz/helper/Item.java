@@ -1,27 +1,29 @@
 package com.ujjwalkumar.easybiz.helper;
 
 public class Item {
-    String itemID,name,price,weight;
+    String itemID,name,price,weight,img;
 
     public Item() {
         this.itemID = "itemID";
         this.name = "name";
         this.price = "price";
         this.weight = "weight";
+        this.img = "img";
     }
 
-    public Item(String itemID, String name, String price, String weight) {
+    public Item(String itemID, String name, String price, String weight, String img) {
         this.itemID = itemID;
         this.name = name;
         this.price = price;
         this.weight = weight;
+        this.img = img;
     }
 
-    public String getId() {
+    public String getItemID() {
         return itemID;
     }
 
-    public void setId(String itemID) {
+    public void setItemID(String itemID) {
         this.itemID = itemID;
     }
 
@@ -47,5 +49,13 @@ public class Item {
 
     public void setWeight(String weight) {
         this.weight = weight;
+    }
+
+    public String getImg() {
+        return img;
+    }
+
+    public void setImg(String img) {
+        this.img = img;
     }
 }

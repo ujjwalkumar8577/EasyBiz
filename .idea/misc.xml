@@ -8,7 +8,7 @@
         <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/activity_add_estimate.xml" value="0.14666666666666667" />
         <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/activity_add_order.xml" value="0.14666666666666667" />
         <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/activity_cash_calculator.xml" value="0.14666666666666667" />
-        <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/activity_customer.xml" value="0.1" />
+        <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/activity_customer.xml" value="0.2917933130699088" />
         <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/activity_dashboard.xml" value="0.1" />
         <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/activity_estimate.xml" value="0.22" />
         <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/activity_feedback.xml" value="0.17777777777777778" />
@@ -16,10 +16,11 @@
         <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/activity_order.xml" value="0.22" />
         <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/activity_product.xml" value="0.12" />
         <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/custom_customers.xml" value="0.1" />
+        <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/custom_items1.xml" value="0.15234375" />
         <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/custom_items2.xml" value="0.2188449848024316" />
-        <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/dialog_add_item.xml" value="0.203125" />
-        <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/dialog_add_staff.xml" value="0.203125" />
-        <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/dialog_edit_customer.xml" value="0.203125" />
+        <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/dialog_add_item.xml" value="0.10666666666666667" />
+        <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/dialog_add_staff.xml" value="0.12" />
+        <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/dialog_edit_customer.xml" value="0.12" />
         <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/items1.xml" value="0.17777777777777778" />
         <entry key="..\:/Projects/AndroidStudio/EasyBiz/app/src/main/res/layout/items3.xml" value="0.17777777777777778" />
       </map>

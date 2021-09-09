@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.ujjwalkumar.easybiz.R;
 
@@ -16,11 +17,14 @@ public class MainActivity extends AppCompatActivity {
 
     private final Timer timer = new Timer();
     private TimerTask Splash;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         Splash = new TimerTask() {
             @Override
@@ -48,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog.Builder exit = new AlertDialog.Builder(this);
         exit.setTitle("Exit");
         exit.setMessage("Do you want to exit?");
-        exit.setPositiveButton("Yes", (_dialog, _which) -> {
+        exit.setPositiveButton("Yes", (dialog, which) -> {
             Intent inf = new Intent();
             inf.setAction(Intent.ACTION_VIEW);
             inf.setClass(getApplicationContext(), DashboardActivity.class);
@@ -56,8 +60,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(inf);
             finish();
         });
-        exit.setNegativeButton("No", (_dialog, _which) -> {
-
+        exit.setNegativeButton("No", (dialog, which) -> {
         });
         exit.create().show();
     }

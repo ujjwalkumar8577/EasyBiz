@@ -11,6 +11,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.BaseAdapter;
@@ -53,6 +55,7 @@ public class CustomerActivity extends AppCompatActivity {
     private ImageView imageView;
 
     private ImageView backBtn;
+    private EditText editTextSearch;
     private ListView listviewCustomer;
     private LottieAnimationView loadingAnimation;
 
@@ -66,6 +69,7 @@ public class CustomerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_customer);
 
         backBtn = findViewById(R.id.backBtn);
+        editTextSearch = findViewById(R.id.editTextSearch);
         listviewCustomer = findViewById(R.id.listviewCustomer);
         loadingAnimation = findViewById(R.id.loadingAnimation);
 
@@ -83,6 +87,23 @@ public class CustomerActivity extends AppCompatActivity {
             in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(in);
             finish();
+        });
+
+        editTextSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                loadList(charSequence);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
         });
 
         listviewCustomer.setOnItemClickListener((adapterView, view, i, l) -> {
@@ -200,7 +221,7 @@ public class CustomerActivity extends AppCompatActivity {
             return false;
         });
 
-        loadList();
+        loadList("");
     }
 
     @Override
@@ -222,17 +243,17 @@ public class CustomerActivity extends AppCompatActivity {
         exit.create().show();
     }
 
-    private void loadList() {
+    private void loadList(CharSequence str) {
         loadingAnimation.setVisibility(View.VISIBLE);
         dbref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 filtered = new ArrayList<>();
                 try {
-                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {
-                    };
+                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {};
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
                         HashMap<String, String> map = data.getValue(ind);
+                        if(map.get("name").contains(str) || map.get("address").contains(str) || map.get("contact").contains(str) || map.get("area").contains(str))
                         filtered.add(map);
                     }
                     loadingAnimation.setVisibility(View.GONE);
