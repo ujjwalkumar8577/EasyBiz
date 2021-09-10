@@ -10,8 +10,11 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.pdf.PdfDocument;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
+import android.provider.DocumentsContract;
 import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.DatePicker;
@@ -19,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -36,7 +40,6 @@ import com.ujjwalkumar.easybiz.R;
 import com.ujjwalkumar.easybiz.adapter.OrderAdapter;
 import com.ujjwalkumar.easybiz.helper.Order;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,6 +52,8 @@ public class OrderActivity extends AppCompatActivity {
     private String curDate = "";
     private ArrayList<HashMap<String, String>> items = new ArrayList<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
+    PdfDocument pdfDocument;
+    private static final int CREATE_FILE = 156;
 
     private ImageView backBtn,printBtn;
     private ListView listviewOrder;
@@ -65,9 +70,10 @@ public class OrderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order);
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_DENIED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
                 || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
         }
 
         backBtn = findViewById(R.id.backBtn);
@@ -76,12 +82,8 @@ public class OrderActivity extends AppCompatActivity {
         datepicker = findViewById(R.id.datepicker);
         loadingAnimation = findViewById(R.id.loadingAnimation);
         details = getSharedPreferences("user", Activity.MODE_PRIVATE);
-        curDate = getCurDate(datepicker.getYear(),datepicker.getMonth(),datepicker.getDayOfMonth());
+        curDate = getCurDate(datepicker.getYear(), datepicker.getMonth(), datepicker.getDayOfMonth());
         userType = details.getString("type", "");
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 1000);
-        }
 
         backBtn.setOnClickListener(view -> {
             Intent in = new Intent();
@@ -166,10 +168,10 @@ public class OrderActivity extends AppCompatActivity {
 
     private void savePDF() {
         int pageHeight = 595;
-        int pagewidth = 842;
-        PdfDocument pdfDocument = new PdfDocument();
+        int pageWidth = 842;
+        pdfDocument = new PdfDocument();
         Paint title = new Paint();
-        PdfDocument.PageInfo mypageInfo = new PdfDocument.PageInfo.Builder(pagewidth, pageHeight, 1).create();
+        PdfDocument.PageInfo mypageInfo = new PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create();
         PdfDocument.Page myPage = pdfDocument.startPage(mypageInfo);
 
         Canvas canvas = myPage.getCanvas();
@@ -210,29 +212,12 @@ public class OrderActivity extends AppCompatActivity {
 
         pdfDocument.finishPage(myPage);
 
-        String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() + "/EasyBiz/";
-        File dir = new File(path);
-        if(!dir.exists())
-            dir.mkdirs();
-
-        File file = new File(dir, "Order_" + curDate + ".pdf");
-        try {
-            pdfDocument.writeTo(new FileOutputStream(file));
-            Toast.makeText(OrderActivity.this, "PDF generated successfully.", Toast.LENGTH_SHORT).show();
-//            Intent target = new Intent(Intent.ACTION_VIEW);
-//            target.setDataAndType(Uri.fromFile(file),"application/pdf");
-//            target.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-//            Intent intent = Intent.createChooser(target, "Open File");
-//            try {
-//                startActivity(intent);
-//            } catch (ActivityNotFoundException e) {
-//                Toast.makeText(this, "No PDF reader found", Toast.LENGTH_SHORT).show();
-//            }
-        } catch (IOException e) {
-            Toast.makeText(OrderActivity.this, "Error in saving PDF", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-        pdfDocument.close();
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/pdf");
+        intent.putExtra(Intent.EXTRA_TITLE, "Order_" + curDate + ".pdf");
+        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
+        startActivityForResult(intent, CREATE_FILE);
     }
 
     public void loadList() {
@@ -263,5 +248,25 @@ public class OrderActivity extends AppCompatActivity {
                 Toast.makeText(OrderActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == CREATE_FILE && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri uri = data.getData();
+            try {
+                ParcelFileDescriptor pfd = getContentResolver().openFileDescriptor(uri, "w");
+                FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor());
+                pdfDocument.writeTo(fileOutputStream);
+                fileOutputStream.close();
+                pfd.close();
+
+                Toast.makeText(OrderActivity.this, "PDF generated successfully.", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            pdfDocument.close();
+        }
     }
 }
