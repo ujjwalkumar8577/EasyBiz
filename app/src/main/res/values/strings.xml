@@ -20,11 +20,11 @@
 
     <string-array name="areas_array">
         <item>- Select Area -</item>
-        <item>Area 1</item>
-        <item>Area 2</item>
-        <item>Area 3</item>
-        <item>Area 4</item>
-        <item>Area 5</item>
+        <item>Kareli</item>
+        <item>Chakiya</item>
+        <item>Rajapur</item>
+        <item>Civil Lines</item>
+        <item>Rajapur</item>
     </string-array>
 
 </resources>

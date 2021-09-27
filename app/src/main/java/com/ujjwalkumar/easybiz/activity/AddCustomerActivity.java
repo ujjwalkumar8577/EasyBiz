@@ -36,6 +36,7 @@ import com.google.firebase.storage.StorageReference;
 import com.ujjwalkumar.easybiz.R;
 import com.ujjwalkumar.easybiz.helper.Customer;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -50,6 +51,7 @@ public class AddCustomerActivity extends AppCompatActivity {
     private Uri filePath;
 
     private final int PICK_IMAGE_REQUEST = 22;
+    private final int CAPTURE_IMAGE_REQUEST = 32;
 
     private ImageView backBtn, imageView;
     private EditText edittextName, edittextContact, edittextAddress;
@@ -101,10 +103,22 @@ public class AddCustomerActivity extends AppCompatActivity {
 
         imageView.setOnClickListener(view -> {
             if(!imageSet) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Image from here..."), PICK_IMAGE_REQUEST);
+                AlertDialog.Builder choose = new AlertDialog.Builder(this);
+                choose.setTitle("Add Image");
+                choose.setPositiveButton("Capture", (dialog, which) -> {
+                    Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(captureIntent, CAPTURE_IMAGE_REQUEST);
+                });
+                choose.setNeutralButton("Select", (dialog, which) -> {
+                    Intent selectIntent = new Intent();
+                    selectIntent.setType("image/*");
+                    selectIntent.setAction(Intent.ACTION_GET_CONTENT);
+                    startActivityForResult(Intent.createChooser(selectIntent, "Select Image from here..."), PICK_IMAGE_REQUEST);
+                });
+                choose.setNegativeButton("Cancel", (dialog, which) -> {
+                    dialog.dismiss();
+                });
+                choose.create().show();
             }
         });
 
@@ -249,6 +263,25 @@ public class AddCustomerActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        else if (requestCode == CAPTURE_IMAGE_REQUEST && resultCode == RESULT_OK) {
+            try {
+                Bundle extras = data.getExtras();
+                Bitmap imageBitmap = (Bitmap) extras.get("data");
+                filePath = getImageUri(imageBitmap);
+                imageView.setImageBitmap(imageBitmap);
+                imageSet = true;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public Uri getImageUri(Bitmap image) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(getContentResolver(), image, "Title", null);
+        return Uri.parse(path);
     }
 
     private void clear() {

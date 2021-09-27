@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -203,7 +204,7 @@ public class AddEstimateActivity extends AppCompatActivity {
                     customers = al.toArray(customers);
 
                     //Creating the instance of ArrayAdapter containing list of customers
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_selectable_list_item, customers);
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), R.layout.dropdown_select_customer, customers);
 
                     //Getting the instance of AutoCompleteTextView
                     autoCompleteName.setThreshold(2);                       //will start working from first character

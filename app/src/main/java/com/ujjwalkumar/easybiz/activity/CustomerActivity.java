@@ -40,8 +40,10 @@ import com.ujjwalkumar.easybiz.R;
 import com.ujjwalkumar.easybiz.adapter.CustomerAdapter;
 import com.ujjwalkumar.easybiz.helper.Customer;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class CustomerActivity extends AppCompatActivity {
@@ -50,11 +52,11 @@ public class CustomerActivity extends AppCompatActivity {
     private boolean imageSet = false;
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
     private Uri filePath;
+    private String[] areas;
+    private final int PICK_IMAGE_REQUEST = 23;
+    private final int CAPTURE_IMAGE_REQUEST = 33;
 
-    private final int PICK_IMAGE_REQUEST = 33;
-    private ImageView imageView;
-
-    private ImageView backBtn;
+    private ImageView backBtn, imageView;
     private EditText editTextSearch;
     private ListView listviewCustomer;
     private LottieAnimationView loadingAnimation;
@@ -75,9 +77,12 @@ public class CustomerActivity extends AppCompatActivity {
 
         SharedPreferences details = getSharedPreferences("user", Activity.MODE_PRIVATE);
         userType = details.getString("type", "");
+        areas = getResources().getStringArray(R.array.areas_array);
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 1000);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_DENIED) {
+
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.CALL_PHONE}, 1000);
         }
 
         backBtn.setOnClickListener(view -> {
@@ -120,7 +125,7 @@ public class CustomerActivity extends AppCompatActivity {
                 final Spinner dialogSpinnerArea = promptsView.findViewById(R.id.dialogSpinnerArea);
 
                 String area = filtered.get(i).get("area");
-                int ind = Integer.parseInt("0" + area.charAt(area.length() - 1));
+                int ind = getAreaIndex(area);
                 userInput1.setText(filtered.get(i).get("name"));
                 userInput2.setText(filtered.get(i).get("contact"));
                 userInput3.setText(filtered.get(i).get("address"));
@@ -130,10 +135,22 @@ public class CustomerActivity extends AppCompatActivity {
                         .into(imageView);
 
                 imageView.setOnClickListener(view1 -> {
-                    Intent intent = new Intent();
-                    intent.setType("image/*");
-                    intent.setAction(Intent.ACTION_GET_CONTENT);
-                    startActivityForResult(Intent.createChooser(intent, "Select Image from here..."), PICK_IMAGE_REQUEST);
+                    AlertDialog.Builder choose = new AlertDialog.Builder(this);
+                    choose.setTitle("Add Image");
+                    choose.setPositiveButton("Capture", (dialog, which) -> {
+                        Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        startActivityForResult(captureIntent, CAPTURE_IMAGE_REQUEST);
+                    });
+                    choose.setNeutralButton("Select", (dialog, which) -> {
+                        Intent selectIntent = new Intent();
+                        selectIntent.setType("image/*");
+                        selectIntent.setAction(Intent.ACTION_GET_CONTENT);
+                        startActivityForResult(Intent.createChooser(selectIntent, "Select Image from here..."), PICK_IMAGE_REQUEST);
+                    });
+                    choose.setNegativeButton("Cancel", (dialog, which) -> {
+                        dialog.dismiss();
+                    });
+                    choose.create().show();
                 });
 
                 alertDialogBuilder
@@ -229,7 +246,7 @@ public class CustomerActivity extends AppCompatActivity {
         AlertDialog.Builder exit = new AlertDialog.Builder(this);
         exit.setTitle("Exit");
         exit.setMessage("Do you want to exit?");
-        exit.setPositiveButton("Yes", (_dialog, _which) -> {
+        exit.setPositiveButton("Yes", (dialog, which) -> {
             Intent inf = new Intent();
             inf.setAction(Intent.ACTION_VIEW);
             inf.setClass(getApplicationContext(), DashboardActivity.class);
@@ -237,7 +254,7 @@ public class CustomerActivity extends AppCompatActivity {
             startActivity(inf);
             finish();
         });
-        exit.setNegativeButton("No", (_dialog, _which) -> {
+        exit.setNegativeButton("No", (dialog, which) -> {
 
         });
         exit.create().show();
@@ -287,9 +304,37 @@ public class CustomerActivity extends AppCompatActivity {
                         .getBitmap(getContentResolver(), filePath);
                 imageView.setImageBitmap(bitmap);
                 imageSet = true;
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 e.printStackTrace();
             }
         }
+        else if (requestCode == CAPTURE_IMAGE_REQUEST && resultCode == RESULT_OK) {
+            try {
+                Bundle extras = data.getExtras();
+                Bitmap imageBitmap = (Bitmap) extras.get("data");
+                filePath = getImageUri(imageBitmap);
+                imageView.setImageBitmap(imageBitmap);
+                imageSet = true;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public Uri getImageUri(Bitmap image) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(getContentResolver(), image, "Title", null);
+        return Uri.parse(path);
+    }
+
+    public int getAreaIndex(String area) {
+        for(int i=0; i<areas.length; i++) {
+            if(area.equals(areas[i]))
+                return i;
+        }
+        return 0;
     }
 }

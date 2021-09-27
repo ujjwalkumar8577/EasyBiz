@@ -32,6 +32,13 @@
             android:layout_weight="1" />
 
         <ImageView
+            android:id="@+id/routeBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:src="@android:drawable/ic_menu_directions"/>
+
+        <ImageView
             android:id="@+id/printBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

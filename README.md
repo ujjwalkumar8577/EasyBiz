@@ -22,6 +22,8 @@
 4. Firebase Storage
 5. Firebase Authentication
 6. Google Maps API
+7. Volley
+8. HERE Waypoints Sequence
 
 
 ## Contributors:

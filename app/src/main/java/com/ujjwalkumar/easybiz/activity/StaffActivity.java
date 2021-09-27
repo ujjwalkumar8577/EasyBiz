@@ -24,11 +24,11 @@ import java.util.HashMap;
 
 public class StaffActivity extends AppCompatActivity {
 
-    private String uid,name;
+    private String uid, name;
     private ArrayList<HashMap<String, String>> filtered;
 
     private ImageView backBtn;
-    private TextView textviewName,textviewLastSeen;
+    private TextView textviewName, textviewLastSeen;
     private MapView mapView;
 
     private GoogleMapController mapviewController;

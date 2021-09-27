@@ -28,6 +28,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -35,13 +41,18 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.ujjwalkumar.easybiz.R;
 import com.ujjwalkumar.easybiz.adapter.OrderAdapter;
 import com.ujjwalkumar.easybiz.helper.Order;
 
+import org.json.JSONObject;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -52,10 +63,11 @@ public class OrderActivity extends AppCompatActivity {
     private String curDate = "";
     private ArrayList<HashMap<String, String>> items = new ArrayList<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
-    PdfDocument pdfDocument;
+    private DecimalFormat decimalFormat;
+    private PdfDocument pdfDocument;
     private static final int CREATE_FILE = 156;
 
-    private ImageView backBtn,printBtn;
+    private ImageView backBtn, printBtn, routeBtn;
     private ListView listviewOrder;
     private DatePicker datepicker;
     private LottieAnimationView loadingAnimation;
@@ -78,12 +90,14 @@ public class OrderActivity extends AppCompatActivity {
 
         backBtn = findViewById(R.id.backBtn);
         printBtn = findViewById(R.id.printBtn);
+        routeBtn = findViewById(R.id.routeBtn);
         listviewOrder = findViewById(R.id.listviewOrder);
         datepicker = findViewById(R.id.datepicker);
         loadingAnimation = findViewById(R.id.loadingAnimation);
         details = getSharedPreferences("user", Activity.MODE_PRIVATE);
         curDate = getCurDate(datepicker.getYear(), datepicker.getMonth(), datepicker.getDayOfMonth());
         userType = details.getString("type", "");
+        decimalFormat = new DecimalFormat("0.#");
 
         backBtn.setOnClickListener(view -> {
             Intent in = new Intent();
@@ -95,6 +109,15 @@ public class OrderActivity extends AppCompatActivity {
         });
 
         printBtn.setOnClickListener(view -> savePDF());
+
+        routeBtn.setOnClickListener(view -> {
+            Intent in = new Intent();
+            in.setAction(Intent.ACTION_VIEW);
+            in.setClass(getApplicationContext(), RouteActivity.class);
+            in.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            in.putExtra("orderList", new Gson().toJson(filtered));
+            startActivity(in);
+        });
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
@@ -182,13 +205,11 @@ public class OrderActivity extends AppCompatActivity {
         StringBuilder result = new StringBuilder("Area : " + String.format("%-20s", " ") + "Date : " + curDate);
         canvas.drawText(result.toString(), 50, 50, title);
         result = new StringBuilder(String.format("%-5s", "S.N.") + String.format("%-20s", "Customer"));
-        // Print Item Names
-//        for(HashMap<String,String> item : items) {
-//            String name = item.get("name");
-//            if(name.length()>5)
-//                name = name.substring(name.length()-5,name.length());
-//            result += name + " ";
-//        }
+
+        for(HashMap<String,String> item : items) {
+            String name = getAcronym(item.get("name"));
+            result.append(name + " ");
+        }
         canvas.drawText(result.toString(), 50, 70, title);
 
         int sno = 1;
@@ -196,15 +217,15 @@ public class OrderActivity extends AppCompatActivity {
             ArrayList<HashMap<String, String>> cartTmp = new Gson().fromJson(hmp.get("cart"), new TypeToken<ArrayList<HashMap<String, String>>>() {}.getType());
             HashMap<String, String> tmpOrder = new HashMap<>();
             for(HashMap<String, String> map : cartTmp) {
-                tmpOrder.put(map.get("name"),map.get("qty"));
+                tmpOrder.put(map.get("name"), decimalFormat.format(Double.parseDouble(map.get("qty"))));
             }
 
             result = new StringBuilder(String.format("%-5s", sno) + String.format("%-20s", hmp.get("name")));
             for(HashMap<String,String> item : items) {
                 if(tmpOrder.containsKey(item.get("name")))
-                    result.append(String.format("%-6s", tmpOrder.get(item.get("name"))));
+                    result.append(String.format("%-5s", tmpOrder.get(item.get("name"))));
                 else
-                    result.append(String.format("%-6s", "0"));
+                    result.append(String.format("%-5s", "0"));
             }
             canvas.drawText(result.toString(), 50, 70+sno*20, title);
             sno++;
@@ -268,5 +289,20 @@ public class OrderActivity extends AppCompatActivity {
             }
             pdfDocument.close();
         }
+    }
+
+    private String getAcronym(String str) {
+        StringBuilder sb = new StringBuilder();
+        boolean space = true;
+        for(int i=0; i<str.length(); i++) {
+            if(str.charAt(i)==' ') {
+                space = true;
+            }
+            else if(space) {
+                space = false;
+                sb.append(str.charAt(i));
+            }
+        }
+        return sb.toString();
     }
 }

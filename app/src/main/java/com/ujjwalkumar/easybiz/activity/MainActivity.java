@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         };
-        timer.schedule(Splash, 1000);
+        timer.schedule(Splash, 700);
     }
 
     @Override

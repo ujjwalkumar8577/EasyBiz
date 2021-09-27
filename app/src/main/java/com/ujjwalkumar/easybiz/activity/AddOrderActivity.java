@@ -203,7 +203,7 @@ public class AddOrderActivity extends AppCompatActivity {
                     customers = al.toArray(customers);
 
                     //Creating the instance of ArrayAdapter containing list of customers
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_dropdown_item_1line, customers);
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), R.layout.dropdown_select_customer, customers);
 
                     //Getting the instance of AutoCompleteTextView
                     autoCompleteName.setThreshold(2);                       //will start working from first character
@@ -303,18 +303,18 @@ public class AddOrderActivity extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable editable) {
-                    if(textviewItemQty.hasFocus()) {
-                        String str = editable.toString();
-                        double qty = 0;
-                        try {
-                            qty = Double.parseDouble(str);
-                        } catch (Exception e) {
-                            Toast.makeText(AddOrderActivity.this, "Enter valid number", Toast.LENGTH_SHORT).show();
-                        }
-                        cart.setItemQuantity(item.getItemID(), item.getName(), item.getPrice(), item.getWeight(), qty);
-                        item.setQuantity(cart.getItemQuantity(item.getItemID()));
-                        setAmount();
-                    }
+//                    if(textviewItemQty.hasFocus()) {
+//                        String str = editable.toString();
+//                        double qty = 0;
+//                        try {
+//                            qty = Double.parseDouble(str);
+//                        } catch (Exception e) {
+//                            Toast.makeText(AddOrderActivity.this, "Enter valid number", Toast.LENGTH_SHORT).show();
+//                        }
+//                        cart.setItemQuantity(item.getItemID(), item.getName(), item.getPrice(), item.getWeight(), qty);
+//                        item.setQuantity(cart.getItemQuantity(item.getItemID()));
+//                        setAmount();
+//                    }
                 }
             });
 
