@@ -22,6 +22,8 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -43,7 +45,6 @@ import com.ujjwalkumar.easybiz.helper.Customer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 public class CustomerActivity extends AppCompatActivity {
@@ -53,8 +54,6 @@ public class CustomerActivity extends AppCompatActivity {
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
     private Uri filePath;
     private String[] areas;
-    private final int PICK_IMAGE_REQUEST = 23;
-    private final int CAPTURE_IMAGE_REQUEST = 33;
 
     private ImageView backBtn, imageView;
     private EditText editTextSearch;
@@ -84,6 +83,50 @@ public class CustomerActivity extends AppCompatActivity {
 
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.CALL_PHONE}, 1000);
         }
+
+        ActivityResultLauncher<Intent> pickImageLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
+                    if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                        // Get the Uri of data
+                        filePath = data.getData();
+                        try {
+                            // Setting image on image view using Bitmap
+                            Bitmap bitmap = MediaStore
+                                    .Images
+                                    .Media
+                                    .getBitmap(getContentResolver(), filePath);
+                            imageView.setImageBitmap(bitmap);
+                            imageSet = true;
+                        }
+                        catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        );
+
+        ActivityResultLauncher<Intent> captureImageLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
+                    if (resultCode == RESULT_OK && data!=null) {
+                        try {
+                            Bundle extras = data.getExtras();
+                            Bitmap imageBitmap = (Bitmap) extras.get("data");
+                            filePath = getImageUri(imageBitmap);
+                            imageView.setImageBitmap(imageBitmap);
+                            imageSet = true;
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        );
 
         backBtn.setOnClickListener(view -> {
             Intent in = new Intent();
@@ -139,17 +182,15 @@ public class CustomerActivity extends AppCompatActivity {
                     choose.setTitle("Add Image");
                     choose.setPositiveButton("Capture", (dialog, which) -> {
                         Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        startActivityForResult(captureIntent, CAPTURE_IMAGE_REQUEST);
+                        captureImageLauncher.launch(captureIntent);
                     });
                     choose.setNeutralButton("Select", (dialog, which) -> {
                         Intent selectIntent = new Intent();
                         selectIntent.setType("image/*");
                         selectIntent.setAction(Intent.ACTION_GET_CONTENT);
-                        startActivityForResult(Intent.createChooser(selectIntent, "Select Image from here..."), PICK_IMAGE_REQUEST);
+                        pickImageLauncher.launch(selectIntent);
                     });
-                    choose.setNegativeButton("Cancel", (dialog, which) -> {
-                        dialog.dismiss();
-                    });
+                    choose.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
                     choose.create().show();
                 });
 
@@ -226,11 +267,11 @@ public class CustomerActivity extends AppCompatActivity {
                 AlertDialog.Builder delete = new AlertDialog.Builder(CustomerActivity.this);
                 delete.setTitle("Delete");
                 delete.setMessage("Do you want to delete " + filtered.get(i).get("name") + " ?");
-                delete.setPositiveButton("Yes", (_dialog, _which) -> {
+                delete.setPositiveButton("Yes", (dialog, which) -> {
                     dbref.child(filtered.get(i).get("custID")).removeValue();
                     Toast.makeText(CustomerActivity.this, filtered.get(i).get("name") + " removed", Toast.LENGTH_SHORT).show();
                 });
-                delete.setNegativeButton("No", (_dialog, _which) -> {
+                delete.setNegativeButton("No", (dialog, which) -> {
 
                 });
                 delete.create().show();
@@ -287,40 +328,6 @@ public class CustomerActivity extends AppCompatActivity {
                 Toast.makeText(CustomerActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            // Get the Uri of data
-            filePath = data.getData();
-            try {
-                // Setting image on image view using Bitmap
-                Bitmap bitmap = MediaStore
-                        .Images
-                        .Media
-                        .getBitmap(getContentResolver(), filePath);
-                imageView.setImageBitmap(bitmap);
-                imageSet = true;
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        else if (requestCode == CAPTURE_IMAGE_REQUEST && resultCode == RESULT_OK) {
-            try {
-                Bundle extras = data.getExtras();
-                Bitmap imageBitmap = (Bitmap) extras.get("data");
-                filePath = getImageUri(imageBitmap);
-                imageView.setImageBitmap(imageBitmap);
-                imageSet = true;
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public Uri getImageUri(Bitmap image) {

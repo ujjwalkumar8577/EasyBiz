@@ -37,7 +37,6 @@ public class EstimateActivity extends AppCompatActivity {
 
     private String userType = "Staff";
     private String curDate = "";
-    private ArrayList<HashMap<String, String>> items = new ArrayList<>();
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
 
     private ImageView backBtn;
@@ -48,7 +47,6 @@ public class EstimateActivity extends AppCompatActivity {
     private SharedPreferences details;
     private final FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private final DatabaseReference dbref = fbdb.getReference("estimates");
-    private final DatabaseReference dbref2 = fbdb.getReference("items");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +86,6 @@ public class EstimateActivity extends AppCompatActivity {
             loadList();
         });
 
-        loadItems();
         loadList();
     }
 
@@ -124,32 +121,6 @@ public class EstimateActivity extends AppCompatActivity {
             tmp = tmp + d;
 
         return tmp;
-    }
-
-    private void loadItems() {
-        dbref2.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                items = new ArrayList<>();
-                try {
-                    GenericTypeIndicator<HashMap<String, String>> ind = new GenericTypeIndicator<HashMap<String, String>>() {
-                    };
-                    for (DataSnapshot data : dataSnapshot.getChildren()) {
-                        HashMap<String, String> map = data.getValue(ind);
-                        items.add(map);
-                    }
-                }
-                catch (Exception e) {
-                    Toast.makeText(EstimateActivity.this, "Failed to load items", Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(EstimateActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private void loadList() {

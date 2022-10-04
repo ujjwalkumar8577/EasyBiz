@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
@@ -22,18 +23,14 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -41,17 +38,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.ujjwalkumar.easybiz.R;
 import com.ujjwalkumar.easybiz.adapter.OrderAdapter;
 import com.ujjwalkumar.easybiz.helper.Order;
 
-import org.json.JSONObject;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -65,13 +58,13 @@ public class OrderActivity extends AppCompatActivity {
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
     private DecimalFormat decimalFormat;
     private PdfDocument pdfDocument;
-    private static final int CREATE_FILE = 156;
 
     private ImageView backBtn, printBtn, routeBtn;
     private ListView listviewOrder;
     private DatePicker datepicker;
     private LottieAnimationView loadingAnimation;
 
+    ActivityResultLauncher<Intent> createFileLauncher;
     private SharedPreferences details;
     private final FirebaseDatabase fbdb = FirebaseDatabase.getInstance();
     private final DatabaseReference dbref = fbdb.getReference("orders");
@@ -87,6 +80,29 @@ public class OrderActivity extends AppCompatActivity {
                 || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
         }
+
+        createFileLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
+                    if(resultCode == RESULT_OK && data != null && data.getData() != null) {
+                        Uri uri = data.getData();
+                        try {
+                            ParcelFileDescriptor pfd = getContentResolver().openFileDescriptor(uri, "w");
+                            FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor());
+                            pdfDocument.writeTo(fileOutputStream);
+                            fileOutputStream.close();
+                            pfd.close();
+
+                            Toast.makeText(OrderActivity.this, "PDF generated successfully.", Toast.LENGTH_SHORT).show();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        pdfDocument.close();
+                    }
+                }
+        );
 
         backBtn = findViewById(R.id.backBtn);
         printBtn = findViewById(R.id.printBtn);
@@ -208,7 +224,7 @@ public class OrderActivity extends AppCompatActivity {
 
         for(HashMap<String,String> item : items) {
             String name = getAcronym(item.get("name"));
-            result.append(name + " ");
+            result.append(name).append(" ");
         }
         canvas.drawText(result.toString(), 50, 70, title);
 
@@ -238,7 +254,7 @@ public class OrderActivity extends AppCompatActivity {
         intent.setType("application/pdf");
         intent.putExtra(Intent.EXTRA_TITLE, "Order_" + curDate + ".pdf");
         intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
-        startActivityForResult(intent, CREATE_FILE);
+        createFileLauncher.launch(intent);
     }
 
     public void loadList() {
@@ -269,26 +285,6 @@ public class OrderActivity extends AppCompatActivity {
                 Toast.makeText(OrderActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == CREATE_FILE && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            Uri uri = data.getData();
-            try {
-                ParcelFileDescriptor pfd = getContentResolver().openFileDescriptor(uri, "w");
-                FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor());
-                pdfDocument.writeTo(fileOutputStream);
-                fileOutputStream.close();
-                pfd.close();
-
-                Toast.makeText(OrderActivity.this, "PDF generated successfully.", Toast.LENGTH_SHORT).show();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            pdfDocument.close();
-        }
     }
 
     private String getAcronym(String str) {

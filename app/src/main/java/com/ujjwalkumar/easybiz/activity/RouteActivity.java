@@ -11,13 +11,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ujjwalkumar.easybiz.R;
@@ -25,7 +21,6 @@ import com.ujjwalkumar.easybiz.helper.RoutePoint;
 import com.ujjwalkumar.easybiz.util.GoogleMapController;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,7 +63,6 @@ public class RouteActivity extends AppCompatActivity {
             mapviewController.setGoogleMap(googleMap);
             loadRouteOrder();
             mapviewController.zoomTo(15);
-            googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
         });
 
         loadRouteOrder();
@@ -110,44 +104,38 @@ public class RouteActivity extends AppCompatActivity {
     private void loadRouteOrder() {
         String url = getRestURL();
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        routePoints = new ArrayList<>();
-                        try {
-                            JSONArray arr = response.getJSONArray("results").getJSONObject(0).getJSONArray("waypoints");
-                            for(int i=0; i<arr.length(); i++) {
-                                Log.i("item" + i, arr.getJSONObject(i).getString("id"));
-                                HashMap<String, String> mp = new HashMap<>();
-                                String id = arr.getJSONObject(i).getString("id");
-                                double lat = arr.getJSONObject(i).getDouble("lat");
-                                double lng = arr.getJSONObject(i).getDouble("lng");
-                                int sequence = arr.getJSONObject(i).getInt("sequence");
+                response -> {
+                    routePoints = new ArrayList<>();
+                    try {
+                        JSONArray arr = response.getJSONArray("results").getJSONObject(0).getJSONArray("waypoints");
+                        for(int i=0; i<arr.length(); i++) {
+                            Log.i("item" + i, arr.getJSONObject(i).getString("id"));
+                            HashMap<String, String> mp = new HashMap<>();
+                            String id = arr.getJSONObject(i).getString("id");
+                            double lat = arr.getJSONObject(i).getDouble("lat");
+                            double lng = arr.getJSONObject(i).getDouble("lng");
+                            int sequence = arr.getJSONObject(i).getInt("sequence");
 //                                routePoints.add(new RoutePoint(id, sequence, lat, lng));
 
-                                mapviewController.moveCamera(lat,lng);
-                                mapviewController.addMarker(id, lat, lng);
-                                mapviewController.setMarkerInfo(id, String.valueOf(sequence), id);
-                                mapviewController.setMarkerIcon(id, R.drawable.ic_location_on_black);
-                            }
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            mapviewController.moveCamera(lat,lng);
+                            mapviewController.addMarker(id, lat, lng);
+                            mapviewController.setMarkerInfo(id, String.valueOf(sequence), id);
+                            mapviewController.setMarkerIcon(id, R.drawable.ic_location_on_black);
                         }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
 //                        for(RoutePoint routePoint: routePoints) {
 //
 //                        }
 
-                        textviewStatus.setText("Route data retrieved successfully");
-                    }
+                    textviewStatus.setText("Route data retrieved successfully");
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        textviewStatus.setText("Error in retrieving route data");
-                        Toast.makeText(RouteActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
+                error -> {
+                    textviewStatus.setText("Error in retrieving route data");
+                    Toast.makeText(RouteActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
                 });
 
         Volley.newRequestQueue(this).add(jsonObjectRequest);
@@ -163,7 +151,7 @@ public class RouteActivity extends AppCompatActivity {
         if(n<2)
             return "https://www.google.com";
 
-        String a[][] = new String[n][3];
+        String[][] a = new String[n][3];
         for(int i=0; i<n; i++) {
             a[i][0] = filtered.get(i).get("name");
             a[i][1] = filtered.get(i).get("lat");
@@ -171,13 +159,13 @@ public class RouteActivity extends AppCompatActivity {
         }
 
         StringBuilder tmp = new StringBuilder();
-        tmp.append("&start=" + a[0][0] + ";" + a[0][1] + "," + a[0][2]);
+        tmp.append("&start=").append(a[0][0]).append(";").append(a[0][1]).append(",").append(a[0][2]);
         for(int i=1; i<n-1; i++) {
-            tmp.append("&destination" + i + "=" + a[i][0] + ";" + a[i][1] + "," + a[i][2]);
+            tmp.append("&destination").append(i).append("=").append(a[i][0]).append(";").append(a[i][1]).append(",").append(a[i][2]);
         }
-        tmp.append("&end=" + a[n-1][0] + ";" + a[n-1][1] + "," + a[n-1][2]);
+        tmp.append("&end=").append(a[n - 1][0]).append(";").append(a[n - 1][1]).append(",").append(a[n - 1][2]);
 
-        return head + tmp.toString() + tail;
+        return head + tmp + tail;
 //        return "https://wse.ls.hereapi.com/2/findsequence.json?apiKey=a9RwlkZUwWzfSfkTicFtNohjwXfNIKzcoLSq8sFM-y0&start=start;25.4267419,81.8162144&destination1=A;25.4365431,81.8083711&destination2=B;25.4342022,81.8149761&destination3=C;25.432922,81.8090178&destination4=D;25.4306126,81.8027044&destination5=E;25.4349526,81.8193058&destination6=F;25.4352439,81.8198071&destination7=G;25.433884,81.8194958&destination8=H;25.4328454,81.819513&destination9=I;25.4346534,81.8222264&destination10=J;25.4349254,81.8223654&destination11=K;25.4348914,81.8223917&destination12=L;25.4385669,81.8278010&end=end;25.4267419,81.8162144&improveFor=time&departure=2014-12-09T09:30:00%2b01:00&mode=fastest;car;traffic:enabled;";
     }
 }

@@ -17,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -30,7 +32,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ujjwalkumar.easybiz.R;
 import com.ujjwalkumar.easybiz.adapter.ItemAdapter;
-import com.ujjwalkumar.easybiz.helper.Item;
+import com.ujjwalkumar.easybiz.helper.Product;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,7 +44,6 @@ public class ProductActivity extends AppCompatActivity {
     private ArrayList<HashMap<String, String>> filtered = new ArrayList<>();
 
     private Uri filePath;
-    private final int PICK_IMAGE_REQUEST = 39;
     private ImageView imageView;
 
     private ImageView backBtn,addItemBtn,shareItemsBtn;
@@ -63,6 +64,29 @@ public class ProductActivity extends AppCompatActivity {
         shareItemsBtn = findViewById(R.id.shareItemsBtn);
         listviewItem = findViewById(R.id.listviewItem);
         loadingAnimation = findViewById(R.id.loadingAnimation);
+
+        ActivityResultLauncher<Intent> pickImageLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    int resultCode = result.getResultCode();
+                    Intent data = result.getData();
+                    if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                        // Get the Uri of data
+                        filePath = data.getData();
+                        try {
+                            // Setting image on image view using Bitmap
+                            Bitmap bitmap = MediaStore
+                                    .Images
+                                    .Media
+                                    .getBitmap(getContentResolver(), filePath);
+                            imageView.setImageBitmap(bitmap);
+                            imageSet = true;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        );
 
         backBtn.setOnClickListener(view -> {
             Intent in = new Intent();
@@ -88,7 +112,7 @@ public class ProductActivity extends AppCompatActivity {
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Image from here..."), PICK_IMAGE_REQUEST);
+                pickImageLauncher.launch(intent);
             });
 
             // set dialog message
@@ -130,7 +154,7 @@ public class ProductActivity extends AppCompatActivity {
                                                     if (task.isSuccessful()) {
                                                         stref.getDownloadUrl().addOnSuccessListener(uri -> {
                                                             String downloadURL = uri.toString();
-                                                            Item item = new Item(itemID, name, price, weight, downloadURL);
+                                                            Product item = new Product(itemID, name, price, weight, downloadURL);
                                                             dbref.child(itemID).setValue(item);
                                                             Toast.makeText(ProductActivity.this, "Adding " + name, Toast.LENGTH_SHORT).show();
                                                             loadList();
@@ -139,7 +163,7 @@ public class ProductActivity extends AppCompatActivity {
                                                 });
                                     }
                                 } else {
-                                    Item item = new Item(itemID, name, price, weight, "No image uploaded");
+                                    Product item = new Product(itemID, name, price, weight, "No image uploaded");
                                     dbref.child(itemID).setValue(item);
                                     Toast.makeText(ProductActivity.this, "Adding " + name, Toast.LENGTH_SHORT).show();
                                     loadList();
@@ -154,9 +178,7 @@ public class ProductActivity extends AppCompatActivity {
 
         });
 
-        shareItemsBtn.setOnClickListener(view -> {
-            Toast.makeText(ProductActivity.this, "Sharing catalogue coming soon!", Toast.LENGTH_SHORT).show();
-        });
+        shareItemsBtn.setOnClickListener(view -> Toast.makeText(ProductActivity.this, "Sharing catalogue coming soon!", Toast.LENGTH_SHORT).show());
 
         listviewItem.setOnItemLongClickListener((adapterView, view, i, l) -> {
             SharedPreferences details = getSharedPreferences("user", Activity.MODE_PRIVATE);
@@ -226,26 +248,5 @@ public class ProductActivity extends AppCompatActivity {
                 Toast.makeText(ProductActivity.this, databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            // Get the Uri of data
-            filePath = data.getData();
-            try {
-                // Setting image on image view using Bitmap
-                Bitmap bitmap = MediaStore
-                        .Images
-                        .Media
-                        .getBitmap(getContentResolver(), filePath);
-                imageView.setImageBitmap(bitmap);
-                imageSet = true;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }

@@ -65,7 +65,7 @@
 <!--                    <TextView-->
 <!--                        android:layout_width="100dp"-->
 <!--                        android:layout_height="wrap_content"-->
-<!--                        android:text="Item Name : "/>-->
+<!--                        android:text="Product Name : "/>-->
 
 <!--                    <EditText-->
 <!--                        android:layout_width="wrap_content"-->

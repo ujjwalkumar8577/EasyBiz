@@ -129,7 +129,7 @@ public class LoginActivity extends AppCompatActivity {
         };
 
         auth_reset_password_listener = param1 -> {
-            final boolean _success = param1.isSuccessful();
+            final boolean success = param1.isSuccessful();
             Toast.makeText(LoginActivity.this, "Reset password email sent", Toast.LENGTH_SHORT).show();
         };
 

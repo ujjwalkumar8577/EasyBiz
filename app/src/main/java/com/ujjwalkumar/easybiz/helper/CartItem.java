@@ -1,15 +1,19 @@
 package com.ujjwalkumar.easybiz.helper;
 
-public class CartItem {
-    String itemID, name;
-    double price, weight, quantity;
+import java.io.Serializable;
+import java.math.BigDecimal;
 
-    public CartItem(String itemID, String name, double price, double weight, double quantity) {
+import com.hishd.tinycart.model.Item;
+
+public class CartItem implements Item, Serializable {
+    String itemID, name;
+    double price, weight;
+
+    public CartItem(String itemID, String name, double price, double weight) {
         this.itemID = itemID;
         this.name = name;
         this.price = price;
         this.weight = weight;
-        this.quantity = quantity;
     }
 
     public String getItemID() {
@@ -29,7 +33,7 @@ public class CartItem {
     }
 
     public double getPrice() {
-        return price;
+        return this.price;
     }
 
     public void setPrice(double price) {
@@ -44,20 +48,13 @@ public class CartItem {
         this.weight = weight;
     }
 
-    public double getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(double quantity) {
-        this.quantity = quantity;
+    @Override
+    public BigDecimal getItemPrice() {
+        return new BigDecimal(this.price);
     }
 
     @Override
-    public String toString() {
-        return "CartItem{" +
-                ", name='" + name +
-                ", price=" + price +
-                ", quantity=" + quantity +
-                '}';
+    public String getItemName() {
+        return this.name;
     }
 }

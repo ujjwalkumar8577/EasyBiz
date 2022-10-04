@@ -1,9 +1,9 @@
 package com.ujjwalkumar.easybiz.helper;
 
-public class Item {
+public class Product {
     String itemID,name,price,weight,img;
 
-    public Item() {
+    public Product() {
         this.itemID = "itemID";
         this.name = "name";
         this.price = "price";
@@ -11,7 +11,7 @@ public class Item {
         this.img = "img";
     }
 
-    public Item(String itemID, String name, String price, String weight, String img) {
+    public Product(String itemID, String name, String price, String weight, String img) {
         this.itemID = itemID;
         this.name = name;
         this.price = price;

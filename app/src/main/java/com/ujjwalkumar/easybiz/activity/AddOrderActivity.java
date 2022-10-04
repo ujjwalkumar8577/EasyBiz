@@ -33,16 +33,19 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
+import com.hishd.tinycart.model.Cart;
+import com.hishd.tinycart.model.Item;
+import com.hishd.tinycart.util.TinyCartHelper;
 import com.ujjwalkumar.easybiz.R;
-import com.ujjwalkumar.easybiz.helper.Cart;
+import com.ujjwalkumar.easybiz.helper.Product;
 import com.ujjwalkumar.easybiz.helper.CartItem;
-import com.ujjwalkumar.easybiz.helper.Item;
 import com.ujjwalkumar.easybiz.helper.Order;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Map;
 
 public class AddOrderActivity extends AppCompatActivity {
 
@@ -82,7 +85,7 @@ public class AddOrderActivity extends AppCompatActivity {
         exit = new AlertDialog.Builder(this);
         details = getSharedPreferences("user", Activity.MODE_PRIVATE);
 
-        cart = new Cart();
+        cart = TinyCartHelper.getCart();
         clear();
         loadCustomers();
         loadItems();
@@ -100,7 +103,7 @@ public class AddOrderActivity extends AppCompatActivity {
             HashMap<String, String> tmp = new HashMap<>();
             name = autoCompleteName.getText().toString();
             if(!name.equals("")) {
-                if(cart.getCartAmount()>0) {
+                if(!cart.isCartEmpty()) {
                     for(HashMap<String, String> map : clmp) {
                         if(map.containsKey("name") && map.get("name").equals(name)) {
                             tmp = map;
@@ -121,13 +124,11 @@ public class AddOrderActivity extends AppCompatActivity {
                         contact = tmp.get("contact");
 
                         ArrayList<HashMap<String, String>> alCart = new ArrayList<>();
-                        for(CartItem item: items) {
-                            if(item.getQuantity()>0) {
-                                HashMap<String, String> mp = new HashMap<>();
-                                mp.put("name", String.valueOf(item.getName()));
-                                mp.put("qty", String.valueOf(item.getQuantity()));
-                                alCart.add(mp);
-                            }
+                        for(Map.Entry<Item, Integer> entry: cart.getAllItemsWithQty().entrySet()) {
+                            HashMap<String, String> mp = new HashMap<>();
+                            mp.put("name", entry.getKey().getItemName());
+                            mp.put("qty", entry.getValue().toString());
+                            alCart.add(mp);
                         }
                         cartLmp = new Gson().toJson(alCart);
 
@@ -158,7 +159,7 @@ public class AddOrderActivity extends AppCompatActivity {
     public void onBackPressed() {
         exit.setTitle("Exit");
         exit.setMessage("Do you want to exit?");
-        exit.setPositiveButton("Yes", (_dialog, _which) -> {
+        exit.setPositiveButton("Yes", (dialog, which) -> {
             Intent inf = new Intent();
             inf.setAction(Intent.ACTION_VIEW);
             inf.setClass(getApplicationContext(), DashboardActivity.class);
@@ -173,7 +174,7 @@ public class AddOrderActivity extends AppCompatActivity {
     }
 
     private void clear() {
-        cart = new Cart();
+        cart.clearCart();
         name = "";
         custID = "-1";
         autoCompleteName.setText("");
@@ -182,7 +183,7 @@ public class AddOrderActivity extends AppCompatActivity {
     }
 
     void setAmount() {
-        textviewamt.setText(String.valueOf(cart.getCartAmount()));
+        textviewamt.setText(String.format("%.2f", cart.getTotalPrice().doubleValue()));
     }
 
     private void loadCustomers() {
@@ -209,7 +210,6 @@ public class AddOrderActivity extends AppCompatActivity {
                     autoCompleteName.setThreshold(2);                       //will start working from first character
                     autoCompleteName.setAdapter(adapter);                   //setting the adapter data into the AutoCompleteTextView
 
-                    //Toast.makeText(AddOrderActivity.this, "Got customer list", Toast.LENGTH_SHORT).show();
                 }
                 catch (Exception e) {
                     Toast.makeText(AddOrderActivity.this, "An exception occurred", Toast.LENGTH_SHORT).show();
@@ -232,8 +232,8 @@ public class AddOrderActivity extends AppCompatActivity {
                 items = new ArrayList<>();
                 try {
                     for (DataSnapshot data : dataSnapshot.getChildren()) {
-                        Item item = data.getValue(Item.class);
-                        CartItem tmp = new CartItem(item.getItemID(), item.getName(), Double.parseDouble(item.getPrice()), Double.parseDouble(item.getWeight()), 0);
+                        Product item = data.getValue(Product.class);
+                        CartItem tmp = new CartItem(item.getItemID(), item.getName(), Double.parseDouble(item.getPrice()), Double.parseDouble(item.getWeight()));
                         items.add(tmp);
                     }
                     loadingAnimation.setVisibility(View.GONE);
@@ -274,19 +274,50 @@ public class AddOrderActivity extends AppCompatActivity {
 
             textviewItemName.setText(item.getName());
             textviewItemPrice.setText(String.valueOf(item.getPrice()));
-            textviewItemQty.setText(String.valueOf(item.getQuantity()));
+            int q;
+            try {
+                q = cart.getItemQty(item);
+            }
+            catch (Exception e) {
+                q = 0;
+            }
+            textviewItemQty.setText(String.valueOf(q));
 
             imageviewplus.setOnClickListener(view -> {
-                cart.increaseItemQuantity(item.getItemID(), item.getName(), item.getPrice(), item.getWeight());
-                item.setQuantity(cart.getItemQuantity(item.getItemID()));
-                textviewItemQty.setText(String.valueOf(item.getQuantity()));
+                int qty;
+                try {
+                    qty = cart.getItemQty(item)+1;
+                }
+                catch (Exception e) {
+                    qty = 1;
+                }
+
+                if(qty==1)
+                    cart.addItem(item, 1);
+                else
+                    cart.updateItem(item, qty);
+                textviewItemQty.setText(String.valueOf(qty));
                 setAmount();
             });
 
             imageviewminus.setOnClickListener(view -> {
-                cart.decreaseItemQuantity(item.getItemID(), item.getName(), item.getPrice(), item.getWeight());
-                item.setQuantity(cart.getItemQuantity(item.getItemID()));
-                textviewItemQty.setText(String.valueOf(item.getQuantity()));
+                int qty;
+                try {
+                    qty = cart.getItemQty(item)-1;
+                }
+                catch (Exception e) {
+                    qty = 0;
+                }
+
+                if(qty==0) {
+                    try {
+                        cart.removeItem(item);
+                    } catch (Exception ignored) {
+                    }
+                }
+                else
+                    cart.updateItem(item, qty);
+                textviewItemQty.setText(String.valueOf(qty));
                 setAmount();
             });
 
@@ -305,14 +336,27 @@ public class AddOrderActivity extends AppCompatActivity {
                 public void afterTextChanged(Editable editable) {
 //                    if(textviewItemQty.hasFocus()) {
 //                        String str = editable.toString();
-//                        double qty = 0;
+//                        int qty;
 //                        try {
-//                            qty = Double.parseDouble(str);
+//                            qty = Integer.parseInt(str);
 //                        } catch (Exception e) {
-//                            Toast.makeText(AddOrderActivity.this, "Enter valid number", Toast.LENGTH_SHORT).show();
+//                            qty = 0;
 //                        }
-//                        cart.setItemQuantity(item.getItemID(), item.getName(), item.getPrice(), item.getWeight(), qty);
-//                        item.setQuantity(cart.getItemQuantity(item.getItemID()));
+//
+//                        if(qty==0) {
+//                            try {
+//                                cart.removeItem(item);
+//                            } catch (Exception ignored) { }
+//                        }
+//                        else if(qty==1) {
+//                            try {
+//                                cart.addItem(item, 1);
+//                            }
+//                            catch (Exception ignored) { }
+//                        }
+//                        else
+//                            cart.updateItem(item, qty);
+//                        textviewItemQty.setText(String.valueOf(qty));
 //                        setAmount();
 //                    }
                 }
@@ -321,5 +365,4 @@ public class AddOrderActivity extends AppCompatActivity {
             return convertView;
         }
     }
-
 }
